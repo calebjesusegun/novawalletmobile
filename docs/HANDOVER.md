@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 1 in progress — T-MNY-002 implemented on feature branch, ready for review/merge  
+**Status:** Phase 1 in progress — T-MNY-002 merged into main  
 **Primary next task:** `T-ID-001 — Implement stable operation and idempotency identities`  
-**Current branch:** `feature/T-MNY-002-savings-progress`  
-**Base commit:** `7e1c9c0`  
+**Current branch:** `main`  
+**Latest commit:** `012db7f`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -301,7 +301,7 @@ If this handover and Git disagree, trust Git.
 
 ### 13. Next Action
  
-`T-MNY-002 — Implement exact savings-progress calculation` is complete on branch `feature/T-MNY-002-savings-progress`.
+`T-MNY-002 — Implement exact savings-progress calculation` is complete and merged into `main` via PR #5 (`012db7f`).
  
 ### Completed Work (T-MNY-002):
 - Implemented `SavingsProgress` domain calculation model in `lib/features/novasave/domain/savings_progress.dart` backed strictly by integer kobo via `Money` per HC-MONEY.
