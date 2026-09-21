@@ -677,6 +677,37 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
+### Prompt 18 — Implement restart recovery (T-SYNC-003)
+
+**Tool:** Antigravity  
+**Stage:** Phase 3 — Connectivity, Queue & Synchronization (T-SYNC-003)
+
+**Prompt**
+
+> Implement T-SYNC-003 — Implement restart recovery:
+> 1. Create task branch `feature/T-SYNC-003-restart-recovery` from clean `main`.
+> 2. Add `recoverInterrupted()` and `startup({bool triggerSyncIfOnline = true})` lifecycle methods on `SyncCoordinator` in `lib/sync/application/sync_coordinator.dart`:
+>    - Call `operationRepository.recoverInterrupted()` to reset orphaned in-flight `processing` operations back to `pending` with preserved attempt count and stable idempotency key.
+>    - Conditionally trigger `synchronize(trigger: SyncTrigger.startup)` if online.
+> 3. Author exhaustive end-to-end restart simulation tests in `test/sync/application/restart_recovery_test.dart` using persistent SQLite files (`AppDatabase.forFile`) across distinct process lifecycles:
+>    - Queued Send Money and NovaSave operations survive process termination and restart (`ASM-012`, `SYNC-003`, `SND-016`, `NSV-019`).
+>    - In-flight `processing` operations are recovered to `pending` on startup (`ASM-012`, `ASM-013`).
+>    - Crash after remote execution but before local persistence commits replays with the identical idempotency key; remote returns deduplicated result; local wallet balance, ledger, and goal progress are finalized; remote balance is not debited twice (`SYNC-011`, `HC-EXACTLY-ONCE-EFFECT`).
+>    - Mixed queue states (`completed`, `failed`, `pending`, `processing`) leave completed and failed immutable, while pending and recovered operations sync in FIFO order.
+> 4. Verify all tests pass with 0 analyzer warnings/errors and correct formatting.
+
+**Result**
+
+- Added `recoverInterrupted()` and `startup({bool triggerSyncIfOnline = true})` to `SyncCoordinator`.
+- Authored 4 multi-connection restart recovery tests in `test/sync/application/restart_recovery_test.dart` and 1 additional test in `test/sync/application/sync_coordinator_test.dart`, bringing total suite to 283 tests.
+
+**Action taken**
+
+- Ran full project verification (`dart format`, `flutter analyze`, `flutter test`), passing cleanly with 0 warnings/errors across all 283 tests.
+- Updated `docs/TASKS.md` (`T-SYNC-003` marked `[x]`), `docs/REQUIREMENTS_TRACEABILITY.md` (`ASM-012`, `ASM-013`, `SND-016`, `NSV-019`, `TST-007` marked `DONE`), `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
+---
+
 ## AI Mistakes / Risky Output
 
 At least one real example must be included before submission.

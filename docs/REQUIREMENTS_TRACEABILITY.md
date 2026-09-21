@@ -74,8 +74,8 @@ These IDs represent the original assessment rather than invented feature require
 | ASM-009 | Send/Contribution while offline is queued locally and shown as Pending rather than lost | Assessment §2.1 | `sync`, feature presentation | repository + widget + integration | VERIFIED | IN_PROGRESS |
 | ASM-010 | Offline actions are not silently retried in an uncontrolled loop | Assessment §2.1 | `sync` | unit/integration | VERIFIED | IN_PROGRESS |
 | ASM-011 | On reconnect, queued actions are replayed without duplicate financial effect | Assessment §2.1 | `sync`, `fake_backend` | integration | VERIFIED | TODO |
-| ASM-012 | A queued action survives an app restart while offline | Assessment §2.2 | Drift persistence / `sync` | integration | VERIFIED | IN_PROGRESS |
-| ASM-013 | A queued action is not sent twice after reconnect/restart | Assessment §2.2 | `sync`, `fake_backend` | integration | VERIFIED | IN_PROGRESS |
+| ASM-012 | A queued action survives an app restart while offline | Assessment §2.2 | Drift persistence / `sync` | integration | VERIFIED | DONE |
+| ASM-013 | A queued action is not sent twice after reconnect/restart | Assessment §2.2 | `sync`, `fake_backend` | integration | VERIFIED | DONE |
 | ASM-014 | Money calculations never use floating-point arithmetic | Assessment §2.2 | `core/money`, `features/novasave/domain` | unit/static review | VERIFIED | IN_PROGRESS |
 | ASM-015 | Key interactive elements expose proper Flutter `Semantics` | Assessment §2.2 | presentation/design system | widget/accessibility | VERIFIED | TODO |
 | ASM-016 | Text respects system font scaling without breaking layout | Assessment §2.2 | presentation/design system | widget/manual at enlarged scale | VERIFIED | TODO |
@@ -153,7 +153,7 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 | SND-013 | Immediate online failure shows no debit + retry/back actions | flow/design | UI-SND-13 | send | widget/integration | VERIFIED by design | TODO |
 | SND-014 | Offline confirmation explains operation will be saved | ASM-009 | UI-SND-14 | send | widget | VERIFIED by design | TODO |
 | SND-015 | Offline Send is durably persisted before UI reports it saved | ASM-009, ASM-012 | UI-SND-15 | sync/persistence | repository + integration | VERIFIED | IN_PROGRESS |
-| SND-016 | Pending transfer survives restart | ASM-012 | UI-SND-15 + Flow 2 | sync/persistence | integration | VERIFIED | TODO |
+| SND-016 | Pending transfer survives restart | ASM-012 | UI-SND-15 + Flow 2 | sync/persistence | integration | VERIFIED | DONE |
 | SND-017 | Reconnect transitions pending transfer into processing | ASM-011 | UI-SND-16 | sync | integration/widget | VERIFIED by design | TODO |
 | SND-018 | Reconnect success completes once and updates wallet once | ASM-011, ASM-013 | UI-SND-17 | sync/fake backend/wallet | integration | VERIFIED | TODO |
 | SND-019 | Sync failure retains the transfer safely and offers retry | ASM-009, ASM-010 | UI-SND-18 | sync/send | integration/widget | VERIFIED by design | TODO |
@@ -183,7 +183,7 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 | NSV-016 | Offline confirmation explains contribution will be saved | ASM-009 | UI-NSV-16 | NovaSave | widget | VERIFIED by design | TODO |
 | NSV-017 | Offline Contribution is durably persisted before UI reports it saved | ASM-009, ASM-012 | UI-NSV-17 | sync/persistence | repository + integration | VERIFIED | IN_PROGRESS |
 | NSV-018 | Pending contribution remains visible while confirmed goal progress is unchanged | ASM-009 | UI-NSV-18 | NovaSave + sync projection | widget/integration | VERIFIED by design | TODO |
-| NSV-019 | Pending contribution survives restart | ASM-012 | UI-NSV-17/18 + Flow 6 | sync/persistence | integration | VERIFIED | TODO |
+| NSV-019 | Pending contribution survives restart | ASM-012 | UI-NSV-17/18 + Flow 6 | sync/persistence | integration | VERIFIED | DONE |
 | NSV-020 | Reconnect transitions pending contribution into processing | ASM-011 | UI-NSV-19 | sync | integration/widget | VERIFIED by design | TODO |
 | NSV-021 | Reconnect success updates goal once | ASM-011, ASM-013 | UI-NSV-20 | sync/fake backend/NovaSave | integration | VERIFIED | TODO |
 | NSV-022 | Sync failure retains contribution safely and offers retry | ASM-009, ASM-010 | UI-NSV-21 | sync/NovaSave | integration/widget | VERIFIED by design | TODO |
@@ -261,7 +261,7 @@ For exact token values, `docs/DESIGN_SYSTEM.md` and the authoritative Style Guid
 | TST-004 | Required Send Money widget tests exist | ASM-022 | send tests | `flutter test` | VERIFIED | TODO |
 | TST-005 | Required NovaSave contribution widget tests exist | ASM-023 | NovaSave tests | `flutter test` | VERIFIED | TODO |
 | TST-006 | Integration test covers offline queue → restart/reconnect → exactly one effect | ASM-024 plus ASM-012/013 | `integration_test` | integration run | VERIFIED + strengthened to catch duplicate regression | TODO |
-| TST-007 | Failure/retry path is tested for lost/uncertain response behavior | ASM-013 | sync/fake backend | integration | INFERRED high-value regression test | IN_PROGRESS |
+| TST-007 | Failure/retry path is tested for lost/uncertain response behavior | ASM-013 | sync/fake backend | integration | INFERRED high-value regression test | DONE |
 | DOC-001 | README is truthful about implemented state and required architecture/trade-offs/run/test info | ASM-021, ASM-026 | `README.md` | submission review | VERIFIED | TODO |
 | DOC-002 | AI usage log is maintained from implementation start | ASM-019, ASM-020 | `AI_USAGE.md` | submission review | VERIFIED | TODO |
 | DOC-003 | Flutter/Dart versions are pinned/recorded | ASM-026 | README/pubspec/toolchain | clean setup review | VERIFIED | DONE |

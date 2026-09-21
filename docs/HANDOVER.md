@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 3 in Progress — T-SYNC-002 complete and verified; ready for PR and merge  
-**Primary next task:** Merge PR for `feature/T-SYNC-002-sync-coordinator`, then proceed to `T-SYNC-003` (Implement startup crash recovery and stuck processing resolution)  
-**Current branch:** `feature/T-SYNC-002-sync-coordinator`  
-**Latest commit on main:** `4d10bcb` (PR #17)  
+**Status:** Phase 3 in Progress — T-SYNC-003 complete and verified; ready for PR and merge  
+**Primary next task:** Merge PR for `feature/T-SYNC-003-restart-recovery`, then proceed to `T-SYNC-004` (Implement failure classification and retry policy)  
+**Current branch:** `feature/T-SYNC-003-restart-recovery`  
+**Latest commit on main:** `11fb065` (PR #18)  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -40,7 +40,8 @@ Phase 2 (Persistence & Fake Remote) is COMPLETE:
 Phase 3 (Connectivity, Queue & Synchronization) is in progress:
 - `T-CONN-001` (Implement connectivity abstraction) is COMPLETE and merged (`def0ab9`, PR #16).
 - `T-SYNC-001` (Implement durable enqueue API) is COMPLETE and merged (`4d10bcb`, PR #17).
-- `T-SYNC-002` (Implement single shared sync coordinator and operation claim) is COMPLETE on `feature/T-SYNC-002-sync-coordinator`.
+- `T-SYNC-002` (Implement single shared sync coordinator and operation claim) is COMPLETE and merged (`11fb065`, PR #18).
+- `T-SYNC-003` (Implement restart recovery) is COMPLETE on `feature/T-SYNC-003-restart-recovery`.
 
 ---
 
@@ -48,12 +49,12 @@ Phase 3 (Connectivity, Queue & Synchronization) is in progress:
  
 Current Task:
 ```text
-T-SYNC-002 — Implement single shared sync coordinator and operation claim (feature/T-SYNC-002-sync-coordinator)
+T-SYNC-003 — Implement restart recovery (feature/T-SYNC-003-restart-recovery)
 ```
 
 Next Task:
 ```text
-T-SYNC-003 — Implement startup crash recovery and stuck processing resolution
+T-SYNC-004 — Implement failure classification and retry policy
 ```
 
 ---
@@ -87,23 +88,18 @@ Do not claim success without actually running the relevant commands.
 
 ### 13. Next Action
  
-`feature/T-SYNC-002-sync-coordinator` is verified and ready to merge into `main`.
+`feature/T-SYNC-003-restart-recovery` is verified and ready to merge into `main`.
  
-### Completed Work (T-SYNC-002):
-- Implemented `SyncCoordinator` (`lib/sync/application/sync_coordinator.dart`) owning single shared synchronization across Send Money and NovaSave (`HC-SYNC`, `SYNC-005`).
-- Guaranteed atomic operation claiming before dispatching to remote (`operationRepository.claim(id)`), ensuring concurrent triggers cannot process the same operation (`SYNC-010`).
-- Enforced deterministic FIFO processing order by `createdAt`.
-- Serialized concurrent synchronization triggers via trigger coalescing.
-- Guarded against offline remote calls and auto-subscribed to connectivity changes for automatic sync upon reconnect (`ASM-011`, `SYNC-004`).
-- Applied local side-effects (wallet balance update, transaction history entry, and goal progress update) atomically before exposing operation completion (`HC-OFFLINE-DURABILITY`, `HC-EXACTLY-ONCE-EFFECT`).
-- Maintained strict state separation (`SyncStatus`, `ConnectivityStatus`, `OperationStatus` per `HC-STATE-SEPARATION`).
-- Implemented `SyncRunResult` and `SyncTrigger` in `lib/sync/application/sync_result.dart`.
-- Implemented Riverpod providers (`syncCoordinatorProvider`, `syncStatusStreamProvider`, `syncStatusProvider`, along with wallet, novasave, and fake backend providers).
-- Authored 10 exhaustive unit and integration tests in `test/sync/application/sync_coordinator_test.dart` (bringing total suite to 278 tests, all passing).
-- All checks verified (0 format issues, 0 analyze issues, 278/278 tests passing).
+### Completed Work (T-SYNC-003):
+- Added `recoverInterrupted()` and `startup({bool triggerSyncIfOnline = true})` lifecycle methods on `SyncCoordinator` (`lib/sync/application/sync_coordinator.dart`) recovering orphaned in-flight `processing` operations back to `pending` with preserved attempt count and stable idempotency key (`ASM-012`, `SYNC-003`).
+- Verified that offline queued Send Money and NovaSave operations survive process termination and restart with exact integer-kobo amounts and stable identities (`ASM-012`, `SYNC-003`, `SND-016`, `NSV-019`).
+- Guaranteed exactly-once financial effects (`HC-EXACTLY-ONCE-EFFECT`, `SYNC-011`) when app process terminates after remote API settlement but before local completion is committed: recovery replay uses the identical idempotency key; remote API deduplicates without double-debiting; local balance, transaction ledger, and goal progress are finalized.
+- Verified mixed queue restart behavior: `completed` and `failed` rows remain immutable, while `pending` and recovered operations sync in deterministic FIFO order.
+- Authored 4 multi-connection SQLite restart tests in `test/sync/application/restart_recovery_test.dart` and 1 additional test in `test/sync/application/sync_coordinator_test.dart` (bringing total suite to 283 tests, all passing).
+- All checks verified (0 format issues, 0 analyze issues, 283/283 tests passing).
 
 ### Next Steps:
-1. Commit, push `feature/T-SYNC-002-sync-coordinator`, open PR #18, squash-merge into `main`.
+1. Commit, push `feature/T-SYNC-003-restart-recovery`, open PR #19, squash-merge into `main`.
 2. Checkout `main`, pull latest.
-3. Begin `T-SYNC-003 — Implement startup crash recovery and stuck processing resolution` on a new feature branch `feature/T-SYNC-003-crash-recovery`.
+3. Begin `T-SYNC-004 — Implement failure classification and retry policy` on a new feature branch `feature/T-SYNC-004-retry-policy`.
 
