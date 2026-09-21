@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:novawallet/app/navigation/app_bottom_nav_bar.dart';
 import 'package:novawallet/app/navigation/app_navigation_provider.dart';
-import 'package:novawallet/design_system/design_system.dart';
+import 'package:novawallet/design_system/components/empty_states/app_empty_state.dart';
+import 'package:novawallet/design_system/icons/app_icons.dart';
+import 'package:novawallet/design_system/theme/app_theme.dart';
+import 'package:novawallet/design_system/tokens/app_colors.dart';
+import 'package:novawallet/design_system/tokens/app_spacing.dart';
+import 'package:novawallet/design_system/tokens/app_typography.dart';
+import 'package:novawallet/features/wallet/presentation/screens/wallet_home_screen.dart';
 
-/// Root application widget for NovaWallet.
+/// The root application widget for NovaWallet.
 ///
-/// Implements ASM-001, DSN-011.
+/// Configures MaterialApp with the centralized theme and navigation shell.
 class NovaWalletApp extends StatelessWidget {
   const NovaWalletApp({super.key});
 
@@ -21,7 +27,7 @@ class NovaWalletApp extends StatelessWidget {
   }
 }
 
-/// App shell hosting primary navigation destinations and global shell chrome.
+/// The top-level application shell hosting the bottom navigation bar and active tab.
 class NovaWalletShell extends ConsumerWidget {
   const NovaWalletShell({super.key});
 
@@ -36,7 +42,7 @@ class NovaWalletShell extends ConsumerWidget {
         child: IndexedStack(
           index: currentDestination.index,
           children: const [
-            WalletShellTab(),
+            WalletHomeScreen(),
             SendMoneyShellTab(),
             NovaSaveShellTab(),
           ],
@@ -50,19 +56,6 @@ class NovaWalletShell extends ConsumerWidget {
               .selectDestination(destination);
         },
       ),
-    );
-  }
-}
-
-/// Placeholder shell tab for Wallet (Phase 5 will implement full view).
-class WalletShellTab extends StatelessWidget {
-  const WalletShellTab({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Wallet')),
-      body: AppEmptyState.walletTransactions(),
     );
   }
 }

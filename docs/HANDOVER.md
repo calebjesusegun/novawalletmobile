@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** T-DS-002 (shared UI components) COMPLETE on `feat/ds-components` — Ready to merge into `main`  
-**Primary next task:** `T-APP-001 — Implement app shell, routing and bottom navigation`  
-**Current branch:** `feat/ds-components`  
-**Latest commit on main:** `f75d06d`  
+**Status:** T-WAL-002 (wallet home, lazy transactions and refresh) COMPLETE on `feat/wallet-home-and-refresh` — Ready to merge into `main`  
+**Primary next task:** `T-WAL-003 — Implement offline banner and last-updated state`  
+**Current branch:** `feat/wallet-home-and-refresh`  
+**Latest commit on main:** `162317e`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -54,13 +54,21 @@ Phase 3 (Connectivity, Queue & Synchronization) is COMPLETE and Hardened:
 Phase 4 (Design System & App Shell) is COMPLETE and merged into `main` (`3e14dc7`).
 
 Phase 5 (Wallet) is IN PROGRESS:
-- `T-WAL-001` (Implement wallet data projection and repositories) is COMPLETE on `feat/wallet-data-projection`:
+- `T-WAL-001` (Implement wallet data projection and repositories) is COMPLETE and merged into `main` (`162317e`):
   - `WalletActivityItem` domain model fusing confirmed transactions and in-flight operations with reverse-chronological sorting.
   - `WalletProjection` domain projection enforcing `MNY-004` (headline balance remains confirmed while spendable balance reserves pending debits).
   - Extended `TransactionStatus` with `processing` status.
   - Added `refresh()` to `WalletRepository` and `LocalWalletRepository` with `RemoteApi` synchronization and idempotent caching (`InsertMode.insertOrReplace`).
   - Added `walletSnapshotStreamProvider`, `walletRecentTransactionsStreamProvider`, and `walletProjectionProvider` in `lib/features/wallet/data/wallet_providers.dart`.
-  - Authored 15 tests in `test/features/wallet/domain/wallet_projection_test.dart` and `test/features/wallet/data/wallet_repository_test.dart` (371 total project tests passing).
+- `T-WAL-002` (Implement wallet home, lazy transactions and refresh) is COMPLETE on `feat/wallet-home-and-refresh`:
+  - `WalletBalanceCard` (`lib/features/wallet/presentation/widgets/wallet_balance_card.dart`): available balance in Naira from integer kobo (`WAL-001`, `ASM-002`, `HC-MONEY`), navigation shortcuts to Send Money and NovaSave.
+  - `WalletActivityTile` (`lib/features/wallet/presentation/widgets/wallet_activity_tile.dart`): directional badges, status badges, counterparty details, and screen reader semantics (`A11Y-001`).
+  - `WalletRecentActivitySection` (`lib/features/wallet/presentation/widgets/wallet_recent_activity_section.dart`): lazy list rendering with `ListView.separated` (`WAL-002`, `ASM-017`, `PERF-001`, `HC-PERFORMANCE`), empty state via `AppEmptyState.walletTransactions()` (`WAL-004`, `UI-WAL-09`).
+  - `WalletController` (`lib/features/wallet/presentation/controllers/wallet_controller.dart`): pull-to-refresh coordination with error capture and retry.
+  - `WalletHomeScreen` (`lib/features/wallet/presentation/screens/wallet_home_screen.dart`): matching `UI-WAL-01` and refreshing state `UI-WAL-07`.
+  - Wired into `NovaWalletShell` in `lib/app/app.dart`.
+  - Discovered and resolved widget selector conflict in `test/app/app_shell_test.dart` (scoping to `AppBottomNavBar` descendants prevents button label collisions).
+  - Full test suite: 378 / 378 passing tests with 0 analyzer issues.
 
 ---
 
@@ -68,12 +76,12 @@ Phase 5 (Wallet) is IN PROGRESS:
  
 Current Task:
 ```text
-T-WAL-001 (Implement wallet data projection and repositories) COMPLETE on feat/wallet-data-projection
+T-WAL-002 (Implement wallet home, lazy transactions and refresh) COMPLETE on feat/wallet-home-and-refresh
 ```
 
 Next Task:
 ```text
-T-WAL-002 — Implement wallet home, lazy transactions and refresh (Phase 5 — Wallet)
+T-WAL-003 — Implement offline banner and last-updated state (Phase 5 — Wallet)
 ```
 
 ---
@@ -104,12 +112,11 @@ Do not claim success without actually running the relevant commands.
 
 ### 13. Next Action
  
-`Phase 4` is fully completed on `feat/app-shell-and-routing`. All 356 tests pass, analyzer clean, formatting checked.
+`T-WAL-002` is fully completed on `feat/wallet-home-and-refresh`. All 378 tests pass, analyzer clean, formatting checked.
  
 ### Next Steps:
-1. Merge `feat/app-shell-and-routing` into `main`.
-2. Review Phase 4 with user.
-3. Proceed to Phase 5: `T-WAL-001 — Implement wallet data projection and repositories`.
+1. Merge `feat/wallet-home-and-refresh` into `main`.
+2. Proceed to Phase 5: `T-WAL-003 — Implement offline banner and last-updated state`.
 
 
 

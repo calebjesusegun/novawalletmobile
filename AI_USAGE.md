@@ -951,6 +951,41 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
+### Prompt 27 — Implement wallet home, lazy transactions and refresh (T-WAL-002)
+
+**Tool:** Antigravity  
+**Stage:** Phase 5 — Wallet (`feat/wallet-home-and-refresh`)
+
+**Prompt**
+
+> Commit, merge, and pull T-WAL-001, then continue directly to T-WAL-002 — Implement wallet home, lazy transactions and refresh:
+> 1. Implement WalletBalanceCard matching UI-WAL-01 with available balance formatted in Naira from integer kobo (WAL-001, ASM-002, HC-MONEY) and shortcuts to Send Money and NovaSave.
+> 2. Implement WalletActivityTile rendering status badges, directional indicators, counterparty, formatted amount, and accessible semantics (A11Y-001).
+> 3. Implement WalletRecentActivitySection rendering transactions lazily via ListView.separated (WAL-002, ASM-017, PERF-001) and displaying AppEmptyState.walletTransactions() when empty (WAL-004, UI-WAL-09).
+> 4. Implement WalletController and WalletHomeScreen supporting pull-to-refresh (WAL-003, ASM-004) and refreshing presentation matching UI-WAL-07.
+> 5. Wire WalletHomeScreen into app shell, replacing placeholder tab.
+> 6. Author comprehensive widget tests verifying balance rendering, empty state, activity list, navigation triggers, pull-to-refresh, responsive font scaling (A11Y-002), and accessibility semantics (A11Y-001).
+> 7. Fix app shell test selector ambiguity where 'NovaSave' matches both balance card shortcut and bottom nav tab.
+
+**Result**
+
+- Implemented `WalletBalanceCard` (`lib/features/wallet/presentation/widgets/wallet_balance_card.dart`).
+- Implemented `WalletActivityTile` (`lib/features/wallet/presentation/widgets/wallet_activity_tile.dart`).
+- Implemented `WalletRecentActivitySection` (`lib/features/wallet/presentation/widgets/wallet_recent_activity_section.dart`).
+- Implemented `WalletController` (`lib/features/wallet/presentation/controllers/wallet_controller.dart`).
+- Implemented `WalletHomeScreen` (`lib/features/wallet/presentation/screens/wallet_home_screen.dart`).
+- Replaced placeholder tab in `lib/app/app.dart` with `WalletHomeScreen`.
+- Discovered and resolved widget selector conflict in `test/app/app_shell_test.dart`: targeting `AppBottomNavBar` descendants explicitly avoids false-positive text matching against the newly introduced `WalletBalanceCard` action button.
+- Authored 7 comprehensive widget tests in `test/features/wallet/presentation/wallet_home_screen_test.dart`.
+- All 378 unit and widget tests across the project pass with 0 analyzer issues.
+
+**Action taken**
+
+- Ran `dart format --output=none --set-exit-if-changed .`, `flutter analyze`, and `flutter test`.
+- Updated `docs/REQUIREMENTS_TRACEABILITY.md` (WAL-002, WAL-003, WAL-004 marked IMPLEMENTED), `docs/TASKS.md` (T-WAL-002 marked done), `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
+---
+
 ## AI Mistakes / Risky Output
 
 At least one real example must be included before submission.
