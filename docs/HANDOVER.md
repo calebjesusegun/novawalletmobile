@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 1 in progress — T-MNY-001 merged into main  
-**Primary next task:** `T-MNY-002 — Implement exact savings-progress calculation`  
-**Current branch:** `main`  
-**Latest commit:** `ad871bb`  
+**Status:** Phase 1 in progress — T-MNY-002 implemented on feature branch, ready for review/merge  
+**Primary next task:** `T-ID-001 — Implement stable operation and idempotency identities`  
+**Current branch:** `feature/T-MNY-002-savings-progress`  
+**Base commit:** `7e1c9c0`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -14,30 +14,16 @@ This document is the operational handover for Claude Code, Codex, Antigravity, o
 
 The assessment, approved flows, design exports, architecture, implementation plan, design system, traceability, engineering rules, workflow, and executable task backlog have been reviewed and finalized.
 
-Flutter implementation has **not** started yet.
+Phase 0 (Toolchain & Project Baseline) is complete:
+- Flutter 3.47.5 / Dart 3.13.4 project initialized (`T-BASE-001`).
+- Plus Jakarta Sans static fonts bundled and registered.
+- Strict linter configuration, analyzer rules, and test architecture scaffolded (`T-BASE-002`).
+- GitHub Actions CI pipeline active (`T-BASE-003`).
 
-Repository assembly is complete:
-- Git initialized on branch `main`.
-- Planning baseline committed (`2bb6f8b`).
-- Core engineering documentation organized under `docs/`.
-- Screen index organized under `docs/design/SCREEN_INDEX.md`.
-- Approved design PDFs organized under `docs/design/pdf/`.
-- Assessment brief safely isolated under `docs_internal/assessment/` and ignored by `.gitignore`.
-- Files moved/renamed:
-  - `ARCHITECTURE.md` -> `docs/ARCHITECTURE.md`
-  - `IMPLEMENTATION_PLAN.md` -> `docs/IMPLEMENTATION_PLAN.md`
-  - `REQUIREMENTS_TRACEABILITY.md` -> `docs/REQUIREMENTS_TRACEABILITY.md`
-  - `DESIGN_SYSTEM.md` -> `docs/DESIGN_SYSTEM.md`
-  - `DEFINITION_OF_DONE.md` -> `docs/DEFINITION_OF_DONE.md`
-  - `GIT_WORKFLOW.md` -> `docs/GIT_WORKFLOW.md`
-  - `AGENT_WORKFLOW.md` -> `docs/AGENT_WORKFLOW.md`
-  - `TASKS.md` -> `docs/TASKS.md`
-  - `HANDOVER.md` -> `docs/HANDOVER.md`
-  - `SCREEN_INDEX.md` -> `docs/design/SCREEN_INDEX.md`
-  - `Doc1_TakeHome_Frontend_Flutter.pdf` -> `docs_internal/assessment/Doc1_TakeHome_Frontend_Flutter.pdf`
-  - Design PDFs (`Wallet.pdf`, `Send Money.pdf`, `NovaSave.pdf`, `Flow 1-6.pdf`, `NovaWallet Design Components.pdf`, `NovaWallet Style Guide.pdf`) -> `docs/design/pdf/`
-- Unresolved repository setup issues: None.
-- Next task: `T-BASE-001 — Bootstrap Flutter project`.
+Phase 1 (Money, Identity & Core Operation Model) is in progress:
+- `T-MNY-001` (integer-kobo `Money` value object) is complete and merged into `main` (`ad871bb`).
+- `T-MNY-002` (exact savings-progress calculation) is implemented and verified on branch `feature/T-MNY-002-savings-progress`.
+- Next task: `T-ID-001 — Implement stable operation and idempotency identities`.
 
 ---
 
@@ -63,9 +49,9 @@ Do not invent behavior when authoritative material is silent.
 Before changing code, read:
 
 1. `AGENTS.md`
-2. `docs/TASKS.md` — `T-BASE-001`
+2. `docs/TASKS.md` — target task
 3. `docs/ARCHITECTURE.md`
-4. `docs/IMPLEMENTATION_PLAN.md` — Phase 0
+4. `docs/IMPLEMENTATION_PLAN.md`
 5. `docs/REQUIREMENTS_TRACEABILITY.md`
 6. `docs/AGENT_WORKFLOW.md`
 7. `docs/GIT_WORKFLOW.md`
@@ -238,54 +224,34 @@ Do not invent a hidden policy before that task is completed.
 
 ---
 
-## 8. First Implementation Task
+## 8. Current Execution Task
 
-Start with:
-
+Current Task:
 ```text
-T-BASE-001 — Bootstrap Flutter project
+T-MNY-002 — Implement exact savings-progress calculation (complete on branch, ready for review/merge)
 ```
 
-Goal:
-
-- create the Flutter project in the existing repository root;
-- record actual Flutter/Dart versions;
-- add only the approved baseline dependencies needed for Phase 0;
-- configure Plus Jakarta Sans assets;
-- keep current project documentation intact;
-- do not implement product features yet.
-
-Before editing:
-
-```bash
-git status
-git branch --show-current
-git log -5 --oneline
+Next Task:
+```text
+T-ID-001 — Implement stable operation and idempotency identities
 ```
-
-Then create/use the task branch according to `docs/GIT_WORKFLOW.md`.
 
 ---
 
-## 9. Do Not Do Yet
+## 9. Scope Control
 
-During `T-BASE-001`:
-
-- do not build Wallet screens;
-- do not build Send Money;
-- do not build NovaSave;
-- do not implement sync;
-- do not create Drift schemas yet unless the task is explicitly expanded;
-- do not add Dio;
-- do not implement stretch goals;
-- do not redesign the approved architecture;
-- do not change the design-source hierarchy.
+During Phase 1:
+- focus strictly on core domain models, exact money math, and stable identities;
+- do not build feature UI screens prematurely;
+- do not implement sync loops or Drift persistence schemas until their respective tasks;
+- preserve strict architectural boundaries;
+- enforce integer-kobo money representation per `HC-MONEY`.
 
 ---
 
-## 10. Verification for the First Task
+## 10. Required Verification
 
-The task must leave the repository able to run:
+Every branch/task must satisfy:
 
 ```bash
 flutter pub get
@@ -333,31 +299,32 @@ If this handover and Git disagree, trust Git.
 
 ---
 
-## 13. Next Action
+### 13. Next Action
  
-`T-MNY-001 — Implement integer-kobo Money value object` is complete and merged into `main` via PR #4 (`ad871bb`).
+`T-MNY-002 — Implement exact savings-progress calculation` is complete on branch `feature/T-MNY-002-savings-progress`.
  
-### Completed Work (T-MNY-001):
-- Implemented `Money` value object in `lib/core/money/money.dart` backed strictly by integer kobo (`final int kobo`) per HC-MONEY.
-- Enforced no floating-point arithmetic (`double`) anywhere in domain money logic.
-- Hardened all arithmetic operations (`+`, `-`, unary `-`, `*`, `~/`), `fromNaira`, and parsing using intermediate `BigInt` calculations funneled through `_checked()` to strictly enforce signed 64-bit bounds (`[-9223372036854775808, 9223372036854775807]`) matching SQLite integer storage and preventing silent numeric overflow.
-- Implemented `MoneyOverflowException` to signal overflow/underflow cleanly.
-- Implemented zero, positive, and negative validations (`isZero`, `isPositive`, `isNegative`, `isNonNegative`, `ensurePositive`, `ensureNonNegative`, `checkPositive`, `checkNonNegative`, and `MoneyValidationException`).
-- Implemented exact string parsing without floating-point arithmetic (`Money.parse`, `Money.tryParse`, `MoneyParseException`).
-- Implemented exact currency formatting with thousands commas and two-digit decimal kobo (`format({bool includeSymbol, bool includeKobo})`, `toString()`):
-  - `12545000` kobo -> `₦125,450.00`
-  - `1000000` kobo -> `₦10,000.00`
-  - `0` kobo -> `₦0.00`
-  - `-12545000` kobo -> `-₦125,450.00`
-  - Min/Max boundary formatting without negative sign or formatting anomalies.
-- Authored 47 unit tests in `test/core/money/money_test.dart` covering all arithmetic, invariants, edge cases, acceptance criteria, formatting rules, and 9 boundary/overflow tests.
-- Maintained strict architectural boundary: untouched persistence, routing, and feature UI.
-- Updated `docs/REQUIREMENTS_TRACEABILITY.md` (MNY-001, MNY-002, TST-001 marked DONE), `docs/TASKS.md` (T-MNY-001 checked off), and `AI_USAGE.md` (recorded Prompt 6 and AI-RISK-002).
+### Completed Work (T-MNY-002):
+- Implemented `SavingsProgress` domain calculation model in `lib/features/novasave/domain/savings_progress.dart` backed strictly by integer kobo via `Money` per HC-MONEY.
+- Implemented `SavingsGoal` domain entity in `lib/features/novasave/domain/savings_goal.dart` per `docs/ARCHITECTURE.md` §8.2 with derived progress and remaining amount.
+- Enforced exact integer basis points calculations (`10000 bps = 100%`) using intermediate `BigInt` arithmetic (`savedKobo * 10000 ~/ targetKobo`), eliminating floating-point rounding errors and guarding against 64-bit integer multiplication overflow on large balances.
+- Implemented exact remaining amount calculation (`targetAmount - savedAmount`), guaranteeing that over-saving returns `Money.zero()` (never negative balance), and providing `excessAmount` to represent savings beyond target.
+- Supported capped progress (0–100% percentage, 0–10,000 basis points) and arbitrary-precision uncapped metric (`uncappedBasisPoints` as `BigInt`), with flags `isGoalReached` and `isOverTarget`.
+- Implemented pure integer string formatting for progress percentages (`formatPercentage()`).
+- Provided an explicit UI presentation boundary converter (`toProgressFraction()`) strictly returning values within `[0.0, 1.0]` for Flutter progress indicators, keeping domain arithmetic exact and integer-based.
+- Handled all domain invariants and edge cases:
+  - Non-positive target amounts rejected with `ArgumentError`.
+  - Negative saved amounts rejected with `ArgumentError`.
+  - Negative contribution attempts rejected with `ArgumentError`.
+  - Zero contribution returns unchanged progress state.
+  - Exceeding target caps progress to 100% and flags over-achievement without negative remaining balance.
+- Authored 29 unit tests across `test/features/novasave/savings_progress_test.dart` and `test/features/novasave/savings_goal_test.dart` verifying all acceptance criteria, edge cases, basis points precision, 64-bit bounds, and extreme ratio (`maxKobo / 1 kobo`) exactness (total project tests increased from 52 to 81).
+- Maintained strict architectural boundaries: untouched UI screens, sync engine, and database persistence schemas.
+- Updated `docs/REQUIREMENTS_TRACEABILITY.md` (MNY-003 marked DONE; ASM-008, ASM-014, NSV-008, NSV-009, NSV-014 updated to IN_PROGRESS), `docs/TASKS.md` (T-MNY-002 checked off), and `AI_USAGE.md` (recorded Prompt 7 and AI-RISK-003).
 - Ran and verified local checks:
-  - `flutter test test/core/money/` (47/47 tests passed)
-  - `dart format --output=none --set-exit-if-changed .` (10 files formatted, 0 changed)
+  - `flutter test test/features/novasave/` (29/29 tests passed)
+  - `dart format --output=none --set-exit-if-changed .` (14 files formatted, 0 changed)
   - `flutter analyze` (0 issues found)
-  - `flutter test` (52 tests passed, 0 failures)
+  - `flutter test` (81 tests passed, 0 failures)
 
 ### Next Task:
-`T-MNY-002 — Implement exact savings-progress calculation` as defined in `docs/TASKS.md`.
+`T-ID-001 — Implement stable operation and idempotency identities` as defined in `docs/TASKS.md`.

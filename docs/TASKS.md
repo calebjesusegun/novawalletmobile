@@ -243,7 +243,7 @@ flutter analyze
 
 ---
 
-## [ ] T-MNY-002 — Implement exact savings-progress calculation
+## [x] T-MNY-002 — Implement exact savings-progress calculation
 
 **Risk:** A  
 **Size:** S
