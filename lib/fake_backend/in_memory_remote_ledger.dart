@@ -1,0 +1,66 @@
+import 'dart:math';
+
+import 'package:novawallet/core/money/money.dart';
+import 'package:novawallet/fake_backend/remote_idempotency_ledger.dart';
+import 'package:novawallet/fake_backend/remote_idempotency_record.dart';
+import 'package:novawallet/features/wallet/domain/wallet_transaction.dart';
+
+/// In-memory implementation of [RemoteIdempotencyLedger].
+///
+/// Provides fast, isolated, deterministic storage for unit testing without
+/// database or file dependencies.
+class InMemoryRemoteLedger implements RemoteIdempotencyLedger {
+  Money _balance;
+  final Map<String, RemoteIdempotencyRecord> _records = {};
+  final List<WalletTransaction> _transactions = [];
+
+  /// Default initial balance is ₦250,000.00 (25,000,000 kobo).
+  static const Money defaultInitialBalance = Money.fromKobo(25000000);
+
+  InMemoryRemoteLedger({Money? initialBalance})
+    : _balance = initialBalance ?? defaultInitialBalance;
+
+  @override
+  Future<RemoteIdempotencyRecord?> getRecord(String idempotencyKey) async {
+    return _records[idempotencyKey];
+  }
+
+  @override
+  Future<void> saveRecord(RemoteIdempotencyRecord record) async {
+    _records[record.idempotencyKey] = record;
+  }
+
+  @override
+  Future<Money> getBalance() async {
+    return _balance;
+  }
+
+  @override
+  Future<void> setBalance(Money balance) async {
+    _balance = balance;
+  }
+
+  @override
+  Future<void> addTransaction(WalletTransaction transaction) async {
+    _transactions.insert(0, transaction);
+  }
+
+  @override
+  Future<List<WalletTransaction>> getTransactions({
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    if (offset >= _transactions.length) {
+      return const [];
+    }
+    final end = min(offset + limit, _transactions.length);
+    return List.unmodifiable(_transactions.sublist(offset, end));
+  }
+
+  @override
+  Future<void> clear() async {
+    _records.clear();
+    _transactions.clear();
+    _balance = defaultInitialBalance;
+  }
+}

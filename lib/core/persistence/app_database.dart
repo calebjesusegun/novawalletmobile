@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:novawallet/core/persistence/local_tables.dart';
+import 'package:novawallet/fake_backend/data/remote_tables.dart';
 import 'package:novawallet/sync/data/pending_operations_table.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -22,6 +23,9 @@ part 'app_database.g.dart';
     WalletCache,
     TransactionsTable,
     SavingsGoalsTable,
+    RemoteIdempotencyTable,
+    RemoteWalletStateTable,
+    RemoteTransactionsTable,
   ],
 )
 class AppDatabase extends _$AppDatabase {

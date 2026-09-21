@@ -484,6 +484,38 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 - Ran full baseline checks (`dart format`, `flutter analyze`, `flutter test`), all passing with 0 warnings/errors across all 211 tests.
 - Updated `docs/TASKS.md`, `docs/REQUIREMENTS_TRACEABILITY.md`, `AI_USAGE.md`, and `docs/HANDOVER.md`.
 
+### Prompt 13 — Implement idempotent fake remote (T-REMOTE-001)
+
+**Tool:** Antigravity  
+**Stage:** Phase 2 — Persistence & Fake Remote (T-REMOTE-001)
+
+**Prompt**
+
+> Implement T-REMOTE-001 — Implement idempotent fake remote:
+> 1. Create task branch `feature/T-REMOTE-001-fake-remote` from clean `main`.
+> 2. Follow `AGENTS.md` (HC-IDEMPOTENCY, HC-EXACTLY-ONCE-EFFECT, HC-MONEY, HC-STATE-SEPARATION) and `docs/ARCHITECTURE.md` §11, §14.
+> 3. Create `RemoteApi` interface with `sendMoney`, `contribute`, `submitOperation`, `fetchWalletSnapshot`, and `fetchTransactions`.
+> 4. Implement `FakeRemoteApi` with `RemoteIdempotencyLedger` interface supporting both `InMemoryRemoteLedger` (for fast isolated testing) and `DriftRemoteLedger` (persisting across SQLite file close/reopen).
+> 5. Implement payload conflict detection per requirement SYNC-009, throwing `ConflictingIdempotencyKeyException` if a key is reused with mismatched amount, recipient, bank, narration, or goal.
+> 6. Enforce that legitimate duplicate requests reuse the existing result (`isDuplicate: true`) without creating a second financial effect (HC-EXACTLY-ONCE-EFFECT).
+> 7. Author comprehensive unit and restart simulation tests in `test/fake_backend/` covering both Send and Contribution, conflict rejection, and restart survival.
+> 8. Verify all format, analyze, and test checks pass.
+
+**Result**
+
+- Created `RemoteApi` interface in `lib/fake_backend/remote_api.dart`.
+- Implemented `RemoteOperationResult`, `RemoteApiException`, `ConflictingIdempotencyKeyException`, `InsufficientRemoteFundsException`, and `InvalidRemoteOperationException`.
+- Created `RemoteIdempotencyRecord` with deep payload validation against incoming `OperationPayload` (`matchesPayload`).
+- Implemented `RemoteIdempotencyLedger` interface with `InMemoryRemoteLedger` and `DriftRemoteLedger` backed by Drift tables (`RemoteIdempotencyTable`, `RemoteWalletStateTable`, `RemoteTransactionsTable`) respecting the persistence boundary in `docs/ARCHITECTURE.md` §11.4.
+- Implemented `FakeRemoteApi` supporting deterministic injected clocks and reference generators, balance checking, and exact-once financial effects.
+- Authored 18 tests across `test/fake_backend/fake_remote_api_test.dart` and `test/fake_backend/drift_remote_ledger_test.dart`, bringing total tests from 211 to 228 (all passing).
+
+**Action taken**
+
+- Caught and resolved timestamp precision nuance when restoring timestamps from SQLite milliseconds (`millisecondsSinceEpoch`).
+- Ran full verification suite (`dart format`, `flutter analyze`, `flutter test`), passing with 0 warnings/errors.
+- Updated `docs/REQUIREMENTS_TRACEABILITY.md` (`SYNC-008`, `SYNC-009`, `TST-002`, `TST-003` to `DONE`), `docs/TASKS.md`, `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
 ---
 
 ## AI Mistakes / Risky Output
