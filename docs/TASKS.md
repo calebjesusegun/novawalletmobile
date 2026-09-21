@@ -721,7 +721,7 @@ flutter analyze
 
 ---
 
-## [ ] T-SYNC-002 — Implement single shared sync coordinator and operation claim
+## [x] T-SYNC-002 — Implement single shared sync coordinator and operation claim
 
 **Risk:** A  
 **Size:** M

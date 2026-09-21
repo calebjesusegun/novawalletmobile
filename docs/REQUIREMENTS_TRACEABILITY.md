@@ -198,16 +198,16 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 | SYNC-001 | Observe online/offline connectivity | ASM-009, ASM-011 | `core/connectivity` | unit/widget | VERIFIED | DONE |
 | SYNC-002 | Persist pending operation before acknowledging it as saved | ASM-009, ASM-012 | `sync/data`, Drift | repository/integration | VERIFIED | DONE |
 | SYNC-003 | Restore pending operations after process restart | ASM-012 | `sync` + persistence | integration | VERIFIED | DONE |
-| SYNC-004 | Synchronize eligible pending operations on reconnect | ASM-011 | `sync/application` | integration | VERIFIED | TODO |
-| SYNC-005 | Synchronization uses a single shared coordinator, not feature-specific replay loops | ASM-010, ASM-013 | `sync/application` | architectural review/tests | INFERRED implementation | TODO |
+| SYNC-004 | Synchronize eligible pending operations on reconnect | ASM-011 | `sync/application` | integration | VERIFIED | DONE |
+| SYNC-005 | Synchronization uses a single shared coordinator, not feature-specific replay loops | ASM-010, ASM-013 | `sync/application` | architectural review/tests | INFERRED implementation | DONE |
 | SYNC-006 | One logical operation has one stable operation ID | ASM-013 | `core/ids`, sync | unit | INFERRED implementation | DONE |
-| SYNC-007 | One logical operation has one stable idempotency key reused across retry/restart | ASM-006, ASM-013 | `core/ids`, sync, fake backend | unit/integration | INFERRED implementation | IN_PROGRESS |
+| SYNC-007 | One logical operation has one stable idempotency key reused across retry/restart | ASM-006, ASM-013 | `core/ids`, sync, fake backend | unit/integration | INFERRED implementation | DONE |
 | SYNC-008 | Fake remote deduplicates repeated idempotency keys | ASM-006, ASM-013 | `fake_backend` | unit/integration | INFERRED implementation required to demonstrate guarantee | DONE |
 | SYNC-009 | Repeated key with conflicting payload is rejected/flagged | ASM-013 | fake backend | unit | INFERRED defensive rule | DONE |
-| SYNC-010 | Concurrent sync triggers cannot process the same local operation concurrently | ASM-013 | sync + database claim | unit/integration | INFERRED implementation | TODO |
-| SYNC-011 | App interruption after remote success but before local completion does not produce a second financial effect | ASM-013 | sync + fake backend | integration/failure injection | INFERRED implementation test of verified requirement | IN_PROGRESS |
-| SYNC-012 | Recoverable sync failure keeps operation durable and retryable | ASM-009, ASM-010 | sync | integration | VERIFIED by design | IN_PROGRESS |
-| SYNC-013 | Retry is event-triggered/bounded; no uncontrolled background retry loop | ASM-010 | sync | unit/integration | VERIFIED | TODO |
+| SYNC-010 | Concurrent sync triggers cannot process the same local operation concurrently | ASM-013 | sync + database claim | unit/integration | INFERRED implementation | DONE |
+| SYNC-011 | App interruption after remote success but before local completion does not produce a second financial effect | ASM-013 | sync + fake backend | integration/failure injection | INFERRED implementation test of verified requirement | DONE |
+| SYNC-012 | Recoverable sync failure keeps operation durable and retryable | ASM-009, ASM-010 | sync | integration | VERIFIED by design | DONE |
+| SYNC-013 | Retry is event-triggered/bounded; no uncontrolled background retry loop | ASM-010 | sync | unit/integration | VERIFIED | DONE |
 | SYNC-014 | Connectivity status, sync status and operation status remain separate state dimensions | design + architecture | app/sync state | unit/review | INFERRED architecture | DONE |
 
 ---
