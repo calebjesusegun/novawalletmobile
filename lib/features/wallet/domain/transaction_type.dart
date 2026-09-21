@@ -8,4 +8,4 @@ enum TransactionType {
 }
 
 /// Lifecycle status of a confirmed or cached transaction.
-enum TransactionStatus { completed, pending, failed }
+enum TransactionStatus { completed, pending, processing, failed }

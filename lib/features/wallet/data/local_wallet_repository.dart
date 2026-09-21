@@ -1,18 +1,35 @@
+import 'package:novawallet/fake_backend/remote_api.dart';
 import 'package:novawallet/features/wallet/data/transaction_dao.dart';
 import 'package:novawallet/features/wallet/data/wallet_dao.dart';
 import 'package:novawallet/features/wallet/domain/wallet_repository.dart';
 import 'package:novawallet/features/wallet/domain/wallet_snapshot.dart';
 import 'package:novawallet/features/wallet/domain/wallet_transaction.dart';
 
-/// Concrete implementation of [WalletRepository] backed by Drift DAOs.
+/// Concrete implementation of [WalletRepository] backed by Drift DAOs and optional [RemoteApi].
 class LocalWalletRepository implements WalletRepository {
   final WalletDao walletDao;
   final TransactionDao transactionDao;
+  final RemoteApi? remoteApi;
 
   LocalWalletRepository({
     required this.walletDao,
     required this.transactionDao,
+    this.remoteApi,
   });
+
+  @override
+  Future<void> refresh() async {
+    final remote = remoteApi;
+    if (remote == null) return;
+
+    final remoteSnapshot = await remote.fetchWalletSnapshot();
+    await walletDao.setWalletSnapshot(remoteSnapshot);
+
+    final remoteTransactions = await remote.fetchTransactions();
+    if (remoteTransactions.isNotEmpty) {
+      await transactionDao.insertTransactions(remoteTransactions);
+    }
+  }
 
   @override
   Future<WalletSnapshot?> getWalletSnapshot() => walletDao.getWalletSnapshot();

@@ -51,15 +51,16 @@ Phase 3 (Connectivity, Queue & Synchronization) is COMPLETE and Hardened:
   - Head-of-line blocking elimination in `_executeSyncPass`: recoverable failures record error and continue to subsequent healthy operations.
   - Accurate `retryOperation` status checking on failed claim and preserved coalesced trigger metadata.
 
-Phase 4 (Design System & App Shell) is COMPLETE:
-- `T-DS-001` (Implement design tokens, theme, font and icons) is COMPLETE and merged into `main`.
-- `T-DS-002` (Implement shared UI components) is COMPLETE and merged into `main`.
-- `T-APP-001` (Implement app shell, routing and bottom navigation) is COMPLETE and verified on branch `feat/app-shell-and-routing`.
-  - App root shell `NovaWalletApp` and `NovaWalletShell` configured with `ProviderScope`.
-  - Bottom navigation bar matching `UI-CMP-05` with `Wallet`, `Send`, and `NovaSave` tabs.
-  - Riverpod navigation provider (`appNavigationProvider`) supporting tab switching and test overrides.
-  - Canonical Visual-QA device documented as iPhone 14 / Pixel 7 (390 x 844 @3x) in `docs/design/SCREEN_INDEX.md`.
-  - 4 new widget tests added (356 total tests passing across project).
+Phase 4 (Design System & App Shell) is COMPLETE and merged into `main` (`3e14dc7`).
+
+Phase 5 (Wallet) is IN PROGRESS:
+- `T-WAL-001` (Implement wallet data projection and repositories) is COMPLETE on `feat/wallet-data-projection`:
+  - `WalletActivityItem` domain model fusing confirmed transactions and in-flight operations with reverse-chronological sorting.
+  - `WalletProjection` domain projection enforcing `MNY-004` (headline balance remains confirmed while spendable balance reserves pending debits).
+  - Extended `TransactionStatus` with `processing` status.
+  - Added `refresh()` to `WalletRepository` and `LocalWalletRepository` with `RemoteApi` synchronization and idempotent caching (`InsertMode.insertOrReplace`).
+  - Added `walletSnapshotStreamProvider`, `walletRecentTransactionsStreamProvider`, and `walletProjectionProvider` in `lib/features/wallet/data/wallet_providers.dart`.
+  - Authored 15 tests in `test/features/wallet/domain/wallet_projection_test.dart` and `test/features/wallet/data/wallet_repository_test.dart` (371 total project tests passing).
 
 ---
 
@@ -67,12 +68,12 @@ Phase 4 (Design System & App Shell) is COMPLETE:
  
 Current Task:
 ```text
-Phase 4 (Design System & App Shell) COMPLETE on feat/app-shell-and-routing — Ready to merge into main
+T-WAL-001 (Implement wallet data projection and repositories) COMPLETE on feat/wallet-data-projection
 ```
 
 Next Task:
 ```text
-T-WAL-001 — Implement wallet data projection and repositories (Phase 5 — Wallet)
+T-WAL-002 — Implement wallet home, lazy transactions and refresh (Phase 5 — Wallet)
 ```
 
 ---
