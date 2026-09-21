@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** T-DS-001 (tokens, theme, font, icons) COMPLETE and verified on `feat/ds-tokens-and-theme` — Ready for review / merge  
-**Primary next task:** `T-DS-002 — Implement shared UI components`  
-**Current branch:** `feat/ds-tokens-and-theme`  
-**Latest commit on main:** `a965d6d`  
+**Status:** T-DS-002 (shared UI components) COMPLETE on `feat/ds-components` — Ready to merge into `main`  
+**Primary next task:** `T-APP-001 — Implement app shell, routing and bottom navigation`  
+**Current branch:** `feat/ds-components`  
+**Latest commit on main:** `f75d06d`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -52,15 +52,16 @@ Phase 3 (Connectivity, Queue & Synchronization) is COMPLETE and Hardened:
   - Accurate `retryOperation` status checking on failed claim and preserved coalesced trigger metadata.
 
 Phase 4 (Design System & App Shell) in progress:
-- `T-DS-001` (Implement design tokens, theme, font and icons) is COMPLETE and verified on branch `feat/ds-tokens-and-theme`.
-  - All color palettes (blue, gold, grey, success, warning, error) centralized in `AppColors`.
-  - Full 38-variant typography scale in Plus Jakarta Sans centralized in `AppTypography`.
-  - Spacing scale (4 to 32) centralized in `AppSpacing`.
-  - Radii (8 to 999) centralized in `AppRadii`.
-  - Elevation (Y:4, Blur:48, Opacity:2%) centralized in `AppElevation`.
-  - All 19 approved icons abstracted in `AppIcons` with accessible `AppIcon` widget.
-  - Production `AppTheme.light` configured with Material 3 and custom tokens.
-  - 24 unit and widget tests passing (334 total tests passing across project).
+- `T-DS-001` (Implement design tokens, theme, font and icons) is COMPLETE and merged into `main`.
+- `T-DS-002` (Implement shared UI components) is COMPLETE and verified on branch `feat/ds-components`.
+  - Buttons (`AppButton`: primary, secondary, outline, text, loading, disabled, accessible semantics).
+  - Text fields (`AppTextField`, `AppAmountField` with numeric formatting and error states).
+  - System notifications (`AppSystemNotification`: offline, backOnline, syncFailure, savedOnPhone).
+  - Status & results (`AppStatusBadge`, `AppResultIndicator`).
+  - Cards & rows (`AppCard`, `AppKeyValueRow`).
+  - Progress (`AppProgressBar`).
+  - Sheets & empty states (`AppBottomSheet`, `AppEmptyState`).
+  - 18 new widget tests added (42 total design system tests, 352 total tests project-wide).
 
 ---
 
@@ -68,12 +69,12 @@ Phase 4 (Design System & App Shell) in progress:
  
 Current Task:
 ```text
-T-DS-001 — Implement design tokens, theme, font and icons (COMPLETE on feat/ds-tokens-and-theme)
+T-DS-002 — Implement shared UI components (COMPLETE on feat/ds-components)
 ```
 
 Next Task:
 ```text
-T-DS-002 — Implement shared UI components
+T-APP-001 — Implement app shell, routing and bottom navigation
 ```
 
 ---
@@ -104,10 +105,11 @@ Do not claim success without actually running the relevant commands.
 
 ### 13. Next Action
  
-`T-DS-001` is completed on `feat/ds-tokens-and-theme`. All 334 tests pass, analyzer clean, formatting checked.
+`T-DS-002` is completed on `feat/ds-components`. All 352 tests pass, analyzer clean, formatting checked.
  
 ### Next Steps:
-1. Merge `feat/ds-tokens-and-theme` into `main`.
-2. Proceed to `T-DS-002` (Implement shared UI components: buttons, fields, notifications, status badges, cards).
+1. Merge `feat/ds-components` into `main`.
+2. Proceed to `T-APP-001` (Implement app shell, routing and bottom navigation).
+
 
 

@@ -238,14 +238,14 @@ These are approved-design requirements, not separate assessor wording.
 | DSN-004 | Use approved spacing scale | UI-DS-04 | `lib/design_system/tokens/app_spacing.dart` | unit | test/design_system/tokens_test.dart | IMPLEMENTED |
 | DSN-005 | Use approved radii | UI-DS-04 | `lib/design_system/tokens/app_radii.dart` | unit | test/design_system/tokens_test.dart | IMPLEMENTED |
 | DSN-006 | Use approved elevation/shadow | UI-DS-04 | `lib/design_system/tokens/app_elevation.dart` | unit | test/design_system/tokens_test.dart | IMPLEMENTED |
-| DSN-007 | Implement reusable button states | UI-CMP-01 | design system/components | widget/visual | VERIFIED | TODO |
-| DSN-008 | Implement reusable text-field states | UI-CMP-02 | design system/components | widget/visual | VERIFIED | TODO |
-| DSN-009 | Implement system notifications | UI-CMP-03 | design system/components | widget/visual | VERIFIED | TODO |
-| DSN-010 | Implement status/result components | UI-CMP-04 | design system/components | widget/visual | VERIFIED | TODO |
+| DSN-007 | Implement reusable button states | UI-CMP-01 | `lib/design_system/components/buttons/app_button.dart` | widget | test/design_system/components_test.dart | IMPLEMENTED |
+| DSN-008 | Implement reusable text-field states | UI-CMP-02 | `lib/design_system/components/fields/` | widget | test/design_system/components_test.dart | IMPLEMENTED |
+| DSN-009 | Implement system notifications | UI-CMP-03 | `lib/design_system/components/notifications/app_system_notification.dart` | widget | test/design_system/components_test.dart | IMPLEMENTED |
+| DSN-010 | Implement status/result components | UI-CMP-04 | `lib/design_system/components/status/` | widget | test/design_system/components_test.dart | IMPLEMENTED |
 | DSN-011 | Implement bottom navigation | UI-CMP-05 | app/design system | widget/visual | VERIFIED | TODO |
-| DSN-012 | Implement reusable cards/list rows | UI-CMP-07 | design system/components | widget/visual | VERIFIED | TODO |
-| DSN-013 | Implement progress treatment | UI-CMP-08 | design system/components | widget/visual | VERIFIED | TODO |
-| DSN-014 | Implement sheets/empty-state patterns | UI-CMP-09 | design system/components | widget/visual | VERIFIED | TODO |
+| DSN-012 | Implement reusable cards/list rows | UI-CMP-07 | `lib/design_system/components/cards/` | widget | test/design_system/components_test.dart | IMPLEMENTED |
+| DSN-013 | Implement progress treatment | UI-CMP-08 | `lib/design_system/components/progress/app_progress_bar.dart` | widget | test/design_system/components_test.dart | IMPLEMENTED |
+| DSN-014 | Implement sheets/empty-state patterns | UI-CMP-09 | `lib/design_system/components/sheets/`, `lib/design_system/components/empty_states/` | widget | test/design_system/components_test.dart | IMPLEMENTED |
 
 For exact token values, `docs/DESIGN_SYSTEM.md` and the authoritative Style Guide PDF control implementation.
 
