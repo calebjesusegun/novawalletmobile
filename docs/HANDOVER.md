@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 0 complete — Documentation and launch config update on chore/readme-launch-config  
+**Status:** Phase 0 complete — Merged into main  
 **Primary next task:** `T-MNY-001 — Implement integer-kobo Money value object`  
-**Current branch:** `chore/readme-launch-config`  
-**Latest commit:** `59e135c`  
+**Current branch:** `main`  
+**Latest commit:** `7910504`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
