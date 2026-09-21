@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 0 in progress — T-BASE-002 completed on branch chore/T-BASE-002-linting-tests  
+**Status:** Phase 0 in progress — T-BASE-002 completed and merged into main  
 **Primary next task:** `T-BASE-003 — Add CI verification`  
-**Current branch:** `chore/T-BASE-002-linting-tests`  
-**Latest commit:** `a5300c2`  
+**Current branch:** `main`  
+**Latest commit:** `e852ae1`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
