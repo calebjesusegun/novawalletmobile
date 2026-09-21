@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 3 in Progress — T-SYNC-004 complete and verified; ready for PR and merge  
-**Primary next task:** Merge PR for `feature/T-SYNC-004-retry-policy`, then proceed to `T-SYNC-005` (Prove offline → restart → reconnect kernel)  
-**Current branch:** `feature/T-SYNC-004-retry-policy`  
-**Latest commit on main:** `05635ff` (PR #19)  
+**Status:** Phase 3 in Progress — T-SYNC-004 complete and merged; ready for T-SYNC-005  
+**Primary next task:** `T-SYNC-005 — Prove offline → restart → reconnect kernel`  
+**Current branch:** `main`  
+**Latest commit on main:** `d4bbf27` (PR #20)  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
