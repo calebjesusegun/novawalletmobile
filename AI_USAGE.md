@@ -889,6 +889,37 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
+### Prompt 25 — Implement app shell, routing and bottom navigation (T-APP-001)
+
+**Tool:** Antigravity  
+**Stage:** Phase 4 — Design System & App Shell (`feat/app-shell-and-routing`)
+
+**Prompt**
+
+> Continue all the tasks in Phase 4 before we do a review. Implement T-APP-001 — Implement app shell, routing, and bottom navigation:
+> 1. Navigation destinations: Wallet, Send, NovaSave.
+> 2. Bottom navigation bar per UI-CMP-05: 3 destinations, exact tokens, semantics, unselected/selected states.
+> 3. App shell structure with state preservation (`IndexedStack`).
+> 4. State management via Riverpod.
+> 5. Tests verifying tab switching, state preservation, accessibility/semantics.
+
+**Result**
+
+- Implemented `AppDestination` enum with identifiers, labels, and icon pairings.
+- Implemented `AppNavigationNotifier` (Riverpod `StateNotifier`) with destination switching and history.
+- Implemented `AppBottomNavBar` per UI-CMP-05 specifications with exact token colors, typography, icon rendering, and `Semantics(selected: ..., button: true)`.
+- Implemented `NovaWalletApp` and `NovaWalletShell` using `IndexedStack` to preserve state across destination switches.
+- Documented canonical visual QA screen profile (iPhone 14 / Pixel 7: 390x844 @3x) in `docs/design/SCREEN_INDEX.md`.
+- Authored 5 widget/unit tests in `test/app/app_shell_test.dart` and `test/widget_test.dart`.
+- All 356 project tests pass.
+
+**Action taken**
+
+- Ran `dart format --output=none --set-exit-if-changed .`, `flutter analyze`, and `flutter test`.
+- Updated `docs/REQUIREMENTS_TRACEABILITY.md` (DSN-011 IMPLEMENTED), `docs/TASKS.md` (T-APP-001 checked off), `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
+---
+
 ## AI Mistakes / Risky Output
 
 At least one real example must be included before submission.

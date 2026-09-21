@@ -1037,7 +1037,7 @@ flutter analyze
 
 ---
 
-## [ ] T-APP-001 — Implement app shell, routing and bottom navigation
+## [x] T-APP-001 — Implement app shell, routing and bottom navigation
 
 **Risk:** B  
 **Size:** M
