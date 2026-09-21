@@ -242,5 +242,130 @@ void main() {
         isFalse,
       );
     });
+
+    test('excluding parameter excludes specified operation from reservation (prevents self-counting)', () {
+      // confirmed: 50,000.00; queuedOp reserves 20,000.00.
+      // Normal spendable: 30,000.00.
+      // When excluding queuedOp: spendable: 50,000.00.
+      expect(
+        policy.canSpend(
+          amount: const Money.fromKobo(4000000), // ₦40,000.00
+          confirmedBalance: confirmedBalance,
+          operations: [queuedOp],
+          excluding: queuedOp.id,
+        ),
+        isTrue,
+      );
+
+      expect(
+        policy.calculateSpendableBalance(
+          confirmedBalance: confirmedBalance,
+          operations: [queuedOp],
+          excluding: queuedOp.id,
+        ),
+        confirmedBalance,
+      );
+
+      expect(
+        policy.calculateReservedAmount([queuedOp], excluding: queuedOp.id),
+        const Money.zero(),
+      );
+    });
+  });
+
+  group('SpendableBalancePolicy 64-bit Overflow & Adversarial Boundary Safety (HC-MONEY)', () {
+    const policy = SpendableBalancePolicy();
+
+    test('two large 5x10^18 kobo pending operations against ₦1.00 fails closed to zero', () {
+      // 5 * 10^18 kobo is within signed 64-bit int (~9.22 * 10^18 max),
+      // but two of them sum to 10^19 kobo, which overflows 64-bit signed int.
+      const largeKobo = 5000000000000000000;
+      final op1 = createSendOp(id: 'op-large-1', kobo: largeKobo);
+      final op2 = createSendOp(id: 'op-large-2', kobo: largeKobo);
+
+      const confirmed = Money.fromKobo(100); // ₦1.00
+
+      // Must fail closed to Money.zero(), never wrap into positive ₦84 quadrillion!
+      final spendable = policy.calculateSpendableBalance(
+        confirmedBalance: confirmed,
+        operations: [op1, op2],
+      );
+
+      expect(spendable, const Money.zero());
+
+      // calculateReservedAmount throws MoneyOverflowException
+      expect(
+        () => policy.calculateReservedAmount([op1, op2]),
+        throwsA(isA<MoneyOverflowException>()),
+      );
+
+      // canSpend fails closed
+      expect(
+        policy.canSpend(
+          amount: const Money.fromKobo(50),
+          confirmedBalance: confirmed,
+          operations: [op1, op2],
+        ),
+        isFalse,
+      );
+    });
+
+    test(
+      'four 2^62 kobo operations do not wrap to zero or leak spendable balance',
+      () {
+        // 2^62 = 4,611,686,018,427,387,904
+        const nearBoundKobo = 4611686018427387904;
+        final ops = List.generate(
+          4,
+          (i) => createSendOp(id: 'op-four-$i', kobo: nearBoundKobo),
+        );
+
+        const confirmed = Money.fromKobo(10000000); // ₦100,000.00
+
+        final spendable = policy.calculateSpendableBalance(
+          confirmedBalance: confirmed,
+          operations: ops,
+        );
+
+        expect(spendable, const Money.zero());
+        expect(
+          policy.canSpend(
+            amount: const Money.fromKobo(100),
+            confirmedBalance: confirmed,
+            operations: ops,
+          ),
+          isFalse,
+        );
+      },
+    );
+
+    test(
+      'non-positive confirmed balance (including minKobo) returns Money.zero()',
+      () {
+        const minConfirmed = Money.fromKobo(Money.minKobo);
+        final op = createSendOp(id: '1', kobo: 5);
+
+        final spendable = policy.calculateSpendableBalance(
+          confirmedBalance: minConfirmed,
+          operations: [op],
+        );
+
+        expect(spendable, const Money.zero());
+        expect(
+          policy.canSpend(
+            amount: const Money.fromKobo(1),
+            confirmedBalance: minConfirmed,
+            operations: [op],
+          ),
+          isFalse,
+        );
+
+        final zeroConfirmed = policy.calculateSpendableBalance(
+          confirmedBalance: const Money.zero(),
+          operations: [op],
+        );
+        expect(zeroConfirmed, const Money.zero());
+      },
+    );
   });
 }

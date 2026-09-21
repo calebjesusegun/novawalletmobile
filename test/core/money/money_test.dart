@@ -76,12 +76,15 @@ void main() {
       expect(negative.format(includeSymbol: false), '-125,450.00');
     });
 
-    test('formats without kobo remainder when requested', () {
+    test('formatCompact and format without kobo remainder when requested', () {
       const money = Money.fromKobo(12545000);
       expect(money.format(includeKobo: false), '₦125,450');
+      expect(money.formatCompact(), '₦125,450');
 
+      // Financial safety: non-zero fractional kobo is never silently dropped
       const withRemainder = Money.fromKobo(12545075);
-      expect(withRemainder.format(includeKobo: false), '₦125,450');
+      expect(withRemainder.format(includeKobo: false), '₦125,450.75');
+      expect(withRemainder.formatCompact(), '₦125,450.75');
     });
 
     test('formats fractional kobo with leading zero padding', () {
@@ -298,7 +301,6 @@ void main() {
       expect(Money.parse('10.05'), const Money.fromKobo(1005));
       expect(Money.parse('0'), const Money.zero());
       expect(Money.parse('.50'), const Money.fromKobo(50));
-      expect(Money.parse('50.'), const Money.fromKobo(5000));
     });
 
     test('parses strings formatted with commas and currency symbols', () {
@@ -313,27 +315,40 @@ void main() {
       expect(Money.parse('-50.25'), const Money.fromKobo(-5025));
     });
 
-    test('tryParse returns null on invalid formats', () {
-      expect(Money.tryParse(''), isNull);
-      expect(Money.tryParse('   '), isNull);
-      expect(Money.tryParse('abc'), isNull);
-      expect(Money.tryParse('10.123'), isNull); // More than 2 decimal places
-      expect(Money.tryParse('10.0.0'), isNull);
-      expect(Money.tryParse('₦'), isNull);
-      expect(Money.tryParse('-'), isNull);
-      expect(Money.tryParse('.'), isNull); // Solitary dot with no digits
-      expect(Money.tryParse('1,2,3'), isNull); // Malformed comma grouping
-      expect(Money.tryParse('1 0'), isNull); // Internal space between digits
-      expect(Money.tryParse('1,00'), isNull); // Invalid thousands grouping
-      expect(Money.tryParse(',100'), isNull); // Leading comma
-      expect(Money.tryParse('100,'), isNull); // Trailing comma
-      expect(Money.tryParse('10,000.0,0'), isNull); // Comma in fraction
-    });
+    test(
+      'tryParse returns null on invalid formats and strict grammar violations',
+      () {
+        expect(Money.tryParse(''), isNull);
+        expect(Money.tryParse('   '), isNull);
+        expect(Money.tryParse('abc'), isNull);
+        expect(Money.tryParse('10.123'), isNull); // More than 2 decimal places
+        expect(Money.tryParse('10.0.0'), isNull);
+        expect(Money.tryParse('₦'), isNull);
+        expect(Money.tryParse('-'), isNull);
+        expect(Money.tryParse('.'), isNull); // Solitary dot with no digits
+        expect(Money.tryParse('50.'), isNull); // Trailing dot without fraction
+        expect(Money.tryParse('007'), isNull); // Leading zero on whole number
+        expect(Money.tryParse('0,001'), isNull); // Leading zero with comma
+        expect(Money.tryParse('01'), isNull); // Leading zero
+        expect(Money.tryParse('ngn 100'), isNull); // Lowercase ngn rejected
+        expect(Money.tryParse('1,2,3'), isNull); // Malformed comma grouping
+        expect(Money.tryParse('1 0'), isNull); // Internal space between digits
+        expect(Money.tryParse('1,00'), isNull); // Invalid thousands grouping
+        expect(Money.tryParse(',100'), isNull); // Leading comma
+        expect(Money.tryParse('100,'), isNull); // Trailing comma
+        expect(Money.tryParse('10,000.0,0'), isNull); // Comma in fraction
+        expect(Money.tryParse('1' * 41), isNull); // Exceeds 40 characters
+      },
+    );
 
     test('parse throws MoneyParseException on invalid format', () {
       expect(() => Money.parse('invalid'), throwsA(isA<MoneyParseException>()));
       expect(() => Money.parse('12.345'), throwsA(isA<MoneyParseException>()));
       expect(() => Money.parse('.'), throwsA(isA<MoneyParseException>()));
+      expect(() => Money.parse('50.'), throwsA(isA<MoneyParseException>()));
+      expect(() => Money.parse('007'), throwsA(isA<MoneyParseException>()));
+      expect(() => Money.parse('0,001'), throwsA(isA<MoneyParseException>()));
+      expect(() => Money.parse('ngn 100'), throwsA(isA<MoneyParseException>()));
       expect(() => Money.parse('1,2,3'), throwsA(isA<MoneyParseException>()));
       expect(() => Money.parse('1 0'), throwsA(isA<MoneyParseException>()));
       expect(() => Money.parse('1,00'), throwsA(isA<MoneyParseException>()));
@@ -343,6 +358,7 @@ void main() {
         () => Money.parse('10,000.0,0'),
         throwsA(isA<MoneyParseException>()),
       );
+      expect(() => Money.parse('1' * 41), throwsA(isA<MoneyParseException>()));
     });
   });
 

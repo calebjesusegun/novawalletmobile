@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:novawallet/core/ids/operation_id.dart';
 import 'package:novawallet/core/money/money.dart';
 import 'package:novawallet/sync/domain/financial_operation.dart';
 
@@ -18,37 +19,64 @@ import 'package:novawallet/sync/domain/financial_operation.dart';
 ///    the spendable balance is [Money.zero] (never negative).
 /// 4. Completed operations do not double-deduct from spendable balance.
 /// 5. Failed operations release their reservation immediately upon failure.
+/// 6. All calculations use exact [Money] arithmetic. If reservations overflow
+///    the 64-bit integer limit, calculation fails closed to [Money.zero].
 @immutable
 class SpendableBalancePolicy {
   const SpendableBalancePolicy();
 
+  /// Calculates the total kobo reserved by active pending/processing operations.
+  ///
+  /// Optionally excludes an operation identified by [excluding] (useful when
+  /// re-validating an existing pending operation so it is not self-counted).
+  ///
+  /// Under HC-MONEY:
+  /// - Active operations are accumulated using exact [Money] arithmetic.
+  /// - If total reservations exceed [Money.maxKobo], throws [MoneyOverflowException].
+  Money calculateReservedAmount(
+    Iterable<FinancialOperation> operations, {
+    OperationId? excluding,
+  }) {
+    var reserved = const Money.zero();
+    for (final op in operations) {
+      if (excluding != null && op.id == excluding) {
+        continue;
+      }
+      if (op.isPending || op.isProcessing) {
+        reserved += op.payload.amount;
+      }
+    }
+    return reserved;
+  }
+
   /// Calculates the current spendable balance given the [confirmedBalance] and [operations].
+  ///
+  /// Optionally excludes an operation identified by [excluding].
+  ///
+  /// Fails closed:
+  /// - If [confirmedBalance] is non-positive, returns [Money.zero].
+  /// - If reserved amount calculation or subtraction overflows, returns [Money.zero].
+  /// - If reserved amount equals or exceeds confirmed balance, returns [Money.zero].
   Money calculateSpendableBalance({
     required Money confirmedBalance,
     required Iterable<FinancialOperation> operations,
+    OperationId? excluding,
   }) {
-    var activePendingKobo = 0;
-    for (final op in operations) {
-      if (op.isPending || op.isProcessing) {
-        activePendingKobo += op.payload.amount.kobo;
-      }
+    if (!confirmedBalance.isPositive) {
+      return const Money.zero();
     }
 
-    final remainingKobo = confirmedBalance.kobo - activePendingKobo;
-    return remainingKobo > 0
-        ? Money.fromKobo(remainingKobo)
-        : const Money.zero();
-  }
-
-  /// Calculates the total kobo reserved by active pending/processing operations.
-  Money calculateReservedAmount(Iterable<FinancialOperation> operations) {
-    var reservedKobo = 0;
-    for (final op in operations) {
-      if (op.isPending || op.isProcessing) {
-        reservedKobo += op.payload.amount.kobo;
-      }
+    try {
+      final reserved = calculateReservedAmount(
+        operations,
+        excluding: excluding,
+      );
+      final remaining = confirmedBalance - reserved;
+      return remaining.isPositive ? remaining : const Money.zero();
+    } on MoneyOverflowException {
+      // Fail closed: unrepresentable reservation or subtraction overflow -> nothing spendable
+      return const Money.zero();
     }
-    return Money.fromKobo(reservedKobo);
   }
 
   /// Determines whether [amount] can be spent/transferred given [confirmedBalance]
@@ -60,13 +88,15 @@ class SpendableBalancePolicy {
     required Money amount,
     required Money confirmedBalance,
     required Iterable<FinancialOperation> operations,
+    OperationId? excluding,
   }) {
-    if (amount.isZero || amount.isNegative) {
+    if (!amount.isPositive) {
       return false;
     }
     final spendable = calculateSpendableBalance(
       confirmedBalance: confirmedBalance,
       operations: operations,
+      excluding: excluding,
     );
     return amount <= spendable;
   }

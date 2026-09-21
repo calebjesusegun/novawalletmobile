@@ -287,8 +287,43 @@ void main() {
       expect(progress.percentage, 66);
       expect(progress.roundedPercentage, 67);
       expect(progress.formatPercentage(decimalPlaces: 2), '66.66%');
-      expect(progress.formatPercentage(decimalPlaces: 1), '66.7%');
+      expect(progress.formatPercentage(decimalPlaces: 1), '66.6%');
       expect(progress.formatPercentage(rounded: true), '67%');
+    });
+
+    test('never reports 100% or 100.0% before goal is actually reached', () {
+      // 9,995 kobo saved toward 10,000 kobo (₦99.95 of ₦100.00, ₦0.05 remaining)
+      final progress9995 = SavingsProgress(
+        targetAmount: const Money.fromKobo(10000),
+        savedAmount: const Money.fromKobo(9995),
+      );
+
+      expect(progress9995.isGoalReached, isFalse);
+      expect(progress9995.remainingAmount, const Money.fromKobo(5));
+      expect(progress9995.basisPoints, 9995);
+      expect(progress9995.percentage, 99);
+      expect(progress9995.roundedPercentage, 99); // Capped at 99%, never 100%
+      expect(progress9995.formatPercentage(), '99%');
+      expect(progress9995.formatPercentage(rounded: true), '99%');
+      expect(
+        progress9995.formatPercentage(decimalPlaces: 1),
+        '99.9%',
+      ); // Not 100.0%
+      expect(progress9995.formatPercentage(decimalPlaces: 2), '99.95%');
+      expect(progress9995.toProgressFraction(), 0.9995);
+
+      // 9,950 kobo saved toward 10,000 kobo (₦99.50 of ₦100.00)
+      final progress9950 = SavingsProgress(
+        targetAmount: const Money.fromKobo(10000),
+        savedAmount: const Money.fromKobo(9950),
+      );
+
+      expect(progress9950.isGoalReached, isFalse);
+      expect(progress9950.basisPoints, 9950);
+      expect(progress9950.roundedPercentage, 99);
+      expect(progress9950.formatPercentage(), '99%');
+      expect(progress9950.formatPercentage(rounded: true), '99%');
+      expect(progress9950.formatPercentage(decimalPlaces: 1), '99.5%');
     });
 
     test('handles large monetary amounts without 64-bit integer overflow', () {

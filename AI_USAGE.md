@@ -533,6 +533,39 @@ Antigravity refactored `SavingsProgress` and `SavingsGoal`:
 
 Automated tests in `test/features/novasave/savings_progress_test.dart` and `test/features/novasave/savings_goal_test.dart` assert that all domain calculations remain strictly integer/BigInt-based, boundary fractions are strictly clamped to `[0.0, 1.0]`, and extreme ratios preserve exact `BigInt` precision.
 
+### AI-RISK-004 — Unchecked 64-bit integer arithmetic in SpendableBalancePolicy and silent truncation in Money / SavingsProgress
+
+**Tool:** Antigravity (initial implementation) & Codex + Claude Code (peer code reviews)  
+**Stage:** Phase 1 — Spendability Policy, Money, and Savings Progress (T-DOM-001, T-MNY-001, T-MNY-002)
+
+**Risky output / assumption**
+
+1. In `SpendableBalancePolicy`, reservation aggregation unwrapped `Money.kobo` and accumulated amounts using native Dart 64-bit `int` addition (`+=`) and subtraction (`-`).
+2. In `SavingsProgress`, rounding logic in `roundedPercentage` and `formatPercentage(decimalPlaces: 1)` rounded unreached goals (e.g. 9,995 of 10,000 kobo) up to `100%` / `100.0%` despite unreached target and remaining balance.
+3. In `Money.format`, setting `includeKobo: false` silently truncated non-zero fractional kobo (rendering `₦125,450.75` as `₦125,450`).
+4. In `Money.parse`, trailing dots (`"50."`) and leading zeros (`"007"`, `"0,001"`) were accepted.
+
+**Why this was risky**
+
+1. Accumulating large pending operations using native 64-bit integer addition causes silent two's-complement wrap-around in Dart VM. Multiple large operations sum to negative/wrapped values, causing the policy to report zero reservations and leak spendable balance, directly violating HC-MONEY and MNY-006.
+2. Reporting 100% progress when money is still required to meet the goal creates misleading and inaccurate financial displays.
+3. Silently dropping non-zero fractional kobo in formatting hides real monetary value from the user.
+
+**How it was caught**
+
+Both Codex and Claude Code conducted independent adversarial peer reviews of Phase 1. Claude Code confirmed the defect using a probe test: a confirmed balance of ₦1.00 with two pending operations of 5×10¹⁸ kobo wrapped around to report a spendable balance of ~₦84 quadrillion.
+
+**Correction**
+
+1. Refactored `SpendableBalancePolicy` to accumulate reservations using exact `Money` arithmetic and to fail closed (`Money.zero()`) on `MoneyOverflowException` or non-positive confirmed balances. Added `excluding: OperationId?` to prevent self-counting during re-validation.
+2. Refactored `SavingsProgress`: capped `roundedPercentage` at 99% if `!isGoalReached`, used floored tenths for 1-decimal-place formatting (never reporting 100.0% prematurely), and aligned `toProgressFraction()` to `basisPoints / 10000.0`.
+3. Added `Money.formatCompact()` and ensured `Money.format(includeKobo: false)` preserves fractional kobo when non-zero.
+4. Enforced strict grammar in `Money._parseInternal` (rejecting trailing dots, leading zeroes, lowercase `ngn`, and inputs > 40 chars).
+
+**Regression protection**
+
+Added adversarial tests in `test/sync/domain/spendable_balance_policy_test.dart`, `test/features/novasave/savings_progress_test.dart`, and `test/core/money/money_test.dart` asserting that large 64-bit operations fail closed, premature 100% is impossible, non-zero kobo is preserved, and malformed numeric strings are rejected.
+
 ---
 
 ## Additional Risk Entries
