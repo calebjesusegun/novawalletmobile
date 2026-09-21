@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 3 COMPLETE — T-SYNC-005 complete and verified; ready for PR and merge into main  
-**Primary next task:** Merge PR for `feature/T-SYNC-005-kernel-verification`, then proceed to `T-DS-001` (Implement design tokens, theme, font and icons)  
-**Current branch:** `feature/T-SYNC-005-kernel-verification`  
-**Latest commit on main:** `6884a64` (PR #20 + housekeeping)  
+**Status:** Phase 3 COMPLETE — All Phase 3 tasks merged into main; ready for Phase 4 (Design System & App Shell)  
+**Primary next task:** `T-DS-001 — Implement design tokens, theme, font and icons`  
+**Current branch:** `main`  
+**Latest commit on main:** `50d40a1` (PR #21)  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
