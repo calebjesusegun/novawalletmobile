@@ -3,12 +3,13 @@ import 'dart:async';
 import 'package:novawallet/core/connectivity/connectivity_service.dart';
 import 'package:novawallet/core/ids/operation_id.dart';
 import 'package:novawallet/fake_backend/remote_api.dart';
-import 'package:novawallet/fake_backend/remote_exceptions.dart';
 import 'package:novawallet/fake_backend/remote_operation_result.dart';
 import 'package:novawallet/features/novasave/domain/novasave_repository.dart';
 import 'package:novawallet/features/wallet/domain/transaction_type.dart';
 import 'package:novawallet/features/wallet/domain/wallet_repository.dart';
 import 'package:novawallet/features/wallet/domain/wallet_transaction.dart';
+import 'package:novawallet/sync/application/failure_classifier.dart';
+import 'package:novawallet/sync/application/retry_policy.dart';
 import 'package:novawallet/sync/application/sync_result.dart';
 import 'package:novawallet/sync/domain/financial_operation.dart';
 import 'package:novawallet/sync/domain/operation_payload.dart';
@@ -259,9 +260,9 @@ class SyncCoordinator {
       } else {
         remoteResult = await remoteApi.contribute(operation);
       }
-    } on RemoteApiException catch (e) {
-      final syncError = e.toSyncError();
-      if (e.isRecoverable) {
+    } catch (e) {
+      final syncError = FailureClassifier.classify(e, now);
+      if (syncError.isRecoverable) {
         await operationRepository.markPendingWithError(
           operation.id,
           error: syncError,
@@ -276,17 +277,6 @@ class SyncCoordinator {
         );
         return _OperationOutcome.terminal(syncError);
       }
-    } catch (e) {
-      final syncError = SyncError.recoverable(
-        message: e.toString(),
-        timestamp: now,
-      );
-      await operationRepository.markPendingWithError(
-        operation.id,
-        error: syncError,
-        at: now,
-      );
-      return _OperationOutcome.recoverable(syncError);
     }
 
     // Remote call succeeded -> Apply local side-effects BEFORE exposing operation completion
@@ -347,29 +337,47 @@ class SyncCoordinator {
   }
 
   /// Retries a single pending operation explicitly (e.g. user taps Retry button).
-  Future<bool> retryOperation(OperationId id) async {
+  ///
+  /// Implements requirements:
+  /// - HC-RETRY: Event-triggered by user action; no automatic background spinning loop (ASM-010, SYNC-013).
+  /// - HC-IDEMPOTENCY: Reuses the identical operation identity and idempotency key (SND-020, NSV-023).
+  /// - Race condition protection: cannot retry an operation that is already claimed or in-flight.
+  Future<RetryResult> retryOperation(OperationId id) async {
     if (_isDisposed) {
       throw StateError('Cannot retry on a disposed SyncCoordinator.');
     }
 
     final connectivity = await connectivityService.checkConnectivity();
     if (connectivity.isOffline) {
-      return false;
+      return const RetryResult.offline();
     }
 
     final operation = await operationRepository.getOperationById(id);
-    if (operation == null || operation.status != OperationStatus.pending) {
-      return false;
+    if (operation == null) {
+      return const RetryResult.notRetryable();
+    }
+
+    if (!RetryPolicy.canRetry(operation, isOnline: connectivity.isOnline)) {
+      if (operation.status == OperationStatus.processing) {
+        return const RetryResult.alreadyProcessing();
+      }
+      return const RetryResult.notRetryable();
     }
 
     final now = _clock().toUtc();
     final claimed = await operationRepository.claim(id, at: now);
     if (!claimed) {
-      return false;
+      return const RetryResult.alreadyProcessing();
     }
 
     final outcome = await _processClaimedOperation(operation, now);
-    return outcome.type == _OutcomeType.success;
+    if (outcome.type == _OutcomeType.success) {
+      return RetryResult.success(
+        remoteReference: outcome.result?.remoteReference,
+      );
+    } else {
+      return RetryResult.failed(outcome.error);
+    }
   }
 
   void _updateStatus(SyncStatus newStatus) {

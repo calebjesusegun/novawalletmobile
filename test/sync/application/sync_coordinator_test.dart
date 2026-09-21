@@ -473,8 +473,9 @@ void main() {
       );
 
       // Direct retry succeeds
-      final success = await coordinator.retryOperation(op.id);
-      expect(success, isTrue);
+      final retryResult = await coordinator.retryOperation(op.id);
+      expect(retryResult.isSuccess, isTrue);
+      expect(retryResult.status, RetryStatus.success);
 
       expect(
         (await opRepo.getOperationById(op.id))!.status,

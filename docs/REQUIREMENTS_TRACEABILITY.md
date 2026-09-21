@@ -72,7 +72,7 @@ These IDs represent the original assessment rather than invented feature require
 | ASM-007 | NovaSave supports goal creation with name, target amount and target date | Assessment §2.1 | `features/novasave` | widget/unit | VERIFIED | TODO |
 | ASM-008 | NovaSave supports contributions and progress as bar/percentage | Assessment §2.1 | `features/novasave` | widget/unit | VERIFIED | IN_PROGRESS |
 | ASM-009 | Send/Contribution while offline is queued locally and shown as Pending rather than lost | Assessment §2.1 | `sync`, feature presentation | repository + widget + integration | VERIFIED | IN_PROGRESS |
-| ASM-010 | Offline actions are not silently retried in an uncontrolled loop | Assessment §2.1 | `sync` | unit/integration | VERIFIED | IN_PROGRESS |
+| ASM-010 | Offline actions are not silently retried in an uncontrolled loop | Assessment §2.1 | `sync` | unit/integration | VERIFIED | DONE |
 | ASM-011 | On reconnect, queued actions are replayed without duplicate financial effect | Assessment §2.1 | `sync`, `fake_backend` | integration | VERIFIED | TODO |
 | ASM-012 | A queued action survives an app restart while offline | Assessment §2.2 | Drift persistence / `sync` | integration | VERIFIED | DONE |
 | ASM-013 | A queued action is not sent twice after reconnect/restart | Assessment §2.2 | `sync`, `fake_backend` | integration | VERIFIED | DONE |
@@ -156,8 +156,8 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 | SND-016 | Pending transfer survives restart | ASM-012 | UI-SND-15 + Flow 2 | sync/persistence | integration | VERIFIED | DONE |
 | SND-017 | Reconnect transitions pending transfer into processing | ASM-011 | UI-SND-16 | sync | integration/widget | VERIFIED by design | TODO |
 | SND-018 | Reconnect success completes once and updates wallet once | ASM-011, ASM-013 | UI-SND-17 | sync/fake backend/wallet | integration | VERIFIED | TODO |
-| SND-019 | Sync failure retains the transfer safely and offers retry | ASM-009, ASM-010 | UI-SND-18 | sync/send | integration/widget | VERIFIED by design | TODO |
-| SND-020 | Manual retry reuses the same logical operation/idempotency key | ASM-006, ASM-013 | UI-SND-18 | sync/fake backend | unit/integration | INFERRED implementation required by verified idempotency requirement | TODO |
+| SND-019 | Sync failure retains the transfer safely and offers retry | ASM-009, ASM-010 | UI-SND-18 | sync/send | integration/widget | VERIFIED by design | IN_PROGRESS |
+| SND-020 | Manual retry reuses the same logical operation/idempotency key | ASM-006, ASM-013 | UI-SND-18 | sync/fake backend | unit/integration | INFERRED implementation required by verified idempotency requirement | DONE |
 
 ---
 
@@ -186,8 +186,8 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 | NSV-019 | Pending contribution survives restart | ASM-012 | UI-NSV-17/18 + Flow 6 | sync/persistence | integration | VERIFIED | DONE |
 | NSV-020 | Reconnect transitions pending contribution into processing | ASM-011 | UI-NSV-19 | sync | integration/widget | VERIFIED by design | TODO |
 | NSV-021 | Reconnect success updates goal once | ASM-011, ASM-013 | UI-NSV-20 | sync/fake backend/NovaSave | integration | VERIFIED | TODO |
-| NSV-022 | Sync failure retains contribution safely and offers retry | ASM-009, ASM-010 | UI-NSV-21 | sync/NovaSave | integration/widget | VERIFIED by design | TODO |
-| NSV-023 | Manual retry reuses the same logical contribution/idempotency key | ASM-013 | UI-NSV-21 | sync/fake backend | unit/integration | INFERRED implementation required by duplicate-prevention requirement | TODO |
+| NSV-022 | Sync failure retains contribution safely and offers retry | ASM-009, ASM-010 | UI-NSV-21 | sync/NovaSave | integration/widget | VERIFIED by design | IN_PROGRESS |
+| NSV-023 | Manual retry reuses the same logical contribution/idempotency key | ASM-013 | UI-NSV-21 | sync/fake backend | unit/integration | INFERRED implementation required by duplicate-prevention requirement | DONE |
 
 ---
 

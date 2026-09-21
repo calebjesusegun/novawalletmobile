@@ -706,6 +706,34 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 - Ran full project verification (`dart format`, `flutter analyze`, `flutter test`), passing cleanly with 0 warnings/errors across all 283 tests.
 - Updated `docs/TASKS.md` (`T-SYNC-003` marked `[x]`), `docs/REQUIREMENTS_TRACEABILITY.md` (`ASM-012`, `ASM-013`, `SND-016`, `NSV-019`, `TST-007` marked `DONE`), `AI_USAGE.md`, and `docs/HANDOVER.md`.
 
+### Prompt 19 — Failure classification and retry policy (T-SYNC-004)
+
+**Tool:** Antigravity  
+**Stage:** Phase 3 — Connectivity, Queue & Synchronization (T-SYNC-004)
+
+**Prompt**
+
+> Implement T-SYNC-004 — Implement failure classification and retry policy:
+> 1. Create task branch `feature/T-SYNC-004-retry-policy` from clean `main`.
+> 2. Classify sync exceptions into `SyncError` models distinguishing recoverable vs. terminal errors (`FailureClassifier`).
+> 3. Implement `RetryPolicy` and `RetryResult` to govern retry eligibility (`pending`, online, not in-flight `processing`).
+> 4. Guarantee zero background unmetered retry/timer loops per `HC-RETRY` (`ASM-010`, `SYNC-013`).
+> 5. Guarantee manual retry reuses the identical `OperationId` and `IdempotencyKey` without generating new keys (`HC-IDEMPOTENCY`, `SND-019`, `SND-020`, `NSV-022`, `NSV-023`).
+> 6. Protect against concurrent race conditions (cannot retry an already claimed or processing operation).
+> 7. Verify all tests pass, 0 analyzer issues, 0 format issues.
+
+**Result**
+
+- Implemented `FailureClassifier` in `lib/sync/application/failure_classifier.dart` classifying network timeouts, socket exceptions, and transient server faults as recoverable `SyncError`, while business rule failures, invalid accounts, and non-retryable server responses are classified as terminal.
+- Implemented `RetryPolicy` and `RetryResult` in `lib/sync/application/retry_policy.dart` with statuses (`success`, `failed`, `offline`, `alreadyProcessing`, `notRetryable`).
+- Updated `SyncCoordinator.retryOperation` to return structured `Future<RetryResult>` with full concurrency and offline protection.
+- Authored comprehensive test suite in `test/sync/application/retry_policy_test.dart` verifying error mapping, idempotency key reuse, race protection, and absence of uncontrolled retry loops across Send Money and NovaSave. Total test count reached 296 tests.
+
+**Action taken**
+
+- Ran full project verification (`dart format`, `flutter analyze`, `flutter test`), passing cleanly with 0 warnings/errors across all 296 tests.
+- Updated `docs/TASKS.md` (`T-SYNC-004` marked `[x]`), `docs/REQUIREMENTS_TRACEABILITY.md` (`ASM-010`, `SYNC-012`, `SYNC-013`, `SND-020`, `NSV-023` marked `DONE`; `SND-019`, `NSV-022` marked `IN_PROGRESS`), `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
 ---
 
 ## AI Mistakes / Risky Output

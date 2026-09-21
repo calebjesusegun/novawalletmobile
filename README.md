@@ -308,5 +308,5 @@ Usage is documented in [`AI_USAGE.md`](AI_USAGE.md), including:
 
 ---
 
-Let's build NovaWallet together 🌍
+Let's build **NovaWallet** together 🌍
 
