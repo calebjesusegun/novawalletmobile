@@ -483,7 +483,7 @@ flutter analyze
 
 ---
 
-## [ ] T-DB-002 — Add local wallet, transaction and goal persistence
+## [x] T-DB-002 — Add local wallet, transaction and goal persistence
 
 **Risk:** A  
 **Size:** M

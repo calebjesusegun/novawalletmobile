@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 2 in Progress — T-DB-001 complete and verified; ready for merge and transition to T-DB-002  
-**Primary next task:** Merge PR for `feature/T-DB-001-drift-persistence`, then proceed to `T-DB-002` (local wallet, transaction, and goal persistence)  
-**Current branch:** `feature/T-DB-001-drift-persistence`  
-**Latest commit on main:** `939663d`  
+**Status:** Phase 2 in Progress — T-DB-001 and T-DB-002 complete and verified; ready for merge and transition to T-REMOTE-001  
+**Primary next task:** Merge PR for `feature/T-DB-002-wallet-goal-persistence`, then proceed to `T-REMOTE-001` (idempotent fake remote)  
+**Current branch:** `feature/T-DB-002-wallet-goal-persistence`  
+**Latest commit on main:** `128d4ed`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -32,7 +32,8 @@ Phase 1 (Money, Identity & Core Operation Model) is COMPLETE and Remediated:
   - Remediation PR 3 (`docs/T-DOM-fix-contracts-and-polish`, PR #11, merged `939663d`): Added `PayloadFormatException` and `schemaVersion: 1` to `OperationPayload`, documented atomic balance update contract in `ARCHITECTURE.md` §16, added acceptance criterion to `T-XF-001` in `TASKS.md`, and marked `MNY-006` as `DECISION / INFERRED` in `REQUIREMENTS_TRACEABILITY.md`.
 
 Phase 2 (Persistence & Fake Remote) is in progress:
-- `T-DB-001` (Configure Drift and pending-operation schema) is COMPLETE on `feature/T-DB-001-drift-persistence`.
+- `T-DB-001` (Configure Drift and pending-operation schema) is COMPLETE and merged (`128d4ed`).
+- `T-DB-002` (Add local wallet, transaction and goal persistence) is COMPLETE on `feature/T-DB-002-wallet-goal-persistence`.
 
 ---
 
@@ -40,12 +41,12 @@ Phase 2 (Persistence & Fake Remote) is in progress:
  
 Current Task:
 ```text
-T-DB-001 — Configure Drift and pending-operation schema (feature/T-DB-001-drift-persistence)
+T-DB-002 — Add local wallet, transaction and goal persistence (feature/T-DB-002-wallet-goal-persistence)
 ```
 
 Next Task:
 ```text
-T-DB-002 — Add local wallet, transaction and goal persistence
+T-REMOTE-001 — Implement idempotent fake remote
 ```
 
 ---
@@ -78,18 +79,18 @@ Do not claim success without actually running the relevant commands.
 
 ### 13. Next Action
  
-`feature/T-DB-001-drift-persistence` is verified and ready to merge into `main`.
+`feature/T-DB-002-wallet-goal-persistence` is verified and ready to merge into `main`.
  
-### Completed Work (T-DB-001):
-- Added `drift`, `sqlite3`, `path_provider`, and `path` to dependencies; `drift_dev` and `build_runner` to dev dependencies.
-- Implemented `PendingOperations` Drift table schema in `lib/sync/data/pending_operations_table.dart` capturing stable operation ID, unique idempotency key, operation type, JSON payload, exact integer kobo amount (`BigInt`), lifecycle status, attempt count, UTC timestamps, serialized sync error, remote reference, and completion timestamp.
-- Implemented `AppDatabase` in `lib/core/persistence/app_database.dart` with support for lazy file storage in production, explicit file connections for restart testing, and in-memory SQLite instances for fast, isolated unit tests.
-- Implemented `PendingOperationMapper` in `lib/sync/data/pending_operation_mapper.dart` ensuring strict rehydration through `FinancialOperation.restore` enforcing all domain invariants.
-- Implemented `PendingOperationsDao` in `lib/sync/data/pending_operations_dao.dart` providing atomic claiming (`claimOperation`), lifecycle updates (`updateOperation`), crash recovery query (`recoverInterruptedOperations`), and spendable balance active operation watchers (`getActiveOperations`, `watchActiveOperations`).
-- Authored 8 unit tests in `test/sync/data/pending_operations_dao_test.dart` verifying exact integer kobo storage, unique idempotency key constraint, atomic claiming, lifecycle progression with recoverable error metadata, and multi-connection database restart simulation across file open/close cycles (bringing test suite total from 193 to 201 tests).
-- Ran and verified full baseline checks (201 tests passing, 0 analyzer issues, 0 formatting issues).
+### Completed Work (T-DB-002):
+- Implemented `WalletSnapshot` and `WalletTransaction` domain entities strictly using `Money` value object for integer-kobo precision (HC-MONEY).
+- Created Drift tables in `lib/core/persistence/local_tables.dart`: `WalletCache` (singleton balance cache), `TransactionsTable` (confirmed activity history), and `SavingsGoalsTable` (savings goals definitions and progress).
+- Created `WalletDao` and `TransactionDao` in `lib/features/wallet/data/` with support for lazy recent-transactions querying (`limit`, `offset`) per HC-PERFORMANCE and reactive stream watchers.
+- Created `SavingsGoalDao` in `lib/features/novasave/data/` with atomic contribution incrementing (`applyContribution`) and reactive goal stream watchers.
+- Created `WalletRepository` and `NovaSaveRepository` interfaces with `LocalWalletRepository` and `LocalNovaSaveRepository` implementations hiding Drift persistence details.
+- Authored 10 unit tests across `test/features/wallet/data/wallet_persistence_test.dart` and `test/features/novasave/data/savings_goals_persistence_test.dart` verifying integer kobo storage, singleton wallet updates, reactive streams, lazy pagination, atomic contributions, and multi-connection file reopen survival across database lifecycle cycles (bringing suite total from 201 to 211 tests).
+- Ran and verified full baseline checks (211 tests passing, 0 analyzer issues, 0 formatting issues).
 
 ### Next Steps:
-1. Commit, push `feature/T-DB-001-drift-persistence`, open PR, squash-merge into `main`.
+1. Commit, push `feature/T-DB-002-wallet-goal-persistence`, open PR, squash-merge into `main`.
 2. Checkout `main`, pull latest.
-3. Begin `T-DB-002 — Add local wallet, transaction and goal persistence` on a new feature branch `feature/T-DB-002-wallet-goal-persistence`.
+3. Begin `T-REMOTE-001 — Implement idempotent fake remote` on a new feature branch `feature/T-REMOTE-001-fake-remote`.

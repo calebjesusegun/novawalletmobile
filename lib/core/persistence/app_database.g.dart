@@ -781,16 +781,1269 @@ class PendingOperationsCompanion
   }
 }
 
+class $WalletCacheTable extends WalletCache
+    with TableInfo<$WalletCacheTable, WalletCacheEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $WalletCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _balanceKoboMeta = const VerificationMeta(
+    'balanceKobo',
+  );
+  @override
+  late final GeneratedColumn<BigInt> balanceKobo = GeneratedColumn<BigInt>(
+    'balance_kobo',
+    aliasedName,
+    false,
+    type: DriftSqlType.bigInt,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _lastUpdatedAtMeta = const VerificationMeta(
+    'lastUpdatedAt',
+  );
+  @override
+  late final GeneratedColumn<BigInt> lastUpdatedAt = GeneratedColumn<BigInt>(
+    'last_updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.bigInt,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, balanceKobo, lastUpdatedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'wallet_cache';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<WalletCacheEntry> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('balance_kobo')) {
+      context.handle(
+        _balanceKoboMeta,
+        balanceKobo.isAcceptableOrUnknown(
+          data['balance_kobo']!,
+          _balanceKoboMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_balanceKoboMeta);
+    }
+    if (data.containsKey('last_updated_at')) {
+      context.handle(
+        _lastUpdatedAtMeta,
+        lastUpdatedAt.isAcceptableOrUnknown(
+          data['last_updated_at']!,
+          _lastUpdatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_lastUpdatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  WalletCacheEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WalletCacheEntry(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      balanceKobo: attachedDatabase.typeMapping.read(
+        DriftSqlType.bigInt,
+        data['${effectivePrefix}balance_kobo'],
+      )!,
+      lastUpdatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.bigInt,
+        data['${effectivePrefix}last_updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $WalletCacheTable createAlias(String alias) {
+    return $WalletCacheTable(attachedDatabase, alias);
+  }
+}
+
+class WalletCacheEntry extends DataClass
+    implements Insertable<WalletCacheEntry> {
+  /// Singleton primary key (fixed ID = 1) ensuring exactly one active balance snapshot.
+  final int id;
+
+  /// Confirmed wallet balance in integer kobo.
+  final BigInt balanceKobo;
+
+  /// Timestamp when balance was last updated/refreshed (UTC epoch milliseconds).
+  final BigInt lastUpdatedAt;
+  const WalletCacheEntry({
+    required this.id,
+    required this.balanceKobo,
+    required this.lastUpdatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['balance_kobo'] = Variable<BigInt>(balanceKobo);
+    map['last_updated_at'] = Variable<BigInt>(lastUpdatedAt);
+    return map;
+  }
+
+  WalletCacheCompanion toCompanion(bool nullToAbsent) {
+    return WalletCacheCompanion(
+      id: Value(id),
+      balanceKobo: Value(balanceKobo),
+      lastUpdatedAt: Value(lastUpdatedAt),
+    );
+  }
+
+  factory WalletCacheEntry.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WalletCacheEntry(
+      id: serializer.fromJson<int>(json['id']),
+      balanceKobo: serializer.fromJson<BigInt>(json['balanceKobo']),
+      lastUpdatedAt: serializer.fromJson<BigInt>(json['lastUpdatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'balanceKobo': serializer.toJson<BigInt>(balanceKobo),
+      'lastUpdatedAt': serializer.toJson<BigInt>(lastUpdatedAt),
+    };
+  }
+
+  WalletCacheEntry copyWith({
+    int? id,
+    BigInt? balanceKobo,
+    BigInt? lastUpdatedAt,
+  }) => WalletCacheEntry(
+    id: id ?? this.id,
+    balanceKobo: balanceKobo ?? this.balanceKobo,
+    lastUpdatedAt: lastUpdatedAt ?? this.lastUpdatedAt,
+  );
+  WalletCacheEntry copyWithCompanion(WalletCacheCompanion data) {
+    return WalletCacheEntry(
+      id: data.id.present ? data.id.value : this.id,
+      balanceKobo: data.balanceKobo.present
+          ? data.balanceKobo.value
+          : this.balanceKobo,
+      lastUpdatedAt: data.lastUpdatedAt.present
+          ? data.lastUpdatedAt.value
+          : this.lastUpdatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WalletCacheEntry(')
+          ..write('id: $id, ')
+          ..write('balanceKobo: $balanceKobo, ')
+          ..write('lastUpdatedAt: $lastUpdatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, balanceKobo, lastUpdatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WalletCacheEntry &&
+          other.id == this.id &&
+          other.balanceKobo == this.balanceKobo &&
+          other.lastUpdatedAt == this.lastUpdatedAt);
+}
+
+class WalletCacheCompanion extends UpdateCompanion<WalletCacheEntry> {
+  final Value<int> id;
+  final Value<BigInt> balanceKobo;
+  final Value<BigInt> lastUpdatedAt;
+  const WalletCacheCompanion({
+    this.id = const Value.absent(),
+    this.balanceKobo = const Value.absent(),
+    this.lastUpdatedAt = const Value.absent(),
+  });
+  WalletCacheCompanion.insert({
+    this.id = const Value.absent(),
+    required BigInt balanceKobo,
+    required BigInt lastUpdatedAt,
+  }) : balanceKobo = Value(balanceKobo),
+       lastUpdatedAt = Value(lastUpdatedAt);
+  static Insertable<WalletCacheEntry> custom({
+    Expression<int>? id,
+    Expression<BigInt>? balanceKobo,
+    Expression<BigInt>? lastUpdatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (balanceKobo != null) 'balance_kobo': balanceKobo,
+      if (lastUpdatedAt != null) 'last_updated_at': lastUpdatedAt,
+    });
+  }
+
+  WalletCacheCompanion copyWith({
+    Value<int>? id,
+    Value<BigInt>? balanceKobo,
+    Value<BigInt>? lastUpdatedAt,
+  }) {
+    return WalletCacheCompanion(
+      id: id ?? this.id,
+      balanceKobo: balanceKobo ?? this.balanceKobo,
+      lastUpdatedAt: lastUpdatedAt ?? this.lastUpdatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (balanceKobo.present) {
+      map['balance_kobo'] = Variable<BigInt>(balanceKobo.value);
+    }
+    if (lastUpdatedAt.present) {
+      map['last_updated_at'] = Variable<BigInt>(lastUpdatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WalletCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('balanceKobo: $balanceKobo, ')
+          ..write('lastUpdatedAt: $lastUpdatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TransactionsTableTable extends TransactionsTable
+    with TableInfo<$TransactionsTableTable, TransactionEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TransactionsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _transactionTypeMeta = const VerificationMeta(
+    'transactionType',
+  );
+  @override
+  late final GeneratedColumn<String> transactionType = GeneratedColumn<String>(
+    'transaction_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _amountKoboMeta = const VerificationMeta(
+    'amountKobo',
+  );
+  @override
+  late final GeneratedColumn<BigInt> amountKobo = GeneratedColumn<BigInt>(
+    'amount_kobo',
+    aliasedName,
+    false,
+    type: DriftSqlType.bigInt,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _counterpartyMeta = const VerificationMeta(
+    'counterparty',
+  );
+  @override
+  late final GeneratedColumn<String> counterparty = GeneratedColumn<String>(
+    'counterparty',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<BigInt> createdAt = GeneratedColumn<BigInt>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.bigInt,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('completed'),
+  );
+  static const VerificationMeta _referenceMeta = const VerificationMeta(
+    'reference',
+  );
+  @override
+  late final GeneratedColumn<String> reference = GeneratedColumn<String>(
+    'reference',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _narrationMeta = const VerificationMeta(
+    'narration',
+  );
+  @override
+  late final GeneratedColumn<String> narration = GeneratedColumn<String>(
+    'narration',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    transactionType,
+    amountKobo,
+    counterparty,
+    createdAt,
+    status,
+    reference,
+    narration,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'transactions_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TransactionEntry> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('transaction_type')) {
+      context.handle(
+        _transactionTypeMeta,
+        transactionType.isAcceptableOrUnknown(
+          data['transaction_type']!,
+          _transactionTypeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_transactionTypeMeta);
+    }
+    if (data.containsKey('amount_kobo')) {
+      context.handle(
+        _amountKoboMeta,
+        amountKobo.isAcceptableOrUnknown(data['amount_kobo']!, _amountKoboMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_amountKoboMeta);
+    }
+    if (data.containsKey('counterparty')) {
+      context.handle(
+        _counterpartyMeta,
+        counterparty.isAcceptableOrUnknown(
+          data['counterparty']!,
+          _counterpartyMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_counterpartyMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
+    if (data.containsKey('reference')) {
+      context.handle(
+        _referenceMeta,
+        reference.isAcceptableOrUnknown(data['reference']!, _referenceMeta),
+      );
+    }
+    if (data.containsKey('narration')) {
+      context.handle(
+        _narrationMeta,
+        narration.isAcceptableOrUnknown(data['narration']!, _narrationMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TransactionEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TransactionEntry(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      transactionType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}transaction_type'],
+      )!,
+      amountKobo: attachedDatabase.typeMapping.read(
+        DriftSqlType.bigInt,
+        data['${effectivePrefix}amount_kobo'],
+      )!,
+      counterparty: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}counterparty'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.bigInt,
+        data['${effectivePrefix}created_at'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      reference: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reference'],
+      ),
+      narration: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}narration'],
+      ),
+    );
+  }
+
+  @override
+  $TransactionsTableTable createAlias(String alias) {
+    return $TransactionsTableTable(attachedDatabase, alias);
+  }
+}
+
+class TransactionEntry extends DataClass
+    implements Insertable<TransactionEntry> {
+  /// Unique transaction identifier.
+  final String id;
+
+  /// Transaction type: 'debit' or 'credit'.
+  final String transactionType;
+
+  /// Monetary amount in integer kobo.
+  final BigInt amountKobo;
+
+  /// Counterparty name or label (e.g. recipient name, sender name, goal name).
+  final String counterparty;
+
+  /// Transaction creation timestamp (UTC epoch milliseconds).
+  final BigInt createdAt;
+
+  /// Transaction status: 'completed', 'pending', 'failed'.
+  final String status;
+
+  /// Remote settlement reference, nullable.
+  final String? reference;
+
+  /// Optional narration / description.
+  final String? narration;
+  const TransactionEntry({
+    required this.id,
+    required this.transactionType,
+    required this.amountKobo,
+    required this.counterparty,
+    required this.createdAt,
+    required this.status,
+    this.reference,
+    this.narration,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['transaction_type'] = Variable<String>(transactionType);
+    map['amount_kobo'] = Variable<BigInt>(amountKobo);
+    map['counterparty'] = Variable<String>(counterparty);
+    map['created_at'] = Variable<BigInt>(createdAt);
+    map['status'] = Variable<String>(status);
+    if (!nullToAbsent || reference != null) {
+      map['reference'] = Variable<String>(reference);
+    }
+    if (!nullToAbsent || narration != null) {
+      map['narration'] = Variable<String>(narration);
+    }
+    return map;
+  }
+
+  TransactionsTableCompanion toCompanion(bool nullToAbsent) {
+    return TransactionsTableCompanion(
+      id: Value(id),
+      transactionType: Value(transactionType),
+      amountKobo: Value(amountKobo),
+      counterparty: Value(counterparty),
+      createdAt: Value(createdAt),
+      status: Value(status),
+      reference: reference == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reference),
+      narration: narration == null && nullToAbsent
+          ? const Value.absent()
+          : Value(narration),
+    );
+  }
+
+  factory TransactionEntry.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TransactionEntry(
+      id: serializer.fromJson<String>(json['id']),
+      transactionType: serializer.fromJson<String>(json['transactionType']),
+      amountKobo: serializer.fromJson<BigInt>(json['amountKobo']),
+      counterparty: serializer.fromJson<String>(json['counterparty']),
+      createdAt: serializer.fromJson<BigInt>(json['createdAt']),
+      status: serializer.fromJson<String>(json['status']),
+      reference: serializer.fromJson<String?>(json['reference']),
+      narration: serializer.fromJson<String?>(json['narration']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'transactionType': serializer.toJson<String>(transactionType),
+      'amountKobo': serializer.toJson<BigInt>(amountKobo),
+      'counterparty': serializer.toJson<String>(counterparty),
+      'createdAt': serializer.toJson<BigInt>(createdAt),
+      'status': serializer.toJson<String>(status),
+      'reference': serializer.toJson<String?>(reference),
+      'narration': serializer.toJson<String?>(narration),
+    };
+  }
+
+  TransactionEntry copyWith({
+    String? id,
+    String? transactionType,
+    BigInt? amountKobo,
+    String? counterparty,
+    BigInt? createdAt,
+    String? status,
+    Value<String?> reference = const Value.absent(),
+    Value<String?> narration = const Value.absent(),
+  }) => TransactionEntry(
+    id: id ?? this.id,
+    transactionType: transactionType ?? this.transactionType,
+    amountKobo: amountKobo ?? this.amountKobo,
+    counterparty: counterparty ?? this.counterparty,
+    createdAt: createdAt ?? this.createdAt,
+    status: status ?? this.status,
+    reference: reference.present ? reference.value : this.reference,
+    narration: narration.present ? narration.value : this.narration,
+  );
+  TransactionEntry copyWithCompanion(TransactionsTableCompanion data) {
+    return TransactionEntry(
+      id: data.id.present ? data.id.value : this.id,
+      transactionType: data.transactionType.present
+          ? data.transactionType.value
+          : this.transactionType,
+      amountKobo: data.amountKobo.present
+          ? data.amountKobo.value
+          : this.amountKobo,
+      counterparty: data.counterparty.present
+          ? data.counterparty.value
+          : this.counterparty,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      status: data.status.present ? data.status.value : this.status,
+      reference: data.reference.present ? data.reference.value : this.reference,
+      narration: data.narration.present ? data.narration.value : this.narration,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TransactionEntry(')
+          ..write('id: $id, ')
+          ..write('transactionType: $transactionType, ')
+          ..write('amountKobo: $amountKobo, ')
+          ..write('counterparty: $counterparty, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('status: $status, ')
+          ..write('reference: $reference, ')
+          ..write('narration: $narration')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    transactionType,
+    amountKobo,
+    counterparty,
+    createdAt,
+    status,
+    reference,
+    narration,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TransactionEntry &&
+          other.id == this.id &&
+          other.transactionType == this.transactionType &&
+          other.amountKobo == this.amountKobo &&
+          other.counterparty == this.counterparty &&
+          other.createdAt == this.createdAt &&
+          other.status == this.status &&
+          other.reference == this.reference &&
+          other.narration == this.narration);
+}
+
+class TransactionsTableCompanion extends UpdateCompanion<TransactionEntry> {
+  final Value<String> id;
+  final Value<String> transactionType;
+  final Value<BigInt> amountKobo;
+  final Value<String> counterparty;
+  final Value<BigInt> createdAt;
+  final Value<String> status;
+  final Value<String?> reference;
+  final Value<String?> narration;
+  final Value<int> rowid;
+  const TransactionsTableCompanion({
+    this.id = const Value.absent(),
+    this.transactionType = const Value.absent(),
+    this.amountKobo = const Value.absent(),
+    this.counterparty = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.status = const Value.absent(),
+    this.reference = const Value.absent(),
+    this.narration = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TransactionsTableCompanion.insert({
+    required String id,
+    required String transactionType,
+    required BigInt amountKobo,
+    required String counterparty,
+    required BigInt createdAt,
+    this.status = const Value.absent(),
+    this.reference = const Value.absent(),
+    this.narration = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       transactionType = Value(transactionType),
+       amountKobo = Value(amountKobo),
+       counterparty = Value(counterparty),
+       createdAt = Value(createdAt);
+  static Insertable<TransactionEntry> custom({
+    Expression<String>? id,
+    Expression<String>? transactionType,
+    Expression<BigInt>? amountKobo,
+    Expression<String>? counterparty,
+    Expression<BigInt>? createdAt,
+    Expression<String>? status,
+    Expression<String>? reference,
+    Expression<String>? narration,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (transactionType != null) 'transaction_type': transactionType,
+      if (amountKobo != null) 'amount_kobo': amountKobo,
+      if (counterparty != null) 'counterparty': counterparty,
+      if (createdAt != null) 'created_at': createdAt,
+      if (status != null) 'status': status,
+      if (reference != null) 'reference': reference,
+      if (narration != null) 'narration': narration,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TransactionsTableCompanion copyWith({
+    Value<String>? id,
+    Value<String>? transactionType,
+    Value<BigInt>? amountKobo,
+    Value<String>? counterparty,
+    Value<BigInt>? createdAt,
+    Value<String>? status,
+    Value<String?>? reference,
+    Value<String?>? narration,
+    Value<int>? rowid,
+  }) {
+    return TransactionsTableCompanion(
+      id: id ?? this.id,
+      transactionType: transactionType ?? this.transactionType,
+      amountKobo: amountKobo ?? this.amountKobo,
+      counterparty: counterparty ?? this.counterparty,
+      createdAt: createdAt ?? this.createdAt,
+      status: status ?? this.status,
+      reference: reference ?? this.reference,
+      narration: narration ?? this.narration,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (transactionType.present) {
+      map['transaction_type'] = Variable<String>(transactionType.value);
+    }
+    if (amountKobo.present) {
+      map['amount_kobo'] = Variable<BigInt>(amountKobo.value);
+    }
+    if (counterparty.present) {
+      map['counterparty'] = Variable<String>(counterparty.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<BigInt>(createdAt.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (reference.present) {
+      map['reference'] = Variable<String>(reference.value);
+    }
+    if (narration.present) {
+      map['narration'] = Variable<String>(narration.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TransactionsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('transactionType: $transactionType, ')
+          ..write('amountKobo: $amountKobo, ')
+          ..write('counterparty: $counterparty, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('status: $status, ')
+          ..write('reference: $reference, ')
+          ..write('narration: $narration, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SavingsGoalsTableTable extends SavingsGoalsTable
+    with TableInfo<$SavingsGoalsTableTable, SavingsGoalEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SavingsGoalsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _targetAmountKoboMeta = const VerificationMeta(
+    'targetAmountKobo',
+  );
+  @override
+  late final GeneratedColumn<BigInt> targetAmountKobo = GeneratedColumn<BigInt>(
+    'target_amount_kobo',
+    aliasedName,
+    false,
+    type: DriftSqlType.bigInt,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _savedAmountKoboMeta = const VerificationMeta(
+    'savedAmountKobo',
+  );
+  @override
+  late final GeneratedColumn<BigInt> savedAmountKobo = GeneratedColumn<BigInt>(
+    'saved_amount_kobo',
+    aliasedName,
+    false,
+    type: DriftSqlType.bigInt,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _targetDateMeta = const VerificationMeta(
+    'targetDate',
+  );
+  @override
+  late final GeneratedColumn<BigInt> targetDate = GeneratedColumn<BigInt>(
+    'target_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.bigInt,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<BigInt> createdAt = GeneratedColumn<BigInt>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.bigInt,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    targetAmountKobo,
+    savedAmountKobo,
+    targetDate,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'savings_goals_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SavingsGoalEntry> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('target_amount_kobo')) {
+      context.handle(
+        _targetAmountKoboMeta,
+        targetAmountKobo.isAcceptableOrUnknown(
+          data['target_amount_kobo']!,
+          _targetAmountKoboMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_targetAmountKoboMeta);
+    }
+    if (data.containsKey('saved_amount_kobo')) {
+      context.handle(
+        _savedAmountKoboMeta,
+        savedAmountKobo.isAcceptableOrUnknown(
+          data['saved_amount_kobo']!,
+          _savedAmountKoboMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_savedAmountKoboMeta);
+    }
+    if (data.containsKey('target_date')) {
+      context.handle(
+        _targetDateMeta,
+        targetDate.isAcceptableOrUnknown(data['target_date']!, _targetDateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_targetDateMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SavingsGoalEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SavingsGoalEntry(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      targetAmountKobo: attachedDatabase.typeMapping.read(
+        DriftSqlType.bigInt,
+        data['${effectivePrefix}target_amount_kobo'],
+      )!,
+      savedAmountKobo: attachedDatabase.typeMapping.read(
+        DriftSqlType.bigInt,
+        data['${effectivePrefix}saved_amount_kobo'],
+      )!,
+      targetDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.bigInt,
+        data['${effectivePrefix}target_date'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.bigInt,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $SavingsGoalsTableTable createAlias(String alias) {
+    return $SavingsGoalsTableTable(attachedDatabase, alias);
+  }
+}
+
+class SavingsGoalEntry extends DataClass
+    implements Insertable<SavingsGoalEntry> {
+  /// Unique goal identifier.
+  final String id;
+
+  /// Goal display name.
+  final String name;
+
+  /// Target amount in integer kobo.
+  final BigInt targetAmountKobo;
+
+  /// Current saved amount in integer kobo.
+  final BigInt savedAmountKobo;
+
+  /// Target completion date (UTC epoch milliseconds).
+  final BigInt targetDate;
+
+  /// Timestamp when goal was created (UTC epoch milliseconds).
+  final BigInt createdAt;
+  const SavingsGoalEntry({
+    required this.id,
+    required this.name,
+    required this.targetAmountKobo,
+    required this.savedAmountKobo,
+    required this.targetDate,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['target_amount_kobo'] = Variable<BigInt>(targetAmountKobo);
+    map['saved_amount_kobo'] = Variable<BigInt>(savedAmountKobo);
+    map['target_date'] = Variable<BigInt>(targetDate);
+    map['created_at'] = Variable<BigInt>(createdAt);
+    return map;
+  }
+
+  SavingsGoalsTableCompanion toCompanion(bool nullToAbsent) {
+    return SavingsGoalsTableCompanion(
+      id: Value(id),
+      name: Value(name),
+      targetAmountKobo: Value(targetAmountKobo),
+      savedAmountKobo: Value(savedAmountKobo),
+      targetDate: Value(targetDate),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory SavingsGoalEntry.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SavingsGoalEntry(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      targetAmountKobo: serializer.fromJson<BigInt>(json['targetAmountKobo']),
+      savedAmountKobo: serializer.fromJson<BigInt>(json['savedAmountKobo']),
+      targetDate: serializer.fromJson<BigInt>(json['targetDate']),
+      createdAt: serializer.fromJson<BigInt>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'targetAmountKobo': serializer.toJson<BigInt>(targetAmountKobo),
+      'savedAmountKobo': serializer.toJson<BigInt>(savedAmountKobo),
+      'targetDate': serializer.toJson<BigInt>(targetDate),
+      'createdAt': serializer.toJson<BigInt>(createdAt),
+    };
+  }
+
+  SavingsGoalEntry copyWith({
+    String? id,
+    String? name,
+    BigInt? targetAmountKobo,
+    BigInt? savedAmountKobo,
+    BigInt? targetDate,
+    BigInt? createdAt,
+  }) => SavingsGoalEntry(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    targetAmountKobo: targetAmountKobo ?? this.targetAmountKobo,
+    savedAmountKobo: savedAmountKobo ?? this.savedAmountKobo,
+    targetDate: targetDate ?? this.targetDate,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  SavingsGoalEntry copyWithCompanion(SavingsGoalsTableCompanion data) {
+    return SavingsGoalEntry(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      targetAmountKobo: data.targetAmountKobo.present
+          ? data.targetAmountKobo.value
+          : this.targetAmountKobo,
+      savedAmountKobo: data.savedAmountKobo.present
+          ? data.savedAmountKobo.value
+          : this.savedAmountKobo,
+      targetDate: data.targetDate.present
+          ? data.targetDate.value
+          : this.targetDate,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SavingsGoalEntry(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('targetAmountKobo: $targetAmountKobo, ')
+          ..write('savedAmountKobo: $savedAmountKobo, ')
+          ..write('targetDate: $targetDate, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    name,
+    targetAmountKobo,
+    savedAmountKobo,
+    targetDate,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SavingsGoalEntry &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.targetAmountKobo == this.targetAmountKobo &&
+          other.savedAmountKobo == this.savedAmountKobo &&
+          other.targetDate == this.targetDate &&
+          other.createdAt == this.createdAt);
+}
+
+class SavingsGoalsTableCompanion extends UpdateCompanion<SavingsGoalEntry> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<BigInt> targetAmountKobo;
+  final Value<BigInt> savedAmountKobo;
+  final Value<BigInt> targetDate;
+  final Value<BigInt> createdAt;
+  final Value<int> rowid;
+  const SavingsGoalsTableCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.targetAmountKobo = const Value.absent(),
+    this.savedAmountKobo = const Value.absent(),
+    this.targetDate = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SavingsGoalsTableCompanion.insert({
+    required String id,
+    required String name,
+    required BigInt targetAmountKobo,
+    required BigInt savedAmountKobo,
+    required BigInt targetDate,
+    required BigInt createdAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       targetAmountKobo = Value(targetAmountKobo),
+       savedAmountKobo = Value(savedAmountKobo),
+       targetDate = Value(targetDate),
+       createdAt = Value(createdAt);
+  static Insertable<SavingsGoalEntry> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<BigInt>? targetAmountKobo,
+    Expression<BigInt>? savedAmountKobo,
+    Expression<BigInt>? targetDate,
+    Expression<BigInt>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (targetAmountKobo != null) 'target_amount_kobo': targetAmountKobo,
+      if (savedAmountKobo != null) 'saved_amount_kobo': savedAmountKobo,
+      if (targetDate != null) 'target_date': targetDate,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SavingsGoalsTableCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<BigInt>? targetAmountKobo,
+    Value<BigInt>? savedAmountKobo,
+    Value<BigInt>? targetDate,
+    Value<BigInt>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return SavingsGoalsTableCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      targetAmountKobo: targetAmountKobo ?? this.targetAmountKobo,
+      savedAmountKobo: savedAmountKobo ?? this.savedAmountKobo,
+      targetDate: targetDate ?? this.targetDate,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (targetAmountKobo.present) {
+      map['target_amount_kobo'] = Variable<BigInt>(targetAmountKobo.value);
+    }
+    if (savedAmountKobo.present) {
+      map['saved_amount_kobo'] = Variable<BigInt>(savedAmountKobo.value);
+    }
+    if (targetDate.present) {
+      map['target_date'] = Variable<BigInt>(targetDate.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<BigInt>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SavingsGoalsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('targetAmountKobo: $targetAmountKobo, ')
+          ..write('savedAmountKobo: $savedAmountKobo, ')
+          ..write('targetDate: $targetDate, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $PendingOperationsTable pendingOperations =
       $PendingOperationsTable(this);
+  late final $WalletCacheTable walletCache = $WalletCacheTable(this);
+  late final $TransactionsTableTable transactionsTable =
+      $TransactionsTableTable(this);
+  late final $SavingsGoalsTableTable savingsGoalsTable =
+      $SavingsGoalsTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [pendingOperations];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    pendingOperations,
+    walletCache,
+    transactionsTable,
+    savingsGoalsTable,
+  ];
 }
 
 typedef $$PendingOperationsTableCreateCompanionBuilder =
@@ -1168,10 +2421,717 @@ typedef $$PendingOperationsTableProcessedTableManager =
       PendingOperationEntry,
       PrefetchHooks Function()
     >;
+typedef $$WalletCacheTableCreateCompanionBuilder =
+    WalletCacheCompanion Function({
+      Value<int> id,
+      required BigInt balanceKobo,
+      required BigInt lastUpdatedAt,
+    });
+typedef $$WalletCacheTableUpdateCompanionBuilder =
+    WalletCacheCompanion Function({
+      Value<int> id,
+      Value<BigInt> balanceKobo,
+      Value<BigInt> lastUpdatedAt,
+    });
+
+class $$WalletCacheTableFilterComposer
+    extends Composer<_$AppDatabase, $WalletCacheTable> {
+  $$WalletCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<BigInt> get balanceKobo => $composableBuilder(
+    column: $table.balanceKobo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<BigInt> get lastUpdatedAt => $composableBuilder(
+    column: $table.lastUpdatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$WalletCacheTableOrderingComposer
+    extends Composer<_$AppDatabase, $WalletCacheTable> {
+  $$WalletCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<BigInt> get balanceKobo => $composableBuilder(
+    column: $table.balanceKobo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<BigInt> get lastUpdatedAt => $composableBuilder(
+    column: $table.lastUpdatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$WalletCacheTableAnnotationComposer
+    extends Composer<_$AppDatabase, $WalletCacheTable> {
+  $$WalletCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<BigInt> get balanceKobo => $composableBuilder(
+    column: $table.balanceKobo,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<BigInt> get lastUpdatedAt => $composableBuilder(
+    column: $table.lastUpdatedAt,
+    builder: (column) => column,
+  );
+}
+
+class $$WalletCacheTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $WalletCacheTable,
+          WalletCacheEntry,
+          $$WalletCacheTableFilterComposer,
+          $$WalletCacheTableOrderingComposer,
+          $$WalletCacheTableAnnotationComposer,
+          $$WalletCacheTableCreateCompanionBuilder,
+          $$WalletCacheTableUpdateCompanionBuilder,
+          (
+            WalletCacheEntry,
+            BaseReferences<_$AppDatabase, $WalletCacheTable, WalletCacheEntry>,
+          ),
+          WalletCacheEntry,
+          PrefetchHooks Function()
+        > {
+  $$WalletCacheTableTableManager(_$AppDatabase db, $WalletCacheTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$WalletCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$WalletCacheTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$WalletCacheTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<BigInt> balanceKobo = const Value.absent(),
+                Value<BigInt> lastUpdatedAt = const Value.absent(),
+              }) => WalletCacheCompanion(
+                id: id,
+                balanceKobo: balanceKobo,
+                lastUpdatedAt: lastUpdatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required BigInt balanceKobo,
+                required BigInt lastUpdatedAt,
+              }) => WalletCacheCompanion.insert(
+                id: id,
+                balanceKobo: balanceKobo,
+                lastUpdatedAt: lastUpdatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$WalletCacheTable, WalletCacheEntry>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $WalletCacheTable,
+                    WalletCacheEntry
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$WalletCacheTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $WalletCacheTable,
+      WalletCacheEntry,
+      $$WalletCacheTableFilterComposer,
+      $$WalletCacheTableOrderingComposer,
+      $$WalletCacheTableAnnotationComposer,
+      $$WalletCacheTableCreateCompanionBuilder,
+      $$WalletCacheTableUpdateCompanionBuilder,
+      (
+        WalletCacheEntry,
+        BaseReferences<_$AppDatabase, $WalletCacheTable, WalletCacheEntry>,
+      ),
+      WalletCacheEntry,
+      PrefetchHooks Function()
+    >;
+typedef $$TransactionsTableTableCreateCompanionBuilder =
+    TransactionsTableCompanion Function({
+      required String id,
+      required String transactionType,
+      required BigInt amountKobo,
+      required String counterparty,
+      required BigInt createdAt,
+      Value<String> status,
+      Value<String?> reference,
+      Value<String?> narration,
+      Value<int> rowid,
+    });
+typedef $$TransactionsTableTableUpdateCompanionBuilder =
+    TransactionsTableCompanion Function({
+      Value<String> id,
+      Value<String> transactionType,
+      Value<BigInt> amountKobo,
+      Value<String> counterparty,
+      Value<BigInt> createdAt,
+      Value<String> status,
+      Value<String?> reference,
+      Value<String?> narration,
+      Value<int> rowid,
+    });
+
+class $$TransactionsTableTableFilterComposer
+    extends Composer<_$AppDatabase, $TransactionsTableTable> {
+  $$TransactionsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get transactionType => $composableBuilder(
+    column: $table.transactionType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<BigInt> get amountKobo => $composableBuilder(
+    column: $table.amountKobo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get counterparty => $composableBuilder(
+    column: $table.counterparty,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<BigInt> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reference => $composableBuilder(
+    column: $table.reference,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get narration => $composableBuilder(
+    column: $table.narration,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$TransactionsTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $TransactionsTableTable> {
+  $$TransactionsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get transactionType => $composableBuilder(
+    column: $table.transactionType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<BigInt> get amountKobo => $composableBuilder(
+    column: $table.amountKobo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get counterparty => $composableBuilder(
+    column: $table.counterparty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<BigInt> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reference => $composableBuilder(
+    column: $table.reference,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get narration => $composableBuilder(
+    column: $table.narration,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$TransactionsTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TransactionsTableTable> {
+  $$TransactionsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get transactionType => $composableBuilder(
+    column: $table.transactionType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<BigInt> get amountKobo => $composableBuilder(
+    column: $table.amountKobo,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get counterparty => $composableBuilder(
+    column: $table.counterparty,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<BigInt> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get reference =>
+      $composableBuilder(column: $table.reference, builder: (column) => column);
+
+  GeneratedColumn<String> get narration =>
+      $composableBuilder(column: $table.narration, builder: (column) => column);
+}
+
+class $$TransactionsTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TransactionsTableTable,
+          TransactionEntry,
+          $$TransactionsTableTableFilterComposer,
+          $$TransactionsTableTableOrderingComposer,
+          $$TransactionsTableTableAnnotationComposer,
+          $$TransactionsTableTableCreateCompanionBuilder,
+          $$TransactionsTableTableUpdateCompanionBuilder,
+          (
+            TransactionEntry,
+            BaseReferences<
+              _$AppDatabase,
+              $TransactionsTableTable,
+              TransactionEntry
+            >,
+          ),
+          TransactionEntry,
+          PrefetchHooks Function()
+        > {
+  $$TransactionsTableTableTableManager(
+    _$AppDatabase db,
+    $TransactionsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TransactionsTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TransactionsTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TransactionsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> transactionType = const Value.absent(),
+                Value<BigInt> amountKobo = const Value.absent(),
+                Value<String> counterparty = const Value.absent(),
+                Value<BigInt> createdAt = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String?> reference = const Value.absent(),
+                Value<String?> narration = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TransactionsTableCompanion(
+                id: id,
+                transactionType: transactionType,
+                amountKobo: amountKobo,
+                counterparty: counterparty,
+                createdAt: createdAt,
+                status: status,
+                reference: reference,
+                narration: narration,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String transactionType,
+                required BigInt amountKobo,
+                required String counterparty,
+                required BigInt createdAt,
+                Value<String> status = const Value.absent(),
+                Value<String?> reference = const Value.absent(),
+                Value<String?> narration = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TransactionsTableCompanion.insert(
+                id: id,
+                transactionType: transactionType,
+                amountKobo: amountKobo,
+                counterparty: counterparty,
+                createdAt: createdAt,
+                status: status,
+                reference: reference,
+                narration: narration,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$TransactionsTableTable, TransactionEntry>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $TransactionsTableTable,
+                    TransactionEntry
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$TransactionsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TransactionsTableTable,
+      TransactionEntry,
+      $$TransactionsTableTableFilterComposer,
+      $$TransactionsTableTableOrderingComposer,
+      $$TransactionsTableTableAnnotationComposer,
+      $$TransactionsTableTableCreateCompanionBuilder,
+      $$TransactionsTableTableUpdateCompanionBuilder,
+      (
+        TransactionEntry,
+        BaseReferences<
+          _$AppDatabase,
+          $TransactionsTableTable,
+          TransactionEntry
+        >,
+      ),
+      TransactionEntry,
+      PrefetchHooks Function()
+    >;
+typedef $$SavingsGoalsTableTableCreateCompanionBuilder =
+    SavingsGoalsTableCompanion Function({
+      required String id,
+      required String name,
+      required BigInt targetAmountKobo,
+      required BigInt savedAmountKobo,
+      required BigInt targetDate,
+      required BigInt createdAt,
+      Value<int> rowid,
+    });
+typedef $$SavingsGoalsTableTableUpdateCompanionBuilder =
+    SavingsGoalsTableCompanion Function({
+      Value<String> id,
+      Value<String> name,
+      Value<BigInt> targetAmountKobo,
+      Value<BigInt> savedAmountKobo,
+      Value<BigInt> targetDate,
+      Value<BigInt> createdAt,
+      Value<int> rowid,
+    });
+
+class $$SavingsGoalsTableTableFilterComposer
+    extends Composer<_$AppDatabase, $SavingsGoalsTableTable> {
+  $$SavingsGoalsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<BigInt> get targetAmountKobo => $composableBuilder(
+    column: $table.targetAmountKobo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<BigInt> get savedAmountKobo => $composableBuilder(
+    column: $table.savedAmountKobo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<BigInt> get targetDate => $composableBuilder(
+    column: $table.targetDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<BigInt> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SavingsGoalsTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $SavingsGoalsTableTable> {
+  $$SavingsGoalsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<BigInt> get targetAmountKobo => $composableBuilder(
+    column: $table.targetAmountKobo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<BigInt> get savedAmountKobo => $composableBuilder(
+    column: $table.savedAmountKobo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<BigInt> get targetDate => $composableBuilder(
+    column: $table.targetDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<BigInt> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SavingsGoalsTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SavingsGoalsTableTable> {
+  $$SavingsGoalsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<BigInt> get targetAmountKobo => $composableBuilder(
+    column: $table.targetAmountKobo,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<BigInt> get savedAmountKobo => $composableBuilder(
+    column: $table.savedAmountKobo,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<BigInt> get targetDate => $composableBuilder(
+    column: $table.targetDate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<BigInt> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$SavingsGoalsTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SavingsGoalsTableTable,
+          SavingsGoalEntry,
+          $$SavingsGoalsTableTableFilterComposer,
+          $$SavingsGoalsTableTableOrderingComposer,
+          $$SavingsGoalsTableTableAnnotationComposer,
+          $$SavingsGoalsTableTableCreateCompanionBuilder,
+          $$SavingsGoalsTableTableUpdateCompanionBuilder,
+          (
+            SavingsGoalEntry,
+            BaseReferences<
+              _$AppDatabase,
+              $SavingsGoalsTableTable,
+              SavingsGoalEntry
+            >,
+          ),
+          SavingsGoalEntry,
+          PrefetchHooks Function()
+        > {
+  $$SavingsGoalsTableTableTableManager(
+    _$AppDatabase db,
+    $SavingsGoalsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SavingsGoalsTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SavingsGoalsTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SavingsGoalsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<BigInt> targetAmountKobo = const Value.absent(),
+                Value<BigInt> savedAmountKobo = const Value.absent(),
+                Value<BigInt> targetDate = const Value.absent(),
+                Value<BigInt> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SavingsGoalsTableCompanion(
+                id: id,
+                name: name,
+                targetAmountKobo: targetAmountKobo,
+                savedAmountKobo: savedAmountKobo,
+                targetDate: targetDate,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String name,
+                required BigInt targetAmountKobo,
+                required BigInt savedAmountKobo,
+                required BigInt targetDate,
+                required BigInt createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => SavingsGoalsTableCompanion.insert(
+                id: id,
+                name: name,
+                targetAmountKobo: targetAmountKobo,
+                savedAmountKobo: savedAmountKobo,
+                targetDate: targetDate,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$SavingsGoalsTableTable, SavingsGoalEntry>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $SavingsGoalsTableTable,
+                    SavingsGoalEntry
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SavingsGoalsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SavingsGoalsTableTable,
+      SavingsGoalEntry,
+      $$SavingsGoalsTableTableFilterComposer,
+      $$SavingsGoalsTableTableOrderingComposer,
+      $$SavingsGoalsTableTableAnnotationComposer,
+      $$SavingsGoalsTableTableCreateCompanionBuilder,
+      $$SavingsGoalsTableTableUpdateCompanionBuilder,
+      (
+        SavingsGoalEntry,
+        BaseReferences<
+          _$AppDatabase,
+          $SavingsGoalsTableTable,
+          SavingsGoalEntry
+        >,
+      ),
+      SavingsGoalEntry,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
   $$PendingOperationsTableTableManager get pendingOperations =>
       $$PendingOperationsTableTableManager(_db, _db.pendingOperations);
+  $$WalletCacheTableTableManager get walletCache =>
+      $$WalletCacheTableTableManager(_db, _db.walletCache);
+  $$TransactionsTableTableTableManager get transactionsTable =>
+      $$TransactionsTableTableTableManager(_db, _db.transactionsTable);
+  $$SavingsGoalsTableTableTableManager get savingsGoalsTable =>
+      $$SavingsGoalsTableTableTableManager(_db, _db.savingsGoalsTable);
 }
