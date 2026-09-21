@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 2 Complete — T-DB-001, T-DB-002, T-REMOTE-001, and T-REMOTE-002 complete and verified; ready for PR and merge of T-REMOTE-002  
-**Primary next task:** Merge PR for `feature/T-REMOTE-002-failure-simulation`, then proceed to Phase 3: `T-SYNC-001` (Implement connectivity abstraction and stream)  
-**Current branch:** `feature/T-REMOTE-002-failure-simulation`  
-**Latest commit on main:** `734313a`  
+**Status:** Phase 3 in Progress — T-CONN-001 complete and verified; ready for PR and merge  
+**Primary next task:** Merge PR for `feature/T-CONN-001-connectivity-abstraction`, then proceed to `T-SYNC-001` (Implement durable enqueue API)  
+**Current branch:** `feature/T-CONN-001-connectivity-abstraction`  
+**Latest commit on main:** `4b3934e`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -35,7 +35,10 @@ Phase 2 (Persistence & Fake Remote) is COMPLETE:
 - `T-DB-001` (Configure Drift and pending-operation schema) is COMPLETE and merged (`128d4ed`).
 - `T-DB-002` (Add local wallet, transaction and goal persistence) is COMPLETE and merged (`dd859f5`, PR #13).
 - `T-REMOTE-001` (Implement idempotent fake remote) is COMPLETE and merged (`734313a`, PR #14).
-- `T-REMOTE-002` (Add deterministic failure simulation) is COMPLETE on `feature/T-REMOTE-002-failure-simulation`.
+- `T-REMOTE-002` (Add deterministic failure simulation) is COMPLETE and merged (`4b3934e`, PR #15).
+
+Phase 3 (Connectivity, Queue & Synchronization) is in progress:
+- `T-CONN-001` (Implement connectivity abstraction) is COMPLETE on `feature/T-CONN-001-connectivity-abstraction`.
 
 ---
 
@@ -43,24 +46,25 @@ Phase 2 (Persistence & Fake Remote) is COMPLETE:
  
 Current Task:
 ```text
-T-REMOTE-002 — Add deterministic failure simulation (feature/T-REMOTE-002-failure-simulation)
+T-CONN-001 — Implement connectivity abstraction (feature/T-CONN-001-connectivity-abstraction)
 ```
 
 Next Task:
 ```text
-T-SYNC-001 — Implement connectivity abstraction and stream
+T-SYNC-001 — Implement durable enqueue API
 ```
 
 ---
 
 ## 9. Scope Control
 
-During Phase 2 & Phase 3:
-- focus strictly on durable local persistence, fake remote behavior, and synchronization subsystem;
+During Phase 3:
+- focus strictly on connectivity, queue, and single centralized sync coordinator;
 - do not build feature UI screens prematurely;
 - preserve strict architectural boundaries;
 - enforce integer-kobo money representation per `HC-MONEY`;
-- enforce exact-once financial effects per `HC-EXACTLY-ONCE-EFFECT` and `HC-IDEMPOTENCY`.
+- enforce exact-once financial effects per `HC-EXACTLY-ONCE-EFFECT` and `HC-IDEMPOTENCY`;
+- enforce HC-STATE-SEPARATION (connectivity, sync status, and operation status remain separate dimensions).
 
 ---
 
@@ -81,17 +85,20 @@ Do not claim success without actually running the relevant commands.
 
 ### 13. Next Action
  
-`feature/T-REMOTE-002-failure-simulation` is verified and ready to merge into `main`.
+`feature/T-CONN-001-connectivity-abstraction` is verified and ready to merge into `main`.
  
-### Completed Work (T-REMOTE-002):
-- Implemented `FailureSimulator`, `FailureRule`, and `SimulatedFailureType` (`lib/fake_backend/failure_simulator.dart`).
-- Extended exception hierarchy in `lib/fake_backend/remote_exceptions.dart` with `isRecoverable`, `code`, `toSyncError()`, `RemoteTransportException`, `RemoteServerException`, `RemoteResponseLostException`, and `RemoteBusinessRejectionException`.
-- Integrated failure simulation into `FakeRemoteApi` for pre-execution (zero debit side effects) and post-execution (exact-once replay after response lost) test scenarios.
-- Authored 9 unit and scenario tests in `test/fake_backend/failure_simulator_test.dart`.
-- Full checks passed (237 tests, 0 analyze issues, 0 format issues).
+### Completed Work (T-CONN-001):
+- Added `connectivity_plus: ^7.3.1` dependency.
+- Implemented `ConnectivityStatus` enum (`online`, `offline`) in `lib/core/connectivity/connectivity_status.dart` adhering strictly to `HC-STATE-SEPARATION`.
+- Implemented `ConnectivityService` abstract interface in `lib/core/connectivity/connectivity_service.dart`.
+- Implemented `InMemoryConnectivityService` in `lib/core/connectivity/in_memory_connectivity_service.dart` providing deterministic status overrides, toggle, broadcast streams, and state validation.
+- Implemented `ConnectivityPlusService` in `lib/core/connectivity/connectivity_plus_service.dart` mapping device interface states (WiFi, cellular, Ethernet, VPN, none) to `ConnectivityStatus`.
+- Implemented Riverpod providers (`connectivityServiceProvider`, `connectivityStatusStreamProvider`, `connectivityStatusProvider`) in `lib/core/connectivity/connectivity_providers.dart`.
+- Authored 21 tests across `test/core/connectivity/` verifying status invariants, stream broadcasting, deterministic overrides, and Riverpod provider reactivity (bringing suite total to 258 passing tests).
+- All checks verified (0 format errors, 0 analyzer issues, 258/258 tests passing).
 
 ### Next Steps:
-1. Commit, push `feature/T-REMOTE-002-failure-simulation`, open PR #15, squash-merge into `main`.
+1. Commit, push `feature/T-CONN-001-connectivity-abstraction`, open PR #16, squash-merge into `main`.
 2. Checkout `main`, pull latest.
-3. Begin Phase 3: `T-SYNC-001 — Implement connectivity abstraction and stream` on a new feature branch `feature/T-SYNC-001-connectivity-abstraction`.
+3. Begin `T-SYNC-001 — Implement durable enqueue API` on a new feature branch `feature/T-SYNC-001-durable-enqueue`.
 

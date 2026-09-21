@@ -195,7 +195,7 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 
 | ID | Requirement | Parent | Implementation | Verification | Evidence | Status |
 |---|---|---|---|---|---|---|
-| SYNC-001 | Observe online/offline connectivity | ASM-009, ASM-011 | `core/connectivity` | unit/widget | VERIFIED | TODO |
+| SYNC-001 | Observe online/offline connectivity | ASM-009, ASM-011 | `core/connectivity` | unit/widget | VERIFIED | DONE |
 | SYNC-002 | Persist pending operation before acknowledging it as saved | ASM-009, ASM-012 | `sync/data`, Drift | repository/integration | VERIFIED | IN_PROGRESS |
 | SYNC-003 | Restore pending operations after process restart | ASM-012 | `sync` + persistence | integration | VERIFIED | IN_PROGRESS |
 | SYNC-004 | Synchronize eligible pending operations on reconnect | ASM-011 | `sync/application` | integration | VERIFIED | TODO |
