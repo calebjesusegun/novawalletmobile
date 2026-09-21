@@ -772,7 +772,7 @@ flutter analyze
 
 ---
 
-## [ ] T-SYNC-003 — Implement restart recovery
+## [x] T-SYNC-003 — Implement restart recovery
 
 **Risk:** A  
 **Size:** M

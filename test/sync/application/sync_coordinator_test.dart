@@ -482,6 +482,35 @@ void main() {
       );
       expect((await walletRepo.getWalletSnapshot())!.balance.kobo, 9000000);
     });
+
+    test('startup recovers interrupted operations and triggers sync when online (ASM-012, SYNC-003, T-SYNC-003)', () async {
+      final op = await opRepo.enqueueSendMoney(
+        id: OperationId.generate(),
+        idempotencyKey: IdempotencyKey.generate(),
+        payload: SendMoneyPayload(
+          recipientAccountNumber: '0123456789',
+          recipientName: 'Amina',
+          bankName: 'Access Bank',
+          amount: const Money.fromKobo(1000000),
+        ),
+      );
+
+      // Claim operation to simulate in-flight processing state
+      await opRepo.claim(op.id);
+      expect(
+        (await opRepo.getOperationById(op.id))!.status,
+        OperationStatus.processing,
+      );
+
+      // Startup lifecycle triggers recovery and sync
+      final syncResult = await coordinator.startup(triggerSyncIfOnline: true);
+      expect(syncResult, isNotNull);
+      expect(syncResult!.succeeded, 1);
+
+      final completedOp = await opRepo.getOperationById(op.id);
+      expect(completedOp!.status, OperationStatus.completed);
+      expect((await walletRepo.getWalletSnapshot())!.balance.kobo, 9000000);
+    });
   });
 
   group('Sync Riverpod Wire-up (T-SYNC-002)', () {

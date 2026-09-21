@@ -81,6 +81,43 @@ class SyncCoordinator {
         });
   }
 
+  /// Recovers operations left in [OperationStatus.processing] after an abrupt process termination (ASM-012, SYNC-003).
+  ///
+  /// Resets them back to [OperationStatus.pending] while preserving their stable idempotency keys
+  /// and attempt counts so they become eligible to be claimed and processed again.
+  ///
+  /// Returns the number of recovered operations.
+  Future<int> recoverInterrupted() async {
+    if (_isDisposed) {
+      throw StateError('Cannot recover on a disposed SyncCoordinator.');
+    }
+    return await operationRepository.recoverInterrupted();
+  }
+
+  /// Runs startup crash recovery and triggers initial synchronization if online (ASM-012, SYNC-003).
+  ///
+  /// 1. Recovers any interrupted in-flight operations.
+  /// 2. If [triggerSyncIfOnline] is true and connectivity is online, runs a synchronization pass
+  ///    with [SyncTrigger.startup].
+  ///
+  /// Returns the [SyncRunResult] if a sync pass was executed, or null if skipped.
+  Future<SyncRunResult?> startup({bool triggerSyncIfOnline = true}) async {
+    if (_isDisposed) {
+      throw StateError('Cannot startup a disposed SyncCoordinator.');
+    }
+
+    await recoverInterrupted();
+
+    if (triggerSyncIfOnline) {
+      final connectivity = await connectivityService.checkConnectivity();
+      if (connectivity.isOnline) {
+        return await synchronize(trigger: SyncTrigger.startup);
+      }
+    }
+
+    return null;
+  }
+
   /// Triggers a synchronization run for all eligible pending operations.
   ///
   /// Serializes concurrent sync calls: if a run is already active, subsequent triggers
