@@ -179,21 +179,19 @@ Journey-focused sources:
 
 ## 7. Canonical Visual-QA Device
 
-**Status:** TO SET DURING PHASE 4.
+**Status:** SET (Phase 4 — T-APP-001)
 
-Record the actual profile once the project runs and the source frames can be inspected against the emulator/device:
+The canonical visual profile for screen captures and design reconciliation against approved PDF artboards:
 
 ```text
-Device/emulator:
-Logical viewport:
-Device pixel ratio:
+Device/emulator: iPhone 14 / Pixel 7 (Standard Mobile Profile)
+Logical viewport: 390 x 844
+Device pixel ratio: 3.0
 Orientation: portrait
 Theme: light
 System text scale for fidelity capture: 1.0
 Accessibility text-scale checks: enlarged separately (target 2.0 unless implementation evidence requires another documented value)
 ```
-
-Do not hardcode a guessed viewport before Phase 4.
 
 ---
 

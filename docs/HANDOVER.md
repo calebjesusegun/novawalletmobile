@@ -51,17 +51,15 @@ Phase 3 (Connectivity, Queue & Synchronization) is COMPLETE and Hardened:
   - Head-of-line blocking elimination in `_executeSyncPass`: recoverable failures record error and continue to subsequent healthy operations.
   - Accurate `retryOperation` status checking on failed claim and preserved coalesced trigger metadata.
 
-Phase 4 (Design System & App Shell) in progress:
+Phase 4 (Design System & App Shell) is COMPLETE:
 - `T-DS-001` (Implement design tokens, theme, font and icons) is COMPLETE and merged into `main`.
-- `T-DS-002` (Implement shared UI components) is COMPLETE and verified on branch `feat/ds-components`.
-  - Buttons (`AppButton`: primary, secondary, outline, text, loading, disabled, accessible semantics).
-  - Text fields (`AppTextField`, `AppAmountField` with numeric formatting and error states).
-  - System notifications (`AppSystemNotification`: offline, backOnline, syncFailure, savedOnPhone).
-  - Status & results (`AppStatusBadge`, `AppResultIndicator`).
-  - Cards & rows (`AppCard`, `AppKeyValueRow`).
-  - Progress (`AppProgressBar`).
-  - Sheets & empty states (`AppBottomSheet`, `AppEmptyState`).
-  - 18 new widget tests added (42 total design system tests, 352 total tests project-wide).
+- `T-DS-002` (Implement shared UI components) is COMPLETE and merged into `main`.
+- `T-APP-001` (Implement app shell, routing and bottom navigation) is COMPLETE and verified on branch `feat/app-shell-and-routing`.
+  - App root shell `NovaWalletApp` and `NovaWalletShell` configured with `ProviderScope`.
+  - Bottom navigation bar matching `UI-CMP-05` with `Wallet`, `Send`, and `NovaSave` tabs.
+  - Riverpod navigation provider (`appNavigationProvider`) supporting tab switching and test overrides.
+  - Canonical Visual-QA device documented as iPhone 14 / Pixel 7 (390 x 844 @3x) in `docs/design/SCREEN_INDEX.md`.
+  - 4 new widget tests added (356 total tests passing across project).
 
 ---
 
@@ -69,12 +67,12 @@ Phase 4 (Design System & App Shell) in progress:
  
 Current Task:
 ```text
-T-DS-002 — Implement shared UI components (COMPLETE on feat/ds-components)
+Phase 4 (Design System & App Shell) COMPLETE on feat/app-shell-and-routing — Ready to merge into main
 ```
 
 Next Task:
 ```text
-T-APP-001 — Implement app shell, routing and bottom navigation
+T-WAL-001 — Implement wallet data projection and repositories (Phase 5 — Wallet)
 ```
 
 ---
@@ -105,11 +103,12 @@ Do not claim success without actually running the relevant commands.
 
 ### 13. Next Action
  
-`T-DS-002` is completed on `feat/ds-components`. All 352 tests pass, analyzer clean, formatting checked.
+`Phase 4` is fully completed on `feat/app-shell-and-routing`. All 356 tests pass, analyzer clean, formatting checked.
  
 ### Next Steps:
-1. Merge `feat/ds-components` into `main`.
-2. Proceed to `T-APP-001` (Implement app shell, routing and bottom navigation).
+1. Merge `feat/app-shell-and-routing` into `main`.
+2. Review Phase 4 with user.
+3. Proceed to Phase 5: `T-WAL-001 — Implement wallet data projection and repositories`.
 
 
 

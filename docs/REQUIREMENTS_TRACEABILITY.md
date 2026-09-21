@@ -242,7 +242,7 @@ These are approved-design requirements, not separate assessor wording.
 | DSN-008 | Implement reusable text-field states | UI-CMP-02 | `lib/design_system/components/fields/` | widget | test/design_system/components_test.dart | IMPLEMENTED |
 | DSN-009 | Implement system notifications | UI-CMP-03 | `lib/design_system/components/notifications/app_system_notification.dart` | widget | test/design_system/components_test.dart | IMPLEMENTED |
 | DSN-010 | Implement status/result components | UI-CMP-04 | `lib/design_system/components/status/` | widget | test/design_system/components_test.dart | IMPLEMENTED |
-| DSN-011 | Implement bottom navigation | UI-CMP-05 | app/design system | widget/visual | VERIFIED | TODO |
+| DSN-011 | Implement bottom navigation | UI-CMP-05 | `lib/app/navigation/app_bottom_nav_bar.dart` | widget | test/app/app_shell_test.dart | IMPLEMENTED |
 | DSN-012 | Implement reusable cards/list rows | UI-CMP-07 | `lib/design_system/components/cards/` | widget | test/design_system/components_test.dart | IMPLEMENTED |
 | DSN-013 | Implement progress treatment | UI-CMP-08 | `lib/design_system/components/progress/app_progress_bar.dart` | widget | test/design_system/components_test.dart | IMPLEMENTED |
 | DSN-014 | Implement sheets/empty-state patterns | UI-CMP-09 | `lib/design_system/components/sheets/`, `lib/design_system/components/empty_states/` | widget | test/design_system/components_test.dart | IMPLEMENTED |
