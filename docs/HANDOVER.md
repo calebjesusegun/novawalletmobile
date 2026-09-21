@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 2 in Progress — T-DB-001, T-DB-002, and T-REMOTE-001 complete and verified; ready for PR and merge of T-REMOTE-001  
-**Primary next task:** Merge PR for `feature/T-REMOTE-001-fake-remote`, then proceed to `T-REMOTE-002` (Add deterministic failure simulation)  
-**Current branch:** `feature/T-REMOTE-001-fake-remote`  
-**Latest commit on main:** `dd859f5`  
+**Status:** Phase 2 Complete — T-DB-001, T-DB-002, T-REMOTE-001, and T-REMOTE-002 complete and verified; ready for PR and merge of T-REMOTE-002  
+**Primary next task:** Merge PR for `feature/T-REMOTE-002-failure-simulation`, then proceed to Phase 3: `T-SYNC-001` (Implement connectivity abstraction and stream)  
+**Current branch:** `feature/T-REMOTE-002-failure-simulation`  
+**Latest commit on main:** `734313a`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -31,10 +31,11 @@ Phase 1 (Money, Identity & Core Operation Model) is COMPLETE and Remediated:
   - Remediation PR 2 (`fix/T-OP-operation-invariants`, PR #10, merged `2d0dc75`): Fixed `FinancialOperation` immutability (private constructor, eliminated public `copyWith`, added strict `.restore`), transition matrix enforcement (processing guards, 64-bit attempt check, UTC timestamp normalization), and RFC 9562 v1-8 UUID support.
   - Remediation PR 3 (`docs/T-DOM-fix-contracts-and-polish`, PR #11, merged `939663d`): Added `PayloadFormatException` and `schemaVersion: 1` to `OperationPayload`, documented atomic balance update contract in `ARCHITECTURE.md` §16, added acceptance criterion to `T-XF-001` in `TASKS.md`, and marked `MNY-006` as `DECISION / INFERRED` in `REQUIREMENTS_TRACEABILITY.md`.
 
-Phase 2 (Persistence & Fake Remote) is in progress:
+Phase 2 (Persistence & Fake Remote) is COMPLETE:
 - `T-DB-001` (Configure Drift and pending-operation schema) is COMPLETE and merged (`128d4ed`).
 - `T-DB-002` (Add local wallet, transaction and goal persistence) is COMPLETE and merged (`dd859f5`, PR #13).
-- `T-REMOTE-001` (Implement idempotent fake remote) is COMPLETE on `feature/T-REMOTE-001-fake-remote`.
+- `T-REMOTE-001` (Implement idempotent fake remote) is COMPLETE and merged (`734313a`, PR #14).
+- `T-REMOTE-002` (Add deterministic failure simulation) is COMPLETE on `feature/T-REMOTE-002-failure-simulation`.
 
 ---
 
@@ -42,24 +43,24 @@ Phase 2 (Persistence & Fake Remote) is in progress:
  
 Current Task:
 ```text
-T-REMOTE-001 — Implement idempotent fake remote (feature/T-REMOTE-001-fake-remote)
+T-REMOTE-002 — Add deterministic failure simulation (feature/T-REMOTE-002-failure-simulation)
 ```
 
 Next Task:
 ```text
-T-REMOTE-002 — Add deterministic failure simulation
+T-SYNC-001 — Implement connectivity abstraction and stream
 ```
 
 ---
 
 ## 9. Scope Control
 
-During Phase 2:
-- focus strictly on durable local persistence with Drift/SQLite and fake remote behavior;
+During Phase 2 & Phase 3:
+- focus strictly on durable local persistence, fake remote behavior, and synchronization subsystem;
 - do not build feature UI screens prematurely;
-- do not build sync loops or full sync coordinator until Phase 3;
 - preserve strict architectural boundaries;
-- enforce integer-kobo money representation per `HC-MONEY`.
+- enforce integer-kobo money representation per `HC-MONEY`;
+- enforce exact-once financial effects per `HC-EXACTLY-ONCE-EFFECT` and `HC-IDEMPOTENCY`.
 
 ---
 
@@ -80,19 +81,17 @@ Do not claim success without actually running the relevant commands.
 
 ### 13. Next Action
  
-`feature/T-REMOTE-001-fake-remote` is verified and ready to merge into `main`.
+`feature/T-REMOTE-002-failure-simulation` is verified and ready to merge into `main`.
  
-### Completed Work (T-REMOTE-001):
-- Implemented `RemoteApi` interface (`lib/fake_backend/remote_api.dart`) with `sendMoney`, `contribute`, `submitOperation`, `fetchWalletSnapshot`, and `fetchTransactions`.
-- Implemented `RemoteOperationResult` and custom remote exceptions (`ConflictingIdempotencyKeyException`, `InsufficientRemoteFundsException`, `InvalidRemoteOperationException`).
-- Implemented `RemoteIdempotencyRecord` with payload conflict verification (`matchesPayload`) per requirement SYNC-009.
-- Implemented `RemoteIdempotencyLedger` interface with `InMemoryRemoteLedger` and `DriftRemoteLedger` backed by Drift tables (`RemoteIdempotencyTable`, `RemoteWalletStateTable`, `RemoteTransactionsTable`) respecting the persistence boundary in `docs/ARCHITECTURE.md` §11.4.
-- Implemented `FakeRemoteApi` supporting deterministic injected clocks and reference generators, balance checking, and exact-once financial effects per HC-IDEMPOTENCY and HC-EXACTLY-ONCE-EFFECT.
-- Authored 18 tests across `test/fake_backend/fake_remote_api_test.dart` and `test/fake_backend/drift_remote_ledger_test.dart`, verifying idempotency, duplicate request deduplication without double debit, payload conflict rejection across all payload fields, and restart survival with SQLite file reopen.
-- Ran and verified full baseline checks (all 228 tests passing, 0 analyzer issues, 0 formatting issues).
+### Completed Work (T-REMOTE-002):
+- Implemented `FailureSimulator`, `FailureRule`, and `SimulatedFailureType` (`lib/fake_backend/failure_simulator.dart`).
+- Extended exception hierarchy in `lib/fake_backend/remote_exceptions.dart` with `isRecoverable`, `code`, `toSyncError()`, `RemoteTransportException`, `RemoteServerException`, `RemoteResponseLostException`, and `RemoteBusinessRejectionException`.
+- Integrated failure simulation into `FakeRemoteApi` for pre-execution (zero debit side effects) and post-execution (exact-once replay after response lost) test scenarios.
+- Authored 9 unit and scenario tests in `test/fake_backend/failure_simulator_test.dart`.
+- Full checks passed (237 tests, 0 analyze issues, 0 format issues).
 
 ### Next Steps:
-1. Commit, push `feature/T-REMOTE-001-fake-remote`, open PR, squash-merge into `main`.
+1. Commit, push `feature/T-REMOTE-002-failure-simulation`, open PR #15, squash-merge into `main`.
 2. Checkout `main`, pull latest.
-3. Begin `T-REMOTE-002 — Add deterministic failure simulation` on a new feature branch `feature/T-REMOTE-002-failure-simulation`.
+3. Begin Phase 3: `T-SYNC-001 — Implement connectivity abstraction and stream` on a new feature branch `feature/T-SYNC-001-connectivity-abstraction`.
 
