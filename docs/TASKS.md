@@ -432,7 +432,7 @@ flutter test
 
 # Phase 2 — Persistence & Fake Remote
 
-## [ ] T-DB-001 — Configure Drift and pending-operation schema
+## [x] T-DB-001 — Configure Drift and pending-operation schema
 
 **Risk:** A  
 **Size:** M
