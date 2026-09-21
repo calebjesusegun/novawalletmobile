@@ -223,6 +223,60 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
+### Prompt 7 — Exact savings-progress calculation (T-MNY-002)
+
+**Tool:** Antigravity  
+**Stage:** Phase 1 — Money, Identity & Core Operation Model (T-MNY-002)
+
+**Prompt**
+
+> Read AGENTS.md first, then docs/HANDOVER.md, and then task T-MNY-002 in docs/TASKS.md.
+> Confirm:
+> - You are on branch main and git status is clean.
+> - Latest commit includes completion and merge of T-MNY-001 (commit 7e1c9c0 / ad871bb).
+> Then:
+> 1. Create task branch feature/T-MNY-002-savings-progress from main.
+> 2. Follow docs/GIT_WORKFLOW.md and docs/DEFINITION_OF_DONE.md.
+> 3. Implement T-MNY-002 — Implement exact savings-progress calculation:
+>    - Location: lib/features/novasave/domain/ (e.g. savings_progress.dart or savings_goal.dart domain calculation model).
+>    - Touch: NovaSave domain calculation code and unit tests in test/features/novasave/.
+>    - Do NOT touch: NovaSave screens, sync logic, or database persistence schemas.
+>    - Enforce HC-MONEY: All calculations must be derived from exact integer kobo (using Money value object from lib/core/money/money.dart). Never use double or floating-point arithmetic for domain money logic.
+>    - For UI rendering fractions (0.0 to 1.0) needed by Flutter progress indicators, provide an explicit display converter at the boundary only, keeping domain calculations (basis points / percentage) strictly exact and rational.
+>    - Fulfill acceptance criteria from docs/TASKS.md:
+>      * Given ₦150,000 saved toward ₦500,000, progress resolves to 30%.
+>      * Given a successful ₦50,000 contribution, projected/confirmed progress resolves to 40%.
+>      * Remaining amount calculation is exact integer kobo (e.g. ₦500,000 - ₦150,000 = ₦350,000 remaining).
+>      * Explicitly handle edge cases: zero target amount (reject or throw argument error), saved amount exceeding target (cap progress at 100% or allow over-achievement flag), and negative contribution attempts.
+>    - Add comprehensive unit tests in test/features/novasave/ covering all progress calculations, projected contributions, edge cases, and boundary values.
+> 4. Run targeted and full baseline checks before and after changes:
+>    - flutter test test/features/novasave/
+>    - dart format --output=none --set-exit-if-changed .
+>    - flutter analyze
+>    - flutter test
+> 5. Update docs/REQUIREMENTS_TRACEABILITY.md, docs/TASKS.md, AI_USAGE.md, and docs/HANDOVER.md before finishing.
+
+**Result**
+
+- Created feature branch `feature/T-MNY-002-savings-progress` from `main`.
+- Implemented `SavingsProgress` domain calculation model in `lib/features/novasave/domain/savings_progress.dart` backed strictly by integer kobo via `Money` per HC-MONEY.
+- Implemented `SavingsGoal` entity in `lib/features/novasave/domain/savings_goal.dart` adhering to `docs/ARCHITECTURE.md` §8.2 with derived progress and remaining amount.
+- Engineered exact integer basis points calculation (`10000 bps = 100%`) using intermediate `BigInt` arithmetic (`savedKobo * 10000 ~/ targetKobo`), preventing 64-bit integer multiplication overflow on large balances.
+- Calculated remaining amount as exact integer kobo (`targetAmount - savedAmount`), guaranteeing that over-saving yields `Money.zero()` (never negative balance), with `excessAmount` tracking surplus.
+- Implemented capped percentage (0-100%) and basis points (0-10,000 bps) alongside uncapped raw metrics (`rawPercentage`, `rawBasisPoints`) and over-achievement flags (`isGoalReached`, `isOverTarget`).
+- Implemented string formatting (`formatPercentage`) via pure integer division without `double`.
+- Isolated floating-point arithmetic strictly to the UI presentation boundary (`toProgressFraction({bool clamp = true})`, `progressFraction`).
+- Enforced domain invariants: rejected non-positive target amounts, negative saved amounts, and negative contributions with descriptive `ArgumentErrors`.
+- Authored 28 unit tests across `test/features/novasave/savings_progress_test.dart` and `test/features/novasave/savings_goal_test.dart`, bringing the total project test suite to 80 passing tests.
+
+**Action taken**
+
+- Ran `flutter test test/features/novasave/` (28/28 tests passing).
+- Ran full baseline checks (`dart format`, `flutter analyze`, `flutter test`), all passing with 0 warnings/errors.
+- Updated `docs/REQUIREMENTS_TRACEABILITY.md` (MNY-003 marked DONE; ASM-008, ASM-014, NSV-008, NSV-009, NSV-014 updated to IN_PROGRESS), `docs/TASKS.md` (T-MNY-002 checked off), `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
+---
+
 ## AI Mistakes / Risky Output
 
 At least one real example must be included before submission.
@@ -306,6 +360,42 @@ Antigravity reviewed Codex's findings, confirmed the flaws, and refactored `Mone
 **Regression protection**
 
 Added exhaustive tests in `test/core/money/money_test.dart` asserting that `maxKobo + 1`, `minKobo - 1`, `-minKobo`, `minKobo.abs()`, `minKobo ~/ -1`, multiplication overflow, `fromNaira` boundary overflow, oversized strings, and malformed inputs (`"1,2,3"`, `"1 0"`, `"."`, `"1,00"`) fail fast and reject invalid values.
+
+---
+
+### AI-RISK-003 — Leaking double getters and silent BigInt saturation in savings progress
+
+**Tool:** Antigravity (initial implementation) & Codex (peer code review)  
+**Stage:** Phase 1 — NovaSave Savings Progress Calculation (T-MNY-002)
+
+**Risky output / assumption**
+
+1. Antigravity initially exposed convenience getters `double get progressFraction` on both `SavingsProgress` and `SavingsGoal`, and supported `toProgressFraction(clamp: false)` returning values above `1.0`.
+2. Antigravity implemented `rawBasisPoints` by calculating intermediate values in `BigInt` but immediately calling `.toInt()`. In Dart, converting an oversized `BigInt` to a 64-bit `int` silently saturates to `int.max` (`9223372036854775807`) rather than throwing or preserving exactness. For extreme ratios (e.g. `savedAmount = Money.maxKobo` and `targetAmount = 1 kobo`), the mathematical basis points value is `92233720368547758070000`, but `.toInt()` returned `9223372036854775807`.
+
+**Why this was risky**
+
+1. Exposing floating-point getters on domain models violates boundary isolation and encourages domain logic or consumers to rely on `double` rather than exact integer kobo and basis points.
+2. Silent integer saturation corrupts uncapped progress metrics without signaling an error or preserving mathematical exactness.
+
+**How it was caught**
+
+The user submitted Antigravity's implementation to Codex for independent peer review. Codex flagged:
+- `[P1]` Floating-point values escape the required presentation-boundary converter via `progressFraction` getters and `clamp: false`.
+- `[P2]` Uncapped progress silently loses exactness when the quotient exceeds 64-bit int because `.toInt()` saturates.
+
+**Correction**
+
+Antigravity refactored `SavingsProgress` and `SavingsGoal`:
+1. Removed `progressFraction` getters from both `SavingsProgress` and `SavingsGoal`.
+2. Strictly clamped `toProgressFraction()` to `[0.0, 1.0]` for Flutter progress widgets, isolating `double` strictly to this boundary method.
+3. Performed capping comparison (`raw > _maxBasisPoints`) directly in `BigInt` before invoking `.toInt()` on `basisPoints`, guaranteeing `.toInt()` is never called on values exceeding 10,000.
+4. Exposed uncapped metrics as `BigInt get uncappedBasisPoints`, eliminating lossy 64-bit integer saturation.
+5. Added an explicit regression test in `savings_progress_test.dart` asserting that extreme ratios (`maxKobo / 1 kobo`) calculate without saturation or overflow.
+
+**Regression protection**
+
+Automated tests in `test/features/novasave/savings_progress_test.dart` and `test/features/novasave/savings_goal_test.dart` assert that all domain calculations remain strictly integer/BigInt-based, boundary fractions are strictly clamped to `[0.0, 1.0]`, and extreme ratios preserve exact `BigInt` precision.
 
 ---
 

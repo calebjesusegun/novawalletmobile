@@ -70,13 +70,13 @@ These IDs represent the original assessment rather than invented feature require
 | ASM-005 | Send Money implements Recipient → Amount → Confirm | Assessment §2.1 | `features/send_money` | widget | VERIFIED | TODO |
 | ASM-006 | A Send uses idempotency so retry cannot double-process the transfer | Assessment §2.1 | `core/ids`, `sync`, `fake_backend`, send | unit + integration | VERIFIED | TODO |
 | ASM-007 | NovaSave supports goal creation with name, target amount and target date | Assessment §2.1 | `features/novasave` | widget/unit | VERIFIED | TODO |
-| ASM-008 | NovaSave supports contributions and progress as bar/percentage | Assessment §2.1 | `features/novasave` | widget/unit | VERIFIED | TODO |
+| ASM-008 | NovaSave supports contributions and progress as bar/percentage | Assessment §2.1 | `features/novasave` | widget/unit | VERIFIED | IN_PROGRESS |
 | ASM-009 | Send/Contribution while offline is queued locally and shown as Pending rather than lost | Assessment §2.1 | `sync`, feature presentation | repository + widget + integration | VERIFIED | TODO |
 | ASM-010 | Offline actions are not silently retried in an uncontrolled loop | Assessment §2.1 | `sync` | unit/integration | VERIFIED | TODO |
 | ASM-011 | On reconnect, queued actions are replayed without duplicate financial effect | Assessment §2.1 | `sync`, `fake_backend` | integration | VERIFIED | TODO |
 | ASM-012 | A queued action survives an app restart while offline | Assessment §2.2 | Drift persistence / `sync` | integration | VERIFIED | TODO |
 | ASM-013 | A queued action is not sent twice after reconnect/restart | Assessment §2.2 | `sync`, `fake_backend` | integration | VERIFIED | TODO |
-| ASM-014 | Money calculations never use floating-point arithmetic | Assessment §2.2 | `core/money` | unit/static review | VERIFIED | TODO |
+| ASM-014 | Money calculations never use floating-point arithmetic | Assessment §2.2 | `core/money`, `features/novasave/domain` | unit/static review | VERIFIED | IN_PROGRESS |
 | ASM-015 | Key interactive elements expose proper Flutter `Semantics` | Assessment §2.2 | presentation/design system | widget/accessibility | VERIFIED | TODO |
 | ASM-016 | Text respects system font scaling without breaking layout | Assessment §2.2 | presentation/design system | widget/manual at enlarged scale | VERIFIED | TODO |
 | ASM-017 | Large recent-transaction lists use `ListView.builder` or equivalent lazy construction | Assessment §2.2 | `features/wallet` | widget/performance review | VERIFIED | TODO |
@@ -105,7 +105,7 @@ These rows make the assessment's highest-risk constraints implementation-testabl
 |---|---|---|---|---|---|---|
 | MNY-001 | Domain/data monetary amounts are integer kobo | ASM-002, ASM-014 | `lib/core/money/` | unit tests | VERIFIED | DONE |
 | MNY-002 | Formatting kobo → Naira is exact | ASM-002, ASM-014 | `lib/core/money/` | unit tests | VERIFIED | DONE |
-| MNY-003 | Addition/subtraction/progress calculations do not use `double` | ASM-014 | `core/money`, NovaSave domain | unit tests/code review | VERIFIED | TODO |
+| MNY-003 | Addition/subtraction/progress calculations do not use `double` | ASM-014 | `core/money`, `features/novasave/domain` | unit tests/code review | VERIFIED | DONE |
 | MNY-004 | Confirmed wallet balance changes only after a Send is successfully processed | design flows + integrity principle | wallet/send domain | integration + widget | VERIFIED by design | TODO |
 | MNY-005 | Confirmed NovaSave progress changes only after contribution success | design flows + integrity principle | NovaSave domain | integration + widget | VERIFIED by design | TODO |
 | MNY-006 | Policy for multiple queued outgoing operations against one cached balance must be explicitly chosen and documented | assessment leaves this unspecified | domain/application | unit/integration | UNKNOWN / TO VERIFY | TODO |
@@ -172,13 +172,13 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 | NSV-005 | Require positive target amount | design-derived + money rules | UI-NSV-05 | NovaSave domain | unit/widget | VERIFIED by design | TODO |
 | NSV-006 | Require future target date | design-derived | UI-NSV-05 | NovaSave domain | unit/widget | VERIFIED by design | TODO |
 | NSV-007 | Provide target-date picker | design-derived | UI-NSV-06 | NovaSave presentation | widget/visual | VERIFIED by design | TODO |
-| NSV-008 | Show goal details and remaining amount | ASM-008 | UI-NSV-08 | NovaSave | widget/unit | VERIFIED by design | TODO |
-| NSV-009 | Show contribution amount entry and projected progress | ASM-008 | UI-NSV-09 | NovaSave | widget/unit | VERIFIED | TODO |
+| NSV-008 | Show goal details and remaining amount | ASM-008 | UI-NSV-08 | NovaSave (`domain`) | widget/unit | VERIFIED by design | IN_PROGRESS |
+| NSV-009 | Show contribution amount entry and projected progress | ASM-008 | UI-NSV-09 | NovaSave (`domain`) | widget/unit | VERIFIED | IN_PROGRESS |
 | NSV-010 | Reject contribution above wallet balance | design-derived | UI-NSV-10 | NovaSave domain | unit/widget | VERIFIED by design | TODO |
 | NSV-011 | Show contribution confirmation | flow/design | UI-NSV-11 | NovaSave | widget | VERIFIED by design | TODO |
 | NSV-012 | Create one stable operation identity/idempotency key for one logical contribution | ASM-011, ASM-013 | UI-NSV-11/16 | NovaSave + IDs + sync | unit/integration | INFERRED implementation required by duplicate-prevention requirement | TODO |
 | NSV-013 | Online contribution enters Processing | flow/design | UI-NSV-12 | NovaSave | widget/integration | VERIFIED by design | TODO |
-| NSV-014 | Successful contribution updates amount/progress | ASM-008 | UI-NSV-13, UI-NSV-14 | NovaSave | unit/widget/integration | VERIFIED | TODO |
+| NSV-014 | Successful contribution updates amount/progress | ASM-008 | UI-NSV-13, UI-NSV-14 | NovaSave (`domain`) | unit/widget/integration | VERIFIED | IN_PROGRESS |
 | NSV-015 | Immediate online contribution failure leaves wallet unchanged and offers retry | flow/design | UI-NSV-15 | NovaSave | widget/integration | VERIFIED by design | TODO |
 | NSV-016 | Offline confirmation explains contribution will be saved | ASM-009 | UI-NSV-16 | NovaSave | widget | VERIFIED by design | TODO |
 | NSV-017 | Offline Contribution is durably persisted before UI reports it saved | ASM-009, ASM-012 | UI-NSV-17 | sync/persistence | repository + integration | VERIFIED | TODO |
