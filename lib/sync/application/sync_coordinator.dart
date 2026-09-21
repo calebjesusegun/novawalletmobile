@@ -48,7 +48,10 @@ class SyncCoordinator {
   SyncStatus _status = SyncStatus.idle;
   Completer<SyncRunResult>? _activeSyncCompleter;
   bool _hasPendingTrigger = false;
+  SyncTrigger? _pendingTrigger;
+  bool _hasStartedUp = false;
   bool _isDisposed = false;
+  final Set<OperationId> _inFlightOperationIds = {};
 
   SyncCoordinator({
     required this.operationRepository,
@@ -90,27 +93,37 @@ class SyncCoordinator {
   /// Resets them back to [OperationStatus.pending] while preserving their stable idempotency keys
   /// and attempt counts so they become eligible to be claimed and processed again.
   ///
-  /// Returns the number of recovered operations.
+  /// Protected against live re-entrancy: if a synchronization pass is currently active or
+  /// operations are actively in flight in this process, recovery returns 0 to preserve
+  /// the single-claim guarantee (SYNC-010).
   Future<int> recoverInterrupted() async {
     if (_isDisposed) {
       throw StateError('Cannot recover on a disposed SyncCoordinator.');
+    }
+    // Guard against running crash recovery while a sync pass or retry operation is actively in-flight (SYNC-010).
+    if (isSyncing ||
+        _activeSyncCompleter != null ||
+        _inFlightOperationIds.isNotEmpty) {
+      return 0;
     }
     return await operationRepository.recoverInterrupted();
   }
 
   /// Runs startup crash recovery and triggers initial synchronization if online (ASM-012, SYNC-003).
   ///
-  /// 1. Recovers any interrupted in-flight operations.
-  /// 2. If [triggerSyncIfOnline] is true and connectivity is online, runs a synchronization pass
-  ///    with [SyncTrigger.startup].
-  ///
-  /// Returns the [SyncRunResult] if a sync pass was executed, or null if skipped.
+  /// Crash recovery ([recoverInterrupted]) is strictly cold-launch-only and executes at most once
+  /// per coordinator lifetime. Subsequent calls (e.g. app resume or repeated triggers) will not
+  /// re-run crash recovery against actively processing operations, but will trigger [synchronize]
+  /// if online.
   Future<SyncRunResult?> startup({bool triggerSyncIfOnline = true}) async {
     if (_isDisposed) {
       throw StateError('Cannot startup a disposed SyncCoordinator.');
     }
 
-    await recoverInterrupted();
+    if (!_hasStartedUp) {
+      _hasStartedUp = true;
+      await recoverInterrupted();
+    }
 
     if (triggerSyncIfOnline) {
       final connectivity = await connectivityService.checkConnectivity();
@@ -136,6 +149,7 @@ class SyncCoordinator {
     // If a sync pass is currently running, coalesce this trigger
     if (_activeSyncCompleter != null) {
       _hasPendingTrigger = true;
+      _pendingTrigger = trigger;
       return _activeSyncCompleter!.future;
     }
 
@@ -154,9 +168,11 @@ class SyncCoordinator {
       // If a new trigger arrived while syncing and we are still online, execute a follow-up pass
       if (_hasPendingTrigger && !_isDisposed) {
         _hasPendingTrigger = false;
+        final nextTrigger = _pendingTrigger ?? trigger;
+        _pendingTrigger = null;
         final connectivity = await connectivityService.checkConnectivity();
         if (connectivity.isOnline) {
-          unawaited(synchronize(trigger: trigger));
+          unawaited(synchronize(trigger: nextTrigger));
         }
       }
     }
@@ -203,33 +219,29 @@ class SyncCoordinator {
         continue;
       }
       totalClaimed++;
+      _inFlightOperationIds.add(operation.id);
 
-      // 2. Process claimed operation
-      final outcome = await _processClaimedOperation(operation, now);
-      switch (outcome.type) {
-        case _OutcomeType.success:
-          succeeded++;
-          break;
-        case _OutcomeType.recoverableFailure:
-          recoverableFailures++;
-          errors.add(outcome.error!);
-          // Stop queue processing on transient network/server failure
-          _updateStatus(SyncStatus.failed);
-          return SyncRunResult(
-            trigger: trigger,
-            totalDiscovered: pendingOperations.length,
-            totalClaimed: totalClaimed,
-            succeeded: succeeded,
-            recoverableFailures: recoverableFailures,
-            terminalFailures: terminalFailures,
-            skipped: skipped,
-            errors: errors,
-          );
-        case _OutcomeType.terminalFailure:
-          terminalFailures++;
-          errors.add(outcome.error!);
-          // Terminal failure releases reservation; continue processing remaining queue
-          break;
+      try {
+        // 2. Process claimed operation
+        final outcome = await _processClaimedOperation(operation, now);
+        switch (outcome.type) {
+          case _OutcomeType.success:
+            succeeded++;
+            break;
+          case _OutcomeType.recoverableFailure:
+            recoverableFailures++;
+            errors.add(outcome.error!);
+            // Non-blocking: record recoverable error and continue to next operation
+            // in queue (loop connectivity check halts cleanly if network dropped).
+            break;
+          case _OutcomeType.terminalFailure:
+            terminalFailures++;
+            errors.add(outcome.error!);
+            // Terminal failure releases reservation; continue processing remaining queue
+            break;
+        }
+      } finally {
+        _inFlightOperationIds.remove(operation.id);
       }
     }
 
@@ -416,16 +428,27 @@ class SyncCoordinator {
     final now = _clock().toUtc();
     final claimed = await operationRepository.claim(id, at: now);
     if (!claimed) {
+      final recheck = await operationRepository.getOperationById(id);
+      if (recheck == null ||
+          recheck.status == OperationStatus.completed ||
+          recheck.status == OperationStatus.failed) {
+        return const RetryResult.notRetryable();
+      }
       return const RetryResult.alreadyProcessing();
     }
 
-    final outcome = await _processClaimedOperation(operation, now);
-    if (outcome.type == _OutcomeType.success) {
-      return RetryResult.success(
-        remoteReference: outcome.result?.remoteReference,
-      );
-    } else {
-      return RetryResult.failed(outcome.error);
+    _inFlightOperationIds.add(id);
+    try {
+      final outcome = await _processClaimedOperation(operation, now);
+      if (outcome.type == _OutcomeType.success) {
+        return RetryResult.success(
+          remoteReference: outcome.result?.remoteReference,
+        );
+      } else {
+        return RetryResult.failed(outcome.error);
+      }
+    } finally {
+      _inFlightOperationIds.remove(id);
     }
   }
 

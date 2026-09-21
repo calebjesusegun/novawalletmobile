@@ -800,6 +800,35 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
+### Prompt 22 — Concurrency and head-of-line blocking hardening
+
+**Tool:** Antigravity (implementation & test authoring) & Claude Code (adversarial review)  
+**Stage:** Phase 3 — Hardening & Remediation (`fix/sync-concurrency-and-head-of-line`)
+
+**Prompt**
+
+> Fix critical re-entrancy gap in recoverInterrupted()/startup() breaking SYNC-010's single-claim guarantee, and eliminate head-of-line blocking on recoverable failures:
+> 1. In SyncCoordinator, guard recoverInterrupted() against a live in-process sync pass and in-flight operations, and enforce startup() as a cold-launch-only call.
+> 2. In _executeSyncPass, do not abort the pass on a single recoverable failure; record it and let the loop continue to process subsequent healthy operations.
+> 3. Polish retryOperation claim-failure status checking and preserve coalesced trigger metadata.
+
+**Result**
+
+- Added `final Set<OperationId> _inFlightOperationIds = {};`, `bool _hasStartedUp = false;`, and `SyncTrigger? _pendingTrigger;` to `SyncCoordinator`.
+- Guarded `recoverInterrupted()` to return 0 whenever `isSyncing || _activeSyncCompleter != null || _inFlightOperationIds.isNotEmpty`, eliminating the re-entrancy vulnerability where in-flight operations could be claimed a second time.
+- Enforced `startup()` to run crash recovery at most once on cold launch.
+- Updated `_executeSyncPass` so that recoverable failures record the error and continue iterating the queue rather than aborting remaining healthy operations (eliminating head-of-line blocking).
+- Tracked in-flight operation IDs during processing in both `_executeSyncPass` and `retryOperation` using `try ... finally` blocks.
+- Improved `retryOperation` to recheck the operation's status upon a failed claim and return `RetryStatus.notRetryable` if the operation was already completed or failed.
+- Authored regression tests in `test/sync/application/sync_coordinator_test.dart` (310/310 tests passing).
+
+**Action taken**
+
+- Ran `dart format --output=none --set-exit-if-changed .`, `flutter analyze`, and `flutter test` (all passing cleanly).
+- Documented `AI-RISK-006` in `AI_USAGE.md` and updated `docs/HANDOVER.md`.
+
+---
+
 ## AI Mistakes / Risky Output
 
 At least one real example must be included before submission.
@@ -984,6 +1013,38 @@ Claude Code performed an adversarial code review of Phase 3 and flagged both vul
 
 - Authored regression tests in `test/fake_backend/fake_remote_api_test.dart` and `test/fake_backend/drift_remote_ledger_test.dart` asserting that concurrent submissions with identical idempotency keys deduplicate atomically with exactly one debit and zero unique-key errors.
 - Authored regression tests in `test/sync/application/sync_coordinator_test.dart` proving that re-synchronizing after a crash before `markCompleted` does not double-debit wallet balance or double-increment goal progress.
+
+### AI-RISK-006 — Unguarded recoverInterrupted re-entrancy and head-of-line blocking on recoverable failure
+
+**Tool:** Antigravity (initial Phase 3 implementation) & Claude Code (adversarial review)  
+**Stage:** Phase 3 — Connectivity, Queue & Synchronization (T-SYNC-002, T-SYNC-003)
+
+**Risky output / assumption**
+
+1. In `SyncCoordinator`, `recoverInterrupted()` unconditionally invoked `operationRepository.recoverInterrupted()`, resetting all `processing` rows to `pending` without verifying whether a sync pass was actively working on those operations in the current process.
+2. In `_executeSyncPass`, `case _OutcomeType.recoverableFailure:` immediately returned `SyncRunResult(...)`, stopping queue iteration and aborting the entire pass upon the first recoverable failure.
+
+**Why this was risky**
+
+1. If an app lifecycle event (such as app resume or reconnect) triggered `startup()` or `recoverInterrupted()` while a prior sync pass was awaiting a slow remote call, the actively processing row was reset to `pending`. A second worker could then claim that row concurrently while the first attempt was still in flight, directly violating `SYNC-010` (single claim guarantee) and opening a race window for duplicate execution.
+2. If the first operation in the queue encountered an unclassified or operation-specific transient failure while device connectivity remained online, returning early caused severe head-of-line blocking: subsequent independent, valid operations behind it were never attempted.
+
+**How it was caught**
+
+Claude Code performed an adversarial review of Phase 3 and created an empirical reproduction: enqueue an operation, start a sync pass with the remote call paused mid-flight, and invoke `recoverInterrupted()`, proving that the in-flight operation was reset to `pending` and could be claimed a second time.
+
+**Correction**
+
+1. Tracked in-flight operations with `_inFlightOperationIds` and added guards in `recoverInterrupted()`: if `isSyncing || _activeSyncCompleter != null || _inFlightOperationIds.isNotEmpty`, `recoverInterrupted()` immediately returns 0 without resetting rows.
+2. Guarded `startup()` with `_hasStartedUp` so crash recovery executes only once per cold launch.
+3. In `_executeSyncPass`, removed the premature `return` on recoverable failure, allowing the loop to continue to subsequent operations while the loop's top-of-iteration connectivity check safely halts if network connectivity dropped.
+
+**Regression protection**
+
+Authored automated regression tests in `test/sync/application/sync_coordinator_test.dart`:
+- Verified that calling `recoverInterrupted()` while a sync pass is paused mid-flight returns 0 and leaves the row in `processing`.
+- Verified that `startup()` only runs crash recovery on the initial cold launch.
+- Verified that a recoverable failure on one operation does not head-of-line block subsequent healthy operations in the queue.
 
 ---
 
