@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 0 complete — Merged into main  
-**Primary next task:** `T-MNY-001 — Implement integer-kobo Money value object`  
-**Current branch:** `main`  
-**Latest commit:** `7910504`  
+**Status:** Phase 1 in progress — T-MNY-001 complete  
+**Primary next task:** `T-MNY-002 — Implement exact savings-progress calculation`  
+**Current branch:** `feature/T-MNY-001-money`  
+**Base commit:** `fb2cabf`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -334,19 +334,30 @@ If this handover and Git disagree, trust Git.
 ---
 
 ## 13. Next Action
-
-`T-BASE-003 — Add CI verification` is complete and merged into `main` via PR #2.
-Branch `chore/readme-launch-config` updates `README.md` (Figma design link, removed AI tools sentence, added closing motto) and `.vscode/launch.json`.
-
-### Completed Work:
-- Updated `.vscode/launch.json` configuration.
-- Added official Figma design link under Design References in `README.md`.
-- Removed AI tools sentence and appended "Let's build NovaWallet together 🌍" to `README.md`.
-- Recorded Prompt 5 in `AI_USAGE.md`.
+ 
+`T-MNY-001 — Implement integer-kobo Money value object` is complete on branch `feature/T-MNY-001-money`.
+ 
+### Completed Work (T-MNY-001):
+- Implemented `Money` value object in `lib/core/money/money.dart` backed strictly by integer kobo (`final int kobo`) per HC-MONEY.
+- Enforced no floating-point arithmetic (`double`) anywhere in domain money logic.
+- Hardened all arithmetic operations (`+`, `-`, unary `-`, `*`, `~/`), `fromNaira`, and parsing using intermediate `BigInt` calculations funneled through `_checked()` to strictly enforce signed 64-bit bounds (`[-9223372036854775808, 9223372036854775807]`) matching SQLite integer storage and preventing silent numeric overflow.
+- Implemented `MoneyOverflowException` to signal overflow/underflow cleanly.
+- Implemented zero, positive, and negative validations (`isZero`, `isPositive`, `isNegative`, `isNonNegative`, `ensurePositive`, `ensureNonNegative`, `checkPositive`, `checkNonNegative`, and `MoneyValidationException`).
+- Implemented exact string parsing without floating-point arithmetic (`Money.parse`, `Money.tryParse`, `MoneyParseException`).
+- Implemented exact currency formatting with thousands commas and two-digit decimal kobo (`format({bool includeSymbol, bool includeKobo})`, `toString()`):
+  - `12545000` kobo -> `₦125,450.00`
+  - `1000000` kobo -> `₦10,000.00`
+  - `0` kobo -> `₦0.00`
+  - `-12545000` kobo -> `-₦125,450.00`
+  - Min/Max boundary formatting without negative sign or formatting anomalies.
+- Authored 47 unit tests in `test/core/money/money_test.dart` covering all arithmetic, invariants, edge cases, acceptance criteria, formatting rules, and 9 boundary/overflow tests.
+- Maintained strict architectural boundary: untouched persistence, routing, and feature UI.
+- Updated `docs/REQUIREMENTS_TRACEABILITY.md` (MNY-001, MNY-002, TST-001 marked DONE), `docs/TASKS.md` (T-MNY-001 checked off), and `AI_USAGE.md` (recorded Prompt 6 and AI-RISK-002).
 - Ran and verified local checks:
-  - `dart format --output=none --set-exit-if-changed .` (8 files formatted, 0 changed)
+  - `flutter test test/core/money/` (47/47 tests passed)
+  - `dart format --output=none --set-exit-if-changed .` (10 files formatted, 0 changed)
   - `flutter analyze` (0 issues found)
-  - `flutter test` (5 tests passed, 0 failures)
+  - `flutter test` (52 tests passed, 0 failures)
 
 ### Next Task:
-`T-MNY-001 — Implement integer-kobo Money value object` (Phase 1 start) as defined in `docs/TASKS.md`.
+`T-MNY-002 — Implement exact savings-progress calculation` as defined in `docs/TASKS.md`.

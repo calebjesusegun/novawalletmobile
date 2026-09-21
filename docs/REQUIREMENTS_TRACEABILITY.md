@@ -103,8 +103,8 @@ These rows make the assessment's highest-risk constraints implementation-testabl
 
 | ID | Requirement | Parent assessment | Implementation | Verification | Evidence status | Status |
 |---|---|---|---|---|---|---|
-| MNY-001 | Domain/data monetary amounts are integer kobo | ASM-002, ASM-014 | `lib/core/money/` | unit tests | VERIFIED | TODO |
-| MNY-002 | Formatting kobo → Naira is exact | ASM-002, ASM-014 | `lib/core/money/` | unit tests | VERIFIED | TODO |
+| MNY-001 | Domain/data monetary amounts are integer kobo | ASM-002, ASM-014 | `lib/core/money/` | unit tests | VERIFIED | DONE |
+| MNY-002 | Formatting kobo → Naira is exact | ASM-002, ASM-014 | `lib/core/money/` | unit tests | VERIFIED | DONE |
 | MNY-003 | Addition/subtraction/progress calculations do not use `double` | ASM-014 | `core/money`, NovaSave domain | unit tests/code review | VERIFIED | TODO |
 | MNY-004 | Confirmed wallet balance changes only after a Send is successfully processed | design flows + integrity principle | wallet/send domain | integration + widget | VERIFIED by design | TODO |
 | MNY-005 | Confirmed NovaSave progress changes only after contribution success | design flows + integrity principle | NovaSave domain | integration + widget | VERIFIED by design | TODO |
@@ -255,7 +255,7 @@ For exact token values, `docs/DESIGN_SYSTEM.md` and the authoritative Style Guid
 
 | ID | Requirement | Parent | Artifact/area | Verification | Evidence | Status |
 |---|---|---|---|---|---|---|
-| TST-001 | Unit tests cover Money correctness | ASM-002, ASM-014 | `test/core/money` | `flutter test` | INFERRED test needed for hard constraint | TODO |
+| TST-001 | Unit tests cover Money correctness | ASM-002, ASM-014 | `test/core/money` | `flutter test` | INFERRED test needed for hard constraint | DONE |
 | TST-002 | Unit/repository tests cover pending-operation persistence/state transitions | ASM-009, ASM-012 | `test/sync` | `flutter test` | INFERRED test needed for hard constraint | TODO |
 | TST-003 | Unit tests cover fake-remote idempotency | ASM-006, ASM-013 | `test/fake_backend` | `flutter test` | INFERRED test needed for hard constraint | TODO |
 | TST-004 | Required Send Money widget tests exist | ASM-022 | send tests | `flutter test` | VERIFIED | TODO |
