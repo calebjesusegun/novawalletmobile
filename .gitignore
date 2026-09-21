@@ -1,0 +1,5 @@
+# Internal documentation and assessment brief
+docs_internal/
+
+# macOS system files
+.DS_Store
