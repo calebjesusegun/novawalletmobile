@@ -632,7 +632,7 @@ flutter analyze
 
 # Phase 3 — Connectivity, Queue & Synchronization
 
-## [ ] T-CONN-001 — Implement connectivity abstraction
+## [x] T-CONN-001 — Implement connectivity abstraction
 
 **Risk:** B  
 **Size:** S

@@ -554,6 +554,41 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
+### Prompt 15 — Implement connectivity abstraction (T-CONN-001)
+
+**Tool:** Antigravity  
+**Stage:** Phase 3 — Connectivity, Queue & Synchronization (T-CONN-001)
+
+**Prompt**
+
+> Implement T-CONN-001 — Implement connectivity abstraction:
+> 1. Create task branch `feature/T-CONN-001-connectivity-abstraction` from clean `main`.
+> 2. Add `connectivity_plus: ^7.3.1` dependency to `pubspec.yaml` (justified per AGENTS.md §5).
+> 3. Implement `ConnectivityStatus` enum (`online`, `offline`) in `lib/core/connectivity/connectivity_status.dart` adhering strictly to HC-STATE-SEPARATION (zero sync/operation states embedded).
+> 4. Implement `ConnectivityService` abstract interface in `lib/core/connectivity/connectivity_service.dart`.
+> 5. Implement `InMemoryConnectivityService` in `lib/core/connectivity/in_memory_connectivity_service.dart` for deterministic test overrides and interactive simulation.
+> 6. Implement `ConnectivityPlusService` in `lib/core/connectivity/connectivity_plus_service.dart` mapping `connectivity_plus` results to `ConnectivityStatus`.
+> 7. Implement Riverpod providers `connectivityServiceProvider`, `connectivityStatusStreamProvider`, and `connectivityStatusProvider` in `lib/core/connectivity/connectivity_providers.dart`.
+> 8. Author comprehensive unit and provider tests in `test/core/connectivity/`.
+> 9. Verify all checks pass across formatting, static analysis, and all tests.
+
+**Result**
+
+- Added `connectivity_plus: ^7.3.1` to `pubspec.yaml`.
+- Created `ConnectivityStatus` enum with `isOnline` and `isOffline` getters, strictly separated from sync and operation statuses per `HC-STATE-SEPARATION`.
+- Created `ConnectivityService` interface with `checkConnectivity()`, `onConnectivityChanged` stream, and `dispose()`.
+- Created `InMemoryConnectivityService` supporting default/custom initial statuses, `setStatus`, `toggle`, broadcast listeners, and state guards.
+- Created `ConnectivityPlusService` with static `mapResults` handling multi-interface results (WiFi, cellular, Ethernet, VPN, none, empty).
+- Created Riverpod providers (`connectivityServiceProvider`, `connectivityStatusStreamProvider`, `connectivityStatusProvider`).
+- Authored 21 unit and provider tests across 4 test suites in `test/core/connectivity/`, bringing total tests to 258.
+
+**Action taken**
+
+- Ran full project verification (`dart format`, `flutter analyze`, `flutter test`), passing cleanly with 0 warnings/errors across 258 tests.
+- Updated `docs/TASKS.md`, `docs/REQUIREMENTS_TRACEABILITY.md` (marked `SYNC-001` as `DONE`), `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
+---
+
 ## AI Mistakes / Risky Output
 
 At least one real example must be included before submission.
