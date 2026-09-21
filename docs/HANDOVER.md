@@ -3,7 +3,7 @@
 **Status:** Phase 3 Concurrency & Queue Hardening MERGED into `main` — Ready for Phase 4 (Design System & App Shell)  
 **Primary next task:** `T-DS-001 — Implement design tokens, theme, font and icons`  
 **Current branch:** `main`  
-**Latest commit on main:** `a965d6d`  
+**Latest commit on main:** `e853ee3`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
