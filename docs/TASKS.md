@@ -103,7 +103,7 @@ flutter test
 
 ---
 
-## [ ] T-BASE-002 — Configure linting and project test layout
+## [x] T-BASE-002 — Configure linting and project test layout
 
 **Risk:** C  
 **Size:** S
