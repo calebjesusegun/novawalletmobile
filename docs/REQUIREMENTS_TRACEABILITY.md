@@ -121,9 +121,9 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 | ID | Requirement / behavior | Parent | Design evidence | Implementation | Verification | Evidence | Status |
 |---|---|---|---|---|---|---|---|
 | WAL-001 | Show available wallet balance | ASM-002 | UI-WAL-01 | `features/wallet` | widget/unit | VERIFIED | IMPLEMENTED |
-| WAL-002 | Render recent transactions lazily | ASM-003, ASM-017 | UI-WAL-01 | `features/wallet` | widget/performance/unit | VERIFIED | IN_PROGRESS |
-| WAL-003 | Pull to refresh wallet data | ASM-004 | UI-WAL-07 | `features/wallet` | widget | VERIFIED | TODO |
-| WAL-004 | Show empty transaction state | design-derived | UI-WAL-09 | `features/wallet` | widget/visual | VERIFIED by design | TODO |
+| WAL-002 | Render recent transactions lazily | ASM-003, ASM-017 | UI-WAL-01 | `features/wallet` | widget/performance/unit | VERIFIED | IMPLEMENTED |
+| WAL-003 | Pull to refresh wallet data | ASM-004 | UI-WAL-07 | `features/wallet` | widget | VERIFIED | IMPLEMENTED |
+| WAL-004 | Show empty transaction state | design-derived | UI-WAL-09 | `features/wallet` | widget/visual | VERIFIED by design | IMPLEMENTED |
 | WAL-005 | Show wallet offline notification + last-updated state | ASM-009 | UI-WAL-02 | wallet + connectivity | widget/visual | VERIFIED by design | TODO |
 | WAL-006 | Show pending transfer in recent activity | ASM-009 | UI-WAL-03 | wallet + sync projection | widget | VERIFIED by design | TODO |
 | WAL-007 | Show reconnect/processing state | ASM-011 | UI-WAL-04 | wallet + sync projection | integration/widget | VERIFIED by design | TODO |

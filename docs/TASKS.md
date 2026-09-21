@@ -1136,7 +1136,7 @@ flutter analyze
 
 ---
 
-## [ ] T-WAL-002 — Implement wallet home, lazy transactions and refresh
+## [x] T-WAL-002 — Implement wallet home, lazy transactions and refresh
 
 **Risk:** B  
 **Size:** M
