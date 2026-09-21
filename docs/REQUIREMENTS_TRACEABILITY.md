@@ -202,8 +202,8 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 | SYNC-005 | Synchronization uses a single shared coordinator, not feature-specific replay loops | ASM-010, ASM-013 | `sync/application` | architectural review/tests | INFERRED implementation | TODO |
 | SYNC-006 | One logical operation has one stable operation ID | ASM-013 | `core/ids`, sync | unit | INFERRED implementation | DONE |
 | SYNC-007 | One logical operation has one stable idempotency key reused across retry/restart | ASM-006, ASM-013 | `core/ids`, sync, fake backend | unit/integration | INFERRED implementation | IN_PROGRESS |
-| SYNC-008 | Fake remote deduplicates repeated idempotency keys | ASM-006, ASM-013 | `fake_backend` | unit/integration | INFERRED implementation required to demonstrate guarantee | TODO |
-| SYNC-009 | Repeated key with conflicting payload is rejected/flagged | ASM-013 | fake backend | unit | INFERRED defensive rule | TODO |
+| SYNC-008 | Fake remote deduplicates repeated idempotency keys | ASM-006, ASM-013 | `fake_backend` | unit/integration | INFERRED implementation required to demonstrate guarantee | DONE |
+| SYNC-009 | Repeated key with conflicting payload is rejected/flagged | ASM-013 | fake backend | unit | INFERRED defensive rule | DONE |
 | SYNC-010 | Concurrent sync triggers cannot process the same local operation concurrently | ASM-013 | sync + database claim | unit/integration | INFERRED implementation | TODO |
 | SYNC-011 | App interruption after remote success but before local completion does not produce a second financial effect | ASM-013 | sync + fake backend | integration/failure injection | INFERRED implementation test of verified requirement | TODO |
 | SYNC-012 | Recoverable sync failure keeps operation durable and retryable | ASM-009, ASM-010 | sync | integration | VERIFIED by design | TODO |
@@ -256,8 +256,8 @@ For exact token values, `docs/DESIGN_SYSTEM.md` and the authoritative Style Guid
 | ID | Requirement | Parent | Artifact/area | Verification | Evidence | Status |
 |---|---|---|---|---|---|---|
 | TST-001 | Unit tests cover Money correctness | ASM-002, ASM-014 | `test/core/money` | `flutter test` | INFERRED test needed for hard constraint | DONE |
-| TST-002 | Unit/repository tests cover pending-operation persistence/state transitions | ASM-009, ASM-012 | `test/sync` | `flutter test` | INFERRED test needed for hard constraint | TODO |
-| TST-003 | Unit tests cover fake-remote idempotency | ASM-006, ASM-013 | `test/fake_backend` | `flutter test` | INFERRED test needed for hard constraint | TODO |
+| TST-002 | Unit/repository tests cover pending-operation persistence/state transitions | ASM-009, ASM-012 | `test/sync` | `flutter test` | INFERRED test needed for hard constraint | DONE |
+| TST-003 | Unit tests cover fake-remote idempotency | ASM-006, ASM-013 | `test/fake_backend` | `flutter test` | INFERRED test needed for hard constraint | DONE |
 | TST-004 | Required Send Money widget tests exist | ASM-022 | send tests | `flutter test` | VERIFIED | TODO |
 | TST-005 | Required NovaSave contribution widget tests exist | ASM-023 | NovaSave tests | `flutter test` | VERIFIED | TODO |
 | TST-006 | Integration test covers offline queue → restart/reconnect → exactly one effect | ASM-024 plus ASM-012/013 | `integration_test` | integration run | VERIFIED + strengthened to catch duplicate regression | TODO |

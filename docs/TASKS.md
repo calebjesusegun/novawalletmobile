@@ -531,7 +531,7 @@ flutter analyze
 
 ---
 
-## [ ] T-REMOTE-001 — Implement idempotent fake remote
+## [x] T-REMOTE-001 — Implement idempotent fake remote
 
 **Risk:** A  
 **Size:** M
