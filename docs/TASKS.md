@@ -674,7 +674,7 @@ flutter analyze
 
 ---
 
-## [ ] T-SYNC-001 — Implement durable enqueue API
+## [x] T-SYNC-001 — Implement durable enqueue API
 
 **Risk:** A  
 **Size:** S

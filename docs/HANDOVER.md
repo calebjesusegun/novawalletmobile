@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 3 in Progress — T-CONN-001 complete and verified; ready for PR and merge  
-**Primary next task:** Merge PR for `feature/T-CONN-001-connectivity-abstraction`, then proceed to `T-SYNC-001` (Implement durable enqueue API)  
-**Current branch:** `feature/T-CONN-001-connectivity-abstraction`  
-**Latest commit on main:** `4b3934e`  
+**Status:** Phase 3 in Progress — T-CONN-001 merged; T-SYNC-001 complete and verified; ready for PR and merge  
+**Primary next task:** Merge PR for `feature/T-SYNC-001-durable-enqueue`, then proceed to `T-SYNC-002` (Implement single shared sync coordinator and operation claim)  
+**Current branch:** `feature/T-SYNC-001-durable-enqueue`  
+**Latest commit on main:** `def0ab9`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -38,7 +38,8 @@ Phase 2 (Persistence & Fake Remote) is COMPLETE:
 - `T-REMOTE-002` (Add deterministic failure simulation) is COMPLETE and merged (`4b3934e`, PR #15).
 
 Phase 3 (Connectivity, Queue & Synchronization) is in progress:
-- `T-CONN-001` (Implement connectivity abstraction) is COMPLETE on `feature/T-CONN-001-connectivity-abstraction`.
+- `T-CONN-001` (Implement connectivity abstraction) is COMPLETE and merged (`def0ab9`, PR #16).
+- `T-SYNC-001` (Implement durable enqueue API) is COMPLETE on `feature/T-SYNC-001-durable-enqueue`.
 
 ---
 
@@ -46,12 +47,12 @@ Phase 3 (Connectivity, Queue & Synchronization) is in progress:
  
 Current Task:
 ```text
-T-CONN-001 — Implement connectivity abstraction (feature/T-CONN-001-connectivity-abstraction)
+T-SYNC-001 — Implement durable enqueue API (feature/T-SYNC-001-durable-enqueue)
 ```
 
 Next Task:
 ```text
-T-SYNC-001 — Implement durable enqueue API
+T-SYNC-002 — Implement single shared sync coordinator and operation claim
 ```
 
 ---
@@ -85,20 +86,18 @@ Do not claim success without actually running the relevant commands.
 
 ### 13. Next Action
  
-`feature/T-CONN-001-connectivity-abstraction` is verified and ready to merge into `main`.
+`feature/T-SYNC-001-durable-enqueue` is verified and ready to merge into `main`.
  
-### Completed Work (T-CONN-001):
-- Added `connectivity_plus: ^7.3.1` dependency.
-- Implemented `ConnectivityStatus` enum (`online`, `offline`) in `lib/core/connectivity/connectivity_status.dart` adhering strictly to `HC-STATE-SEPARATION`.
-- Implemented `ConnectivityService` abstract interface in `lib/core/connectivity/connectivity_service.dart`.
-- Implemented `InMemoryConnectivityService` in `lib/core/connectivity/in_memory_connectivity_service.dart` providing deterministic status overrides, toggle, broadcast streams, and state validation.
-- Implemented `ConnectivityPlusService` in `lib/core/connectivity/connectivity_plus_service.dart` mapping device interface states (WiFi, cellular, Ethernet, VPN, none) to `ConnectivityStatus`.
-- Implemented Riverpod providers (`connectivityServiceProvider`, `connectivityStatusStreamProvider`, `connectivityStatusProvider`) in `lib/core/connectivity/connectivity_providers.dart`.
-- Authored 21 tests across `test/core/connectivity/` verifying status invariants, stream broadcasting, deterministic overrides, and Riverpod provider reactivity (bringing suite total to 258 passing tests).
-- All checks verified (0 format errors, 0 analyzer issues, 258/258 tests passing).
+### Completed Work (T-SYNC-001):
+- Implemented `OperationRepository` abstract interface (`lib/sync/domain/operation_repository.dart`) with durable enqueue (`enqueue`, `enqueueSendMoney`, `enqueueContribution`), query, atomic claim, state transition (`markPendingWithError`, `markCompleted`, `markFailed`), crash recovery (`recoverInterrupted`), and reactive stream watchers (`watchPendingOperations`, `watchActiveOperations`).
+- Implemented `LocalOperationRepository` (`lib/sync/data/local_operation_repository.dart`) backed by Drift SQLite `PendingOperationsDao`, verifying writes on persistence and throwing on failure so callers never get a false saved acknowledgment (`HC-OFFLINE-DURABILITY`, `SYNC-002`, `SND-015`, `NSV-017`).
+- Implemented `appDatabaseProvider` in `lib/core/persistence/persistence_providers.dart` and sync providers (`operationRepositoryProvider`, `pendingOperationsStreamProvider`, `activeOperationsStreamProvider`) in `lib/sync/data/sync_providers.dart`.
+- Unified `ConnectivityStatus` enum source of truth between `core/connectivity` and `sync/domain`.
+- Authored 10 exhaustive unit, lifecycle transition, and SQLite restart simulation tests in `test/sync/data/local_operation_repository_test.dart` (bringing test suite total to 268 passing tests).
+- All checks verified (0 format issues, 0 analyze issues, 268/268 tests passing).
 
 ### Next Steps:
-1. Commit, push `feature/T-CONN-001-connectivity-abstraction`, open PR #16, squash-merge into `main`.
+1. Commit, push `feature/T-SYNC-001-durable-enqueue`, open PR #17, squash-merge into `main`.
 2. Checkout `main`, pull latest.
-3. Begin `T-SYNC-001 — Implement durable enqueue API` on a new feature branch `feature/T-SYNC-001-durable-enqueue`.
+3. Begin `T-SYNC-002 — Implement single shared sync coordinator and operation claim` on a new feature branch `feature/T-SYNC-002-sync-coordinator`.
 

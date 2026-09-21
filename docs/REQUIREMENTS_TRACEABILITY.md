@@ -152,7 +152,7 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 | SND-012 | Online transfer success shows amount, recipient, reference/date/status | flow/design | UI-SND-12 | send | widget/integration | VERIFIED by design | TODO |
 | SND-013 | Immediate online failure shows no debit + retry/back actions | flow/design | UI-SND-13 | send | widget/integration | VERIFIED by design | TODO |
 | SND-014 | Offline confirmation explains operation will be saved | ASM-009 | UI-SND-14 | send | widget | VERIFIED by design | TODO |
-| SND-015 | Offline Send is durably persisted before UI reports it saved | ASM-009, ASM-012 | UI-SND-15 | sync/persistence | repository + integration | VERIFIED | TODO |
+| SND-015 | Offline Send is durably persisted before UI reports it saved | ASM-009, ASM-012 | UI-SND-15 | sync/persistence | repository + integration | VERIFIED | IN_PROGRESS |
 | SND-016 | Pending transfer survives restart | ASM-012 | UI-SND-15 + Flow 2 | sync/persistence | integration | VERIFIED | TODO |
 | SND-017 | Reconnect transitions pending transfer into processing | ASM-011 | UI-SND-16 | sync | integration/widget | VERIFIED by design | TODO |
 | SND-018 | Reconnect success completes once and updates wallet once | ASM-011, ASM-013 | UI-SND-17 | sync/fake backend/wallet | integration | VERIFIED | TODO |
@@ -181,7 +181,7 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 | NSV-014 | Successful contribution updates amount/progress | ASM-008 | UI-NSV-13, UI-NSV-14 | NovaSave (`domain`) | unit/widget/integration | VERIFIED | IN_PROGRESS |
 | NSV-015 | Immediate online contribution failure leaves wallet unchanged and offers retry | flow/design | UI-NSV-15 | NovaSave | widget/integration | VERIFIED by design | TODO |
 | NSV-016 | Offline confirmation explains contribution will be saved | ASM-009 | UI-NSV-16 | NovaSave | widget | VERIFIED by design | TODO |
-| NSV-017 | Offline Contribution is durably persisted before UI reports it saved | ASM-009, ASM-012 | UI-NSV-17 | sync/persistence | repository + integration | VERIFIED | TODO |
+| NSV-017 | Offline Contribution is durably persisted before UI reports it saved | ASM-009, ASM-012 | UI-NSV-17 | sync/persistence | repository + integration | VERIFIED | IN_PROGRESS |
 | NSV-018 | Pending contribution remains visible while confirmed goal progress is unchanged | ASM-009 | UI-NSV-18 | NovaSave + sync projection | widget/integration | VERIFIED by design | TODO |
 | NSV-019 | Pending contribution survives restart | ASM-012 | UI-NSV-17/18 + Flow 6 | sync/persistence | integration | VERIFIED | TODO |
 | NSV-020 | Reconnect transitions pending contribution into processing | ASM-011 | UI-NSV-19 | sync | integration/widget | VERIFIED by design | TODO |
@@ -196,8 +196,8 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 | ID | Requirement | Parent | Implementation | Verification | Evidence | Status |
 |---|---|---|---|---|---|---|
 | SYNC-001 | Observe online/offline connectivity | ASM-009, ASM-011 | `core/connectivity` | unit/widget | VERIFIED | DONE |
-| SYNC-002 | Persist pending operation before acknowledging it as saved | ASM-009, ASM-012 | `sync/data`, Drift | repository/integration | VERIFIED | IN_PROGRESS |
-| SYNC-003 | Restore pending operations after process restart | ASM-012 | `sync` + persistence | integration | VERIFIED | IN_PROGRESS |
+| SYNC-002 | Persist pending operation before acknowledging it as saved | ASM-009, ASM-012 | `sync/data`, Drift | repository/integration | VERIFIED | DONE |
+| SYNC-003 | Restore pending operations after process restart | ASM-012 | `sync` + persistence | integration | VERIFIED | DONE |
 | SYNC-004 | Synchronize eligible pending operations on reconnect | ASM-011 | `sync/application` | integration | VERIFIED | TODO |
 | SYNC-005 | Synchronization uses a single shared coordinator, not feature-specific replay loops | ASM-010, ASM-013 | `sync/application` | architectural review/tests | INFERRED implementation | TODO |
 | SYNC-006 | One logical operation has one stable operation ID | ASM-013 | `core/ids`, sync | unit | INFERRED implementation | DONE |

@@ -589,6 +589,43 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
+### Prompt 16 — Implement durable enqueue API (T-SYNC-001)
+
+**Tool:** Antigravity  
+**Stage:** Phase 3 — Connectivity, Queue & Synchronization (T-SYNC-001)
+
+**Prompt**
+
+> Implement T-SYNC-001 — Implement durable enqueue API:
+> 1. Create task branch `feature/T-SYNC-001-durable-enqueue` from clean `main`.
+> 2. Define `OperationRepository` abstract interface in `lib/sync/domain/operation_repository.dart` specifying `enqueue`, `enqueueSendMoney`, `enqueueContribution`, `claim`, `update`, `markPendingWithError`, `markCompleted`, `markFailed`, `recoverInterrupted`, `watchPendingOperations`, and `watchActiveOperations`.
+> 3. Implement `LocalOperationRepository` in `lib/sync/data/local_operation_repository.dart` backed by `PendingOperationsDao` and Drift SQLite:
+>    - Ensure operations must be in `pending` status with `attemptCount == 0`.
+>    - Confirm write back from persistent storage.
+>    - Throw on constraint or persistence errors so caller NEVER receives a false saved/pending acknowledgment (HC-OFFLINE-DURABILITY, SYNC-002).
+> 4. Implement Riverpod providers `appDatabaseProvider`, `operationRepositoryProvider`, `pendingOperationsStreamProvider`, and `activeOperationsStreamProvider`.
+> 5. Author comprehensive unit, lifecycle transition, and restart simulation tests in `test/sync/data/local_operation_repository_test.dart` verifying that:
+>    - Send and Contribution intents are durably stored.
+>    - Duplicate operation ID or idempotency key throws and prevents false saved acknowledgments.
+>    - Operations survive database file close and reopen with exact integer-kobo amounts and stable identities.
+>    - Riverpod stream providers emit updates reactively.
+> 6. Verify all checks pass across formatting, static analysis, and all tests.
+
+**Result**
+
+- Created `OperationRepository` interface in `lib/sync/domain/operation_repository.dart`.
+- Created `LocalOperationRepository` in `lib/sync/data/local_operation_repository.dart`.
+- Created `appDatabaseProvider` in `lib/core/persistence/persistence_providers.dart` and sync providers (`operationRepositoryProvider`, `pendingOperationsStreamProvider`, `activeOperationsStreamProvider`) in `lib/sync/data/sync_providers.dart`.
+- Authored 10 tests in `test/sync/data/local_operation_repository_test.dart` bringing test suite total to 268 passing tests.
+
+**Action taken**
+
+- Corrected test assertion type mismatch (`Money.kobo` is `int`, not `BigInt`).
+- Ran full project verification (`dart format`, `flutter analyze`, `flutter test`), passing cleanly with 0 warnings/errors across all 268 tests.
+- Updated `docs/TASKS.md`, `docs/REQUIREMENTS_TRACEABILITY.md` (`SYNC-002` and `SYNC-003` marked `DONE`; `SND-015` and `NSV-017` marked `IN_PROGRESS`), `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
+---
+
 ## AI Mistakes / Risky Output
 
 At least one real example must be included before submission.
