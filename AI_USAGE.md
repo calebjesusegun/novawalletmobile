@@ -376,6 +376,43 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
+### Prompt 10 — Queued-spendability policy (T-DOM-001)
+
+**Tool:** Antigravity  
+**Stage:** Phase 1 — Money, Identity & Core Operation Model (T-DOM-001)
+
+**Prompt**
+
+> Implement T-DOM-001 — Decide queued-spendability policy:
+> - Define domain policy model: `SpendableBalancePolicy` in `lib/sync/domain/spendable_balance_policy.dart`.
+> - Export via `lib/sync/domain/sync_domain.dart`.
+> - Fulfill requirement MNY-006:
+>   * Confirmed balance remains the cached local/remote balance per design (AD-09).
+>   * Spendable balance = max(0, confirmedBalance - sum(activePendingKobo)).
+>   * Active pending includes both `pending` and `processing` outgoing operations (transfers and contributions).
+>   * Completed operations do not double-deduct once remote/confirmed balance reflects them.
+>   * Terminally failed operations release reservations immediately.
+>   * Provide validation helper `canSpend(confirmedBalance, pendingOperations, candidateAmount)`.
+> - Add comprehensive unit tests in `test/sync/domain/spendable_balance_policy_test.dart`.
+> - Update `docs/ARCHITECTURE.md` §16 and §26, `docs/REQUIREMENTS_TRACEABILITY.md` (MNY-006 -> DONE), `docs/TASKS.md` (check off T-DOM-001), `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
+**Result**
+
+- Implemented `SpendableBalancePolicy` in `lib/sync/domain/spendable_balance_policy.dart` using exact integer kobo `Money` arithmetic per HC-MONEY.
+- Reconciled design requirement AD-09 (headline balance displays confirmed cached balance) with safe offline spending preventing accidental overdrafts.
+- Created `canSpend`, `calculateSpendableBalance`, and `calculateReservedAmount` methods accounting for both `SendMoneyPayload` and `ContributionPayload` in `pending` and `processing` statuses.
+- Handled negative edge cases gracefully using `Money.zero()` floor.
+- Documented the policy comprehensively in `docs/ARCHITECTURE.md` §16 and §26.
+- Authored 12 unit tests in `test/sync/domain/spendable_balance_policy_test.dart` verifying multi-operation reservation, failure release, completion handling, and edge cases (suite total: 177 tests, all passing).
+
+**Action taken**
+
+- Ran `flutter test test/sync/domain/spendable_balance_policy_test.dart` (12/12 passing).
+- Ran full verification (`dart format`, `flutter analyze`, `flutter test`), all passing with 0 warnings/errors.
+- Updated `docs/ARCHITECTURE.md`, `docs/REQUIREMENTS_TRACEABILITY.md`, `docs/TASKS.md`, `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
+---
+
 ## AI Mistakes / Risky Output
 
 At least one real example must be included before submission.

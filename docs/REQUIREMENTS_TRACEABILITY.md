@@ -108,9 +108,9 @@ These rows make the assessment's highest-risk constraints implementation-testabl
 | MNY-003 | Addition/subtraction/progress calculations do not use `double` | ASM-014 | `core/money`, `features/novasave/domain` | unit tests/code review | VERIFIED | DONE |
 | MNY-004 | Confirmed wallet balance changes only after a Send is successfully processed | design flows + integrity principle | wallet/send domain | integration + widget | VERIFIED by design | TODO |
 | MNY-005 | Confirmed NovaSave progress changes only after contribution success | design flows + integrity principle | NovaSave domain | integration + widget | VERIFIED by design | TODO |
-| MNY-006 | Policy for multiple queued outgoing operations against one cached balance must be explicitly chosen and documented | assessment leaves this unspecified | domain/application | unit/integration | UNKNOWN / TO VERIFY | TODO |
+| MNY-006 | Policy for multiple queued outgoing operations against one cached balance must be explicitly chosen and documented | assessment leaves this unspecified | `lib/sync/domain/spendable_balance_policy.dart`, `docs/ARCHITECTURE.md` | `test/sync/domain/spendable_balance_policy_test.dart` | VERIFIED | DONE |
 
-`MNY-006` is the only unresolved balance-reservation policy in the supplied material. Do not silently invent production-bank semantics.
+`MNY-006` balance-reservation policy is resolved: headline balance displays confirmed cached balance, while outgoing entry forms validate against spendable balance (confirmed minus active pending outgoing operations). Implemented in `SpendableBalancePolicy`.
 
 ---
 

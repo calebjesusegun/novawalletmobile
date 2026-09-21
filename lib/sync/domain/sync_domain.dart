@@ -3,5 +3,6 @@ export 'package:novawallet/sync/domain/financial_operation.dart';
 export 'package:novawallet/sync/domain/operation_payload.dart';
 export 'package:novawallet/sync/domain/operation_status.dart';
 export 'package:novawallet/sync/domain/operation_type.dart';
+export 'package:novawallet/sync/domain/spendable_balance_policy.dart';
 export 'package:novawallet/sync/domain/sync_error.dart';
 export 'package:novawallet/sync/domain/sync_status.dart';

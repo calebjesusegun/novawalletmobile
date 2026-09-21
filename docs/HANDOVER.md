@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 1 in progress — T-OP-001 implemented on feature branch  
-**Primary next task:** `T-DOM-001 — Decide queued-spendability policy`  
-**Current branch:** `feature/T-OP-001-operation-model`  
-**Latest commit on main:** `cbdb4a0`  
+**Status:** Phase 1 Complete — all tasks implemented, verified, and ready for Codex review  
+**Primary next task:** Phase 1 Codex In-Depth Review, followed by Phase 2 (`T-DB-001`)  
+**Current branch:** `feature/T-DOM-001-spendability-policy`  
+**Latest commit on main:** `b5a3d6a`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -20,10 +20,13 @@ Phase 0 (Toolchain & Project Baseline) is complete:
 - Strict linter configuration, analyzer rules, and test architecture scaffolded (`T-BASE-002`).
 - GitHub Actions CI pipeline active (`T-BASE-003`).
 
-Phase 1 (Money, Identity & Core Operation Model) is in progress:
+Phase 1 (Money, Identity & Core Operation Model) is COMPLETE:
 - `T-MNY-001` (integer-kobo `Money` value object) is complete and merged into `main` (`ad871bb`).
-- `T-MNY-002` (exact savings-progress calculation) is implemented and verified on branch `feature/T-MNY-002-savings-progress`.
-- Next task: `T-ID-001 — Implement stable operation and idempotency identities`.
+- `T-MNY-002` (exact savings-progress calculation) is complete and merged into `main` (`55af79d`).
+- `T-ID-001` (stable operation & idempotency identities) is complete and merged into `main` (`cbdb4a0`).
+- `T-OP-001` (financial operation model & state transitions) is complete and merged into `main` (`b5a3d6a`).
+- `T-DOM-001` (queued-spendability policy) is complete and verified on branch `feature/T-DOM-001-spendability-policy`.
+- Next step: PR & merge `T-DOM-001` into `main`, then run Phase 1 Codex in-depth review.
 
 ---
 
@@ -212,15 +215,14 @@ The original assessment brief should remain local/private if its distribution ma
 
 ---
 
-## 7. Current Open Decision
+## 7. Open Decisions (RESOLVED)
 
-One product-policy item remains intentionally unresolved:
+The previously open product-policy item regarding queued spendability has been resolved and implemented in `SpendableBalancePolicy` (`lib/sync/domain/spendable_balance_policy.dart`):
 
-> How should amount validation behave when multiple outgoing operations are queued against one stale cached confirmed balance?
-
-This is tracked in `docs/TASKS.md` as `T-DOM-001`.
-
-Do not invent a hidden policy before that task is completed.
+- Headline balance continues to reflect confirmed cached balance per design AD-09.
+- Spendable balance = `max(0, confirmedBalance - sum(activePendingKobo))`.
+- Outgoing entry flows validate against spendable balance.
+- All Phase 1 open decisions are now resolved.
 
 ---
 
@@ -228,12 +230,12 @@ Do not invent a hidden policy before that task is completed.
  
 Current Task:
 ```text
-T-OP-001 — Define financial operation model and state transitions (complete on branch, ready for review/merge)
+Phase 1 Peer Review by Codex (all Phase 1 tasks T-MNY-001, T-MNY-002, T-ID-001, T-OP-001, T-DOM-001 complete)
 ```
 
 Next Task:
 ```text
-T-DOM-001 — Decide queued-spendability policy (final task of Phase 1)
+T-DB-001 — Configure Drift and pending-operation schema (start of Phase 2)
 ```
 
 ---
@@ -301,31 +303,32 @@ If this handover and Git disagree, trust Git.
 
 ### 13. Next Action
  
-`T-OP-001 — Define financial operation model and state transitions` is complete and verified on branch `feature/T-OP-001-operation-model`.
+`T-DOM-001 — Decide queued-spendability policy` is complete and verified on branch `feature/T-DOM-001-spendability-policy`.
  
-### Completed Work (T-OP-001):
-- Modeled independent state dimensions per HC-STATE-SEPARATION:
-  - `ConnectivityStatus` (`online`, `offline`) in `lib/sync/domain/connectivity_status.dart`.
-  - `SyncStatus` (`idle`, `syncing`, `failed`) in `lib/sync/domain/sync_status.dart`.
-  - `OperationStatus` (`pending`, `processing`, `completed`, `failed`) in `lib/sync/domain/operation_status.dart`.
-- Implemented `OperationType` (`send`, `contribution`) in `lib/sync/domain/operation_type.dart`.
-- Implemented `OperationPayload` sealed hierarchy (`SendMoneyPayload`, `ContributionPayload`) in `lib/sync/domain/operation_payload.dart` backed strictly by integer kobo `Money` per HC-MONEY with JSON serialization.
-- Implemented `SyncError` in `lib/sync/domain/sync_error.dart` capturing error metadata and distinguishing recoverable from terminal failures.
-- Implemented `FinancialOperation` (aliased as `PendingOperation` per `docs/ARCHITECTURE.md` §8.3) in `lib/sync/domain/financial_operation.dart` with state transitions:
-  - `pending` -> `processing`: atomic claim for delivery.
-  - `processing` -> `completed`: successful remote settlement with reference.
-  - `processing` -> `pending`: recoverable sync error (keeps operation queued and retryable per HC-SYNC).
-  - `processing` -> `failed`: terminal failure.
-  - Explicitly prevented invalid transitions with `InvalidOperationTransitionException`.
-- Exported all models via barrel `lib/sync/domain/sync_domain.dart`.
-- Preserved strict architectural boundaries: untouched Drift implementation, UI screens, or connectivity package.
-- Authored 32 unit tests across `test/sync/domain/state_separation_test.dart`, `test/sync/domain/operation_payload_test.dart`, and `test/sync/domain/financial_operation_test.dart` verifying all transitions, guards, error classification, and state independence (total project tests increased from 133 to 165).
-- Updated `docs/REQUIREMENTS_TRACEABILITY.md` (`SYNC-014` marked DONE; `ASM-009`, `ASM-010`, `ASM-012` marked IN_PROGRESS), `docs/TASKS.md` (checked off T-OP-001), and `AI_USAGE.md` (recorded Prompt 9).
+### Completed Work (T-DOM-001):
+- Implemented `SpendableBalancePolicy` in `lib/sync/domain/spendable_balance_policy.dart` using exact integer kobo `Money` arithmetic per HC-MONEY.
+- Reconciled design requirement AD-09 (headline balance displays confirmed cached balance) with safe offline spending preventing accidental overdrafts.
+- Created `canSpend`, `calculateSpendableBalance`, and `calculateReservedAmount` methods accounting for both `SendMoneyPayload` and `ContributionPayload` in `pending` and `processing` statuses.
+- Handled negative edge cases gracefully using `Money.zero()` floor.
+- Exported policy via barrel `lib/sync/domain/sync_domain.dart`.
+- Documented the policy comprehensively in `docs/ARCHITECTURE.md` §16 and §26.
+- Authored 12 unit tests in `test/sync/domain/spendable_balance_policy_test.dart` verifying multi-operation reservation, failure release, completion handling, and edge cases (suite total: 177 tests, all passing).
+- Updated `docs/REQUIREMENTS_TRACEABILITY.md` (`MNY-006` marked DONE), `docs/TASKS.md` (checked off T-DOM-001), and `AI_USAGE.md` (recorded Prompt 10).
 - Ran and verified local checks:
-  - `flutter test test/sync/` (33/33 tests passed)
-  - `dart format --output=none --set-exit-if-changed .` (32 files formatted, 0 changed)
+  - `flutter test test/sync/domain/spendable_balance_policy_test.dart` (12/12 tests passed)
+  - `dart format --output=none --set-exit-if-changed .` (0 changed)
   - `flutter analyze` (0 issues found)
-  - `flutter test` (165 tests passed, 0 failures)
+  - `flutter test` (177 tests passed, 0 failures)
 
-### Next Task:
-`T-DOM-001 — Decide queued-spendability policy` (final task of Phase 1) as defined in `docs/TASKS.md`.
+### Phase 1 Completion Summary:
+All five Phase 1 tasks are complete and verified:
+1. `T-MNY-001` — Core integer-kobo Money value object (merged `ad871bb`)
+2. `T-MNY-002` — Exact savings-progress calculation (merged `55af79d`)
+3. `T-ID-001` — Stable operation and idempotency identities (merged `cbdb4a0`)
+4. `T-OP-001` — Financial operation model and state transitions (merged `b5a3d6a`)
+5. `T-DOM-001` — Queued-spendability policy (branch `feature/T-DOM-001-spendability-policy`)
+
+### Next Steps:
+1. PR and merge `T-DOM-001` into `main`.
+2. Provide Codex in-depth Phase 1 review prompt.
+3. Address any review findings before proceeding to Phase 2 (`T-DB-001`).
