@@ -205,8 +205,8 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 | SYNC-008 | Fake remote deduplicates repeated idempotency keys | ASM-006, ASM-013 | `fake_backend` | unit/integration | INFERRED implementation required to demonstrate guarantee | DONE |
 | SYNC-009 | Repeated key with conflicting payload is rejected/flagged | ASM-013 | fake backend | unit | INFERRED defensive rule | DONE |
 | SYNC-010 | Concurrent sync triggers cannot process the same local operation concurrently | ASM-013 | sync + database claim | unit/integration | INFERRED implementation | TODO |
-| SYNC-011 | App interruption after remote success but before local completion does not produce a second financial effect | ASM-013 | sync + fake backend | integration/failure injection | INFERRED implementation test of verified requirement | TODO |
-| SYNC-012 | Recoverable sync failure keeps operation durable and retryable | ASM-009, ASM-010 | sync | integration | VERIFIED by design | TODO |
+| SYNC-011 | App interruption after remote success but before local completion does not produce a second financial effect | ASM-013 | sync + fake backend | integration/failure injection | INFERRED implementation test of verified requirement | IN_PROGRESS |
+| SYNC-012 | Recoverable sync failure keeps operation durable and retryable | ASM-009, ASM-010 | sync | integration | VERIFIED by design | IN_PROGRESS |
 | SYNC-013 | Retry is event-triggered/bounded; no uncontrolled background retry loop | ASM-010 | sync | unit/integration | VERIFIED | TODO |
 | SYNC-014 | Connectivity status, sync status and operation status remain separate state dimensions | design + architecture | app/sync state | unit/review | INFERRED architecture | DONE |
 
@@ -261,7 +261,7 @@ For exact token values, `docs/DESIGN_SYSTEM.md` and the authoritative Style Guid
 | TST-004 | Required Send Money widget tests exist | ASM-022 | send tests | `flutter test` | VERIFIED | TODO |
 | TST-005 | Required NovaSave contribution widget tests exist | ASM-023 | NovaSave tests | `flutter test` | VERIFIED | TODO |
 | TST-006 | Integration test covers offline queue → restart/reconnect → exactly one effect | ASM-024 plus ASM-012/013 | `integration_test` | integration run | VERIFIED + strengthened to catch duplicate regression | TODO |
-| TST-007 | Failure/retry path is tested for lost/uncertain response behavior | ASM-013 | sync/fake backend | integration | INFERRED high-value regression test | TODO |
+| TST-007 | Failure/retry path is tested for lost/uncertain response behavior | ASM-013 | sync/fake backend | integration | INFERRED high-value regression test | IN_PROGRESS |
 | DOC-001 | README is truthful about implemented state and required architecture/trade-offs/run/test info | ASM-021, ASM-026 | `README.md` | submission review | VERIFIED | TODO |
 | DOC-002 | AI usage log is maintained from implementation start | ASM-019, ASM-020 | `AI_USAGE.md` | submission review | VERIFIED | TODO |
 | DOC-003 | Flutter/Dart versions are pinned/recorded | ASM-026 | README/pubspec/toolchain | clean setup review | VERIFIED | DONE |

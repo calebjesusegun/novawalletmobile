@@ -1,3 +1,4 @@
+import 'package:novawallet/fake_backend/failure_simulator.dart';
 import 'package:novawallet/fake_backend/in_memory_remote_ledger.dart';
 import 'package:novawallet/fake_backend/remote_api.dart';
 import 'package:novawallet/fake_backend/remote_exceptions.dart';
@@ -19,19 +20,25 @@ import 'package:novawallet/sync/domain/operation_type.dart';
 /// - ASM-013: A queued action is not sent twice after reconnect/restart.
 /// - SYNC-008: Fake remote deduplicates repeated idempotency keys.
 /// - SYNC-009: Repeated key with conflicting payload is rejected/flagged.
+/// - SYNC-011: Interruption after remote settlement does not produce duplicate effect.
+/// - SYNC-012: Recoverable sync failure keeps operation durable and retryable.
+/// - TST-007: Lost/uncertain response simulation.
 /// - HC-MONEY: All balance calculations and debits use integer kobo.
 /// - docs/ARCHITECTURE.md §11 & §14.
 class FakeRemoteApi implements RemoteApi {
   final RemoteIdempotencyLedger _ledger;
   final DateTime Function() _clock;
   final String Function(FinancialOperation)? referenceGenerator;
+  final FailureSimulator failureSimulator;
 
   FakeRemoteApi({
     RemoteIdempotencyLedger? ledger,
     DateTime Function()? clock,
     this.referenceGenerator,
+    FailureSimulator? failureSimulator,
   }) : _ledger = ledger ?? InMemoryRemoteLedger(),
-       _clock = clock ?? (() => DateTime.now().toUtc());
+       _clock = clock ?? (() => DateTime.now().toUtc()),
+       failureSimulator = failureSimulator ?? FailureSimulator();
 
   /// Exposes the underlying ledger for tests or inspection.
   RemoteIdempotencyLedger get ledger => _ledger;
@@ -44,6 +51,9 @@ class FakeRemoteApi implements RemoteApi {
         'Expected a Send Money operation, received: ${operation.type}',
       );
     }
+
+    // Pre-execution failure check (e.g. transport error, server error, business rejection)
+    failureSimulator.checkPreExecution(operation);
 
     final key = operation.idempotencyKey.value;
     final existingRecord = await _ledger.getRecord(key);
@@ -107,6 +117,9 @@ class FakeRemoteApi implements RemoteApi {
     );
     await _ledger.saveRecord(record);
 
+    // Post-execution failure check (e.g. response lost in flight after remote settlement)
+    failureSimulator.checkPostExecution(operation, reference);
+
     return result;
   }
 
@@ -118,6 +131,9 @@ class FakeRemoteApi implements RemoteApi {
         'Expected a Contribution operation, received: ${operation.type}',
       );
     }
+
+    // Pre-execution failure check (e.g. transport error, server error, business rejection)
+    failureSimulator.checkPreExecution(operation);
 
     final key = operation.idempotencyKey.value;
     final existingRecord = await _ledger.getRecord(key);
@@ -180,6 +196,9 @@ class FakeRemoteApi implements RemoteApi {
       recordedAt: now,
     );
     await _ledger.saveRecord(record);
+
+    // Post-execution failure check (e.g. response lost in flight after remote settlement)
+    failureSimulator.checkPostExecution(operation, reference);
 
     return result;
   }

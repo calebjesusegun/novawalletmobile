@@ -516,6 +516,42 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 - Ran full verification suite (`dart format`, `flutter analyze`, `flutter test`), passing with 0 warnings/errors.
 - Updated `docs/REQUIREMENTS_TRACEABILITY.md` (`SYNC-008`, `SYNC-009`, `TST-002`, `TST-003` to `DONE`), `docs/TASKS.md`, `AI_USAGE.md`, and `docs/HANDOVER.md`.
 
+### Prompt 14 — Add deterministic failure simulation (T-REMOTE-002)
+
+**Tool:** Antigravity  
+**Stage:** Phase 2 — Persistence & Fake Remote (T-REMOTE-002)
+
+**Prompt**
+
+> Implement T-REMOTE-002 — Add deterministic failure simulation:
+> 1. Create task branch `feature/T-REMOTE-002-failure-simulation` from clean `main`.
+> 2. Implement `FailureSimulator` and `SimulatedFailureType` supporting:
+>    - transient transport/network failures (`RemoteTransportException`, recoverable);
+>    - transient server errors (`RemoteServerException`, recoverable);
+>    - terminal business rejections (`RemoteBusinessRejectionException`, terminal);
+>    - response lost in flight after settlement (`RemoteResponseLostException`, recoverable/uncertain per SYNC-011 and TST-007).
+> 3. Enhance `RemoteApiException` hierarchy with `isRecoverable` and domain `toSyncError()` mapping.
+> 4. Integrate `FailureSimulator` with `FakeRemoteApi` for pre-execution and post-execution checks.
+> 5. Author comprehensive unit tests in `test/fake_backend/failure_simulator_test.dart` verifying that:
+>    - Pre-execution failures result in zero remote balance deductions.
+>    - Response-lost scenario settles remote debit and records idempotency entry, and subsequent client replay with the same key returns the duplicate result without a second debit (HC-EXACTLY-ONCE-EFFECT).
+>    - Single-shot, multi-attempt, and key-specific rules operate deterministically.
+> 6. Verify all checks pass across formatting, static analysis, and all 237 tests.
+
+**Result**
+
+- Created `FailureSimulator` in `lib/fake_backend/failure_simulator.dart` with support for `failNext`, `failNextN`, `failForIdempotencyKey`, and custom `FailureRule`s.
+- Enhanced `RemoteApiException` with `isRecoverable`, `code`, and `toSyncError()` method mapping directly to `SyncError`.
+- Added `RemoteTransportException`, `RemoteServerException`, `RemoteResponseLostException`, and `RemoteBusinessRejectionException`.
+- Integrated `failureSimulator` into `FakeRemoteApi` for both `sendMoney` and `contribute`.
+- Authored 9 exhaustive tests in `test/fake_backend/failure_simulator_test.dart` bringing test suite to 237 passing tests.
+
+**Action taken**
+
+- Identified and fixed asynchronous test expectation pattern where unawaited closures in `expect` allowed tests to execute assertions before future resolution. Replaced with `await expectLater(...)`.
+- Ran full project verification (`dart format`, `flutter analyze`, `flutter test`), passing cleanly with 0 warnings/errors across 237 tests.
+- Updated documentation across `docs/REQUIREMENTS_TRACEABILITY.md`, `docs/TASKS.md`, `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
 ---
 
 ## AI Mistakes / Risky Output

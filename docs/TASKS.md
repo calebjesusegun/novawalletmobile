@@ -582,7 +582,7 @@ flutter analyze
 
 ---
 
-## [ ] T-REMOTE-002 — Add deterministic failure simulation
+## [x] T-REMOTE-002 — Add deterministic failure simulation
 
 **Risk:** A  
 **Size:** S
