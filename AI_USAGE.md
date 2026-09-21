@@ -1016,6 +1016,37 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
+### Prompt 29 — Implement Wallet loading, empty and pending-detail states (T-WAL-004)
+
+**Tool:** Antigravity  
+**Stage:** Phase 5 — Wallet (`feat/wallet-loading-empty-detail`)
+
+**Prompt**
+
+> Commit, merge, and pull T-WAL-003, then continue directly to T-WAL-004 — Implement Wallet loading, empty and pending-detail states:
+> 1. Implement WalletLoadingSkeleton matching UI-WAL-08 and WAL-010 with accessible semantics and placeholders for balance card and activity list.
+> 2. Ensure empty transaction state matches UI-WAL-09 and WAL-004.
+> 3. Implement WalletTransactionDetailSheet matching UI-WAL-10 and WAL-011 displaying amount, recipient, saved time/status, saved-on-phone explanation, and retry action for failed sync operations.
+> 4. Wire onItemTap from WalletRecentActivitySection to show WalletTransactionDetailSheet.
+> 5. Author widget tests verifying loading skeleton, empty state, pending details, failed retry, and confirmed details.
+> 6. Resolve Drift multiple database instance warnings in test runners.
+
+**Result**
+
+- Implemented `WalletLoadingSkeleton` (`lib/features/wallet/presentation/widgets/wallet_loading_skeleton.dart`).
+- Implemented `WalletTransactionDetailSheet` (`lib/features/wallet/presentation/widgets/wallet_transaction_detail_sheet.dart`).
+- Added `counterpartyDetail` and `failureReason` to `WalletActivityItem`.
+- Connected `onItemTap` in `WalletHomeScreen` to open `WalletTransactionDetailSheet`.
+- Authored 5 widget tests in `test/features/wallet/presentation/wallet_loading_empty_detail_test.dart`.
+- All 388 tests across the project pass cleanly with 0 analyzer issues.
+
+**Action taken**
+
+- Ran `dart format --output=none --set-exit-if-changed .`, `flutter analyze`, and `flutter test`.
+- Updated `docs/REQUIREMENTS_TRACEABILITY.md` (WAL-010, WAL-011 marked IMPLEMENTED), `docs/TASKS.md` (T-WAL-004 marked done), `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
+---
+
 ## AI Mistakes / Risky Output
 
 At least one real example must be included before submission.
@@ -1257,6 +1288,36 @@ Simplified `AppIcon` to pass `semanticLabel` directly to Flutter's native `Icon(
 **Regression protection**
 
 Automated widget tests in `test/design_system/icons_test.dart` verify both the non-semantic decorative state and the accessible semantic label state.
+
+---
+
+### AI-RISK-008 — Unmocked fallback provider instantiated production database in widget tests
+ 
+**Tool:** Antigravity  
+**Stage:** Phase 5 — Wallet (`feat/wallet-home-and-refresh` / `feat/wallet-offline-and-sync-states`)
+
+**Risky output / assumption**
+
+When writing widget tests for `WalletHomeScreen` without explicitly supplying `walletRepositoryProvider` in `buildTestableWidget`, `WalletHomeScreen`'s dependency on `walletControllerProvider` transitively read `walletRepositoryProvider` -> `walletDaoProvider` -> `appDatabaseProvider`. Because `appDatabaseProvider` was not overridden, its production factory `AppDatabase()` was invoked.
+
+**Why this was risky**
+
+In a test environment, multiple tests running sequentially in the same process caused `AppDatabase()` to open multiple database instances sharing the default QueryExecutor, causing Drift's runtime safety checker to trigger warnings about multiple databases and potential race conditions/database file corruption.
+
+**How it was caught**
+
+Drift emitted the warning:
+`It looks like you've created the database class AppDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true`
+with a stack trace pointing directly to `walletDaoProvider` -> `appDatabaseProvider`.
+
+**Correction**
+
+1. Provided `MockWalletRepository` as a default override in test helpers (`buildTestableWidget`) so widget tests never fall through to `appDatabaseProvider`.
+2. Explicitly configured `driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;` in test suite `setUpAll` blocks where in-memory or restart simulation databases are intentionally instantiated across tests.
+
+**Regression protection**
+
+Automated widget tests in `wallet_home_screen_test.dart`, `wallet_offline_and_sync_states_test.dart`, and `wallet_loading_empty_detail_test.dart` run with isolated mocks and produce zero Drift warnings.
 
 ---
 

@@ -1251,7 +1251,7 @@ flutter analyze
 
 ---
 
-## [ ] T-WAL-004 — Implement Wallet loading, empty and pending-detail states
+## [x] T-WAL-004 — Implement Wallet loading, empty and pending-detail states
 
 **Risk:** B  
 **Size:** S
