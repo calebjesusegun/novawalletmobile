@@ -151,6 +151,31 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
+### Prompt 5 — Launch configuration and README Figma updates
+
+**Tool:** Antigravity  
+**Stage:** Toolchain & Documentation refinement
+
+**Prompt**
+
+> So before we move to phase 1... I want us to create a chore branch to update the launch.json file and the readme file to include the figma link to the design: https://www.figma.com/design/GzSZpqJTOnlGn2yDec8qtm/NovaWallet-Design?node-id=4-5&p=f&t=cV6FJkAzaLck0PB7-0
+> Also remove this part in the readme: The project may use ChatGPT, Claude Code, Codex and Antigravity during implementation and review.
+> Then lastly I want the readme to end with "Let's build NovaWallet together 🌍"
+
+**Result**
+
+- Created branch `chore/readme-launch-config`.
+- Preserved updated `.vscode/launch.json` targeting emulator, simulator, and test configurations.
+- Added official Figma design link under Design References in `README.md`.
+- Removed specified AI tools sentence in `README.md` and appended closing motto "Let's build NovaWallet together 🌍".
+- Ran format, analyze, and test verification checks with 0 issues.
+
+**Action taken**
+
+- Updated `README.md`, `.vscode/launch.json`, `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
+---
+
 ## AI Mistakes / Risky Output
 
 At least one real example must be included before submission.

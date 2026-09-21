@@ -207,7 +207,10 @@ The fake remote supports idempotency so repeated delivery of the same operation 
 
 ## Design References
 
-The supplied design PDFs are the visual source of truth and live under:
+The visual design is defined in Figma:
+- [NovaWallet Figma Design](https://www.figma.com/design/GzSZpqJTOnlGn2yDec8qtm/NovaWallet-Design?node-id=4-5&p=f&t=cV6FJkAzaLck0PB7-0)
+
+The supplied design PDFs are also available as visual references and live under:
 
 ```text
 docs/design/pdf/
@@ -303,4 +306,7 @@ Usage is documented in [`AI_USAGE.md`](AI_USAGE.md), including:
 - useful outputs;
 - mistakes or risky suggestions that were caught and corrected.
 
-The project may use ChatGPT, Claude Code, Codex and Antigravity during implementation and review.
+---
+
+Let's build NovaWallet together 🌍
+
