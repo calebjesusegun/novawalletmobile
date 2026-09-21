@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 3 in Progress — T-SYNC-004 complete and merged; ready for T-SYNC-005  
-**Primary next task:** `T-SYNC-005 — Prove offline → restart → reconnect kernel`  
-**Current branch:** `main`  
-**Latest commit on main:** `d4bbf27` (PR #20)  
+**Status:** Phase 3 COMPLETE — T-SYNC-005 complete and verified; ready for PR and merge into main  
+**Primary next task:** Merge PR for `feature/T-SYNC-005-kernel-verification`, then proceed to `T-DS-001` (Implement design tokens, theme, font and icons)  
+**Current branch:** `feature/T-SYNC-005-kernel-verification`  
+**Latest commit on main:** `6884a64` (PR #20 + housekeeping)  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -37,12 +37,13 @@ Phase 2 (Persistence & Fake Remote) is COMPLETE:
 - `T-REMOTE-001` (Implement idempotent fake remote) is COMPLETE and merged (`734313a`, PR #14).
 - `T-REMOTE-002` (Add deterministic failure simulation) is COMPLETE and merged (`4b3934e`, PR #15).
 
-Phase 3 (Connectivity, Queue & Synchronization) is in progress:
+Phase 3 (Connectivity, Queue & Synchronization) is COMPLETE:
 - `T-CONN-001` (Implement connectivity abstraction) is COMPLETE and merged (`def0ab9`, PR #16).
 - `T-SYNC-001` (Implement durable enqueue API) is COMPLETE and merged (`4d10bcb`, PR #17).
 - `T-SYNC-002` (Implement single shared sync coordinator and operation claim) is COMPLETE and merged (`11fb065`, PR #18).
 - `T-SYNC-003` (Implement restart recovery) is COMPLETE and merged (`05635ff`, PR #19).
-- `T-SYNC-004` (Implement failure classification and retry policy) is COMPLETE on `feature/T-SYNC-004-retry-policy`.
+- `T-SYNC-004` (Implement failure classification and retry policy) is COMPLETE and merged (`d4bbf27`, PR #20).
+- `T-SYNC-005` (Prove offline → restart → reconnect kernel) is COMPLETE on `feature/T-SYNC-005-kernel-verification`.
 
 ---
 
@@ -50,12 +51,12 @@ Phase 3 (Connectivity, Queue & Synchronization) is in progress:
  
 Current Task:
 ```text
-T-SYNC-004 — Implement failure classification and retry policy (feature/T-SYNC-004-retry-policy)
+T-SYNC-005 — Prove offline → restart → reconnect kernel (feature/T-SYNC-005-kernel-verification)
 ```
 
 Next Task:
 ```text
-T-SYNC-005 — Prove offline → restart → reconnect kernel
+T-DS-001 — Implement design tokens, theme, font and icons (Phase 4 — Design System & App Shell)
 ```
 
 ---
@@ -89,19 +90,21 @@ Do not claim success without actually running the relevant commands.
 
 ### 13. Next Action
  
-`feature/T-SYNC-004-retry-policy` is verified and ready to merge into `main`.
+`feature/T-SYNC-005-kernel-verification` is verified and ready to merge into `main`.
  
-### Completed Work (T-SYNC-004):
-- Implemented `FailureClassifier` (`lib/sync/application/failure_classifier.dart`) to classify errors: maps transient network timeouts (`TimeoutException`), connection failures (`SocketException`, `OfflineException`), and remote 503/server errors to recoverable `SyncError` with UI-ready messages (`UI-SND-18`, `UI-NSV-21`); maps account errors, validation failures, and terminal 4xx rejections to non-recoverable terminal errors.
-- Implemented `RetryPolicy` and `RetryResult` (`lib/sync/application/retry_policy.dart`) defining eligibility rules: operations must be `pending`, the device must be online, and the operation must not currently be in-flight (`processing`).
-- Enforced `HC-RETRY` (`ASM-010`, `SYNC-013`): no hidden background timer loops; sync execution occurs only on deliberate triggers or explicit user retry.
-- Enforced `HC-IDEMPOTENCY` (`SND-019`, `SND-020`, `NSV-022`, `NSV-023`): manual retry reuses the identical `OperationId` and `IdempotencyKey` without generating new keys.
-- Protected against concurrent races: `retryOperation(id)` verifies claiming semantics and will not race or duplicate an already in-flight operation.
-- Authored comprehensive test suite in `test/sync/application/retry_policy_test.dart` (suite total: 296 tests, all passing).
-- All checks verified (0 format issues, 0 analyze issues, 296/296 tests passing).
+### Completed Work (T-SYNC-005):
+- Implemented `SyncKernelTestHarness` (`test/sync/kernel/sync_kernel_test_harness.dart`) providing end-to-end integration lifecycle orchestration across real SQLite storage files (`AppDatabase.forFile`), independent Riverpod `ProviderContainer` instances, and fake remote banking infrastructure.
+- Implemented `test/sync/kernel/sync_kernel_test.dart` with 5 integration tests:
+  1. Full Offline → Process Crash/Restart → Reconnect Auto-Sync → Exactly-Once Effect (`ASM-011`, `ASM-012`, `TST-006`): verified that Send Money and NovaSave operations enqueued offline survive sudden app termination, resume upon reconnect, update local and remote balances by exact integer kobo amounts without duplication, append ledger transactions, and advance goal progress.
+  2. Replay Deduplication Guard (`ASM-013`, `HC-IDEMPOTENCY`): verified that replaying completed operations reuses the same idempotency key, resulting in cached receipt retrieval from the remote ledger with zero second financial debit.
+  3. Crash Recovery After Remote Settlement (`SYNC-011`, `HC-EXACTLY-ONCE-EFFECT`): verified that an in-flight operation interrupted after remote execution recovers to pending and resynchronizes with the same key, returning the deduplicated result and committing local state without double-debiting.
+  4. Negative Invariant Guard (Key Stability): proved that altering the idempotency key causes duplicate remote debits, demonstrating that `HC-IDEMPOTENCY` is strictly required.
+  5. Negative Invariant Guard (Restart Recovery): proved that without startup recovery, in-flight operations would remain permanently blocked in `processing`.
+- All checks verified (0 format issues, 0 analyze issues, 301/301 tests passing).
+- Phase 3 is now COMPLETE!
 
 ### Next Steps:
-1. Commit, push `feature/T-SYNC-004-retry-policy`, open PR, squash-merge into `main`.
+1. Commit, push `feature/T-SYNC-005-kernel-verification`, open PR, squash-merge into `main`.
 2. Checkout `main`, pull latest.
-3. Begin `T-SYNC-005 — Prove offline → restart → reconnect kernel` on a new feature branch `feature/T-SYNC-005-kernel-verification`.
+3. Begin Phase 4 (Design System & App Shell) with `T-DS-001 — Implement design tokens, theme, font and icons`.
 

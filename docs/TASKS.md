@@ -872,7 +872,7 @@ flutter analyze
 
 ---
 
-## [ ] T-SYNC-005 — Prove offline → restart → reconnect kernel
+## [x] T-SYNC-005 — Prove offline → restart → reconnect kernel
 
 **Risk:** A  
 **Size:** M
