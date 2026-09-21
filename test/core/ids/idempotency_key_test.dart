@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:novawallet/core/ids/idempotency_key.dart';
 import 'package:novawallet/core/ids/operation_id.dart';
+import 'package:novawallet/core/ids/operation_identity.dart';
 
 void main() {
   group('IdempotencyKey Construction & Validation', () {
@@ -42,21 +43,32 @@ void main() {
       expect(() => IdempotencyKey.fromUuid(''), throwsArgumentError);
     });
 
-    test('creates IdempotencyKey deterministically from OperationId', () {
-      final opId = OperationId.generate();
-      final key1 = IdempotencyKey.fromOperationId(opId);
-      final key2 = IdempotencyKey.fromOperationId(opId);
+    test(
+      'creates IdempotencyKey deterministically from OperationId with prefix',
+      () {
+        final opId = OperationId.generate();
+        final key1 = IdempotencyKey.fromOperationId(opId, prefix: 'idem_');
+        final key2 = IdempotencyKey.fromOperationId(opId, prefix: 'idem_');
 
-      expect(key1, key2);
-      expect(key1.value, opId.value);
-    });
+        expect(key1, key2);
+        expect(key1.value, 'idem_${opId.value}');
+      },
+    );
 
-    test('creates IdempotencyKey from OperationId with custom prefix', () {
-      final opId = OperationId('transfer-123');
-      final key = IdempotencyKey.fromOperationId(opId, prefix: 'idem_');
-
-      expect(key.value, 'idem_transfer-123');
-    });
+    test(
+      'rejects empty prefix in fromOperationId to guarantee wire distinction',
+      () {
+        final opId = OperationId.generate();
+        expect(
+          () => IdempotencyKey.fromOperationId(opId, prefix: ''),
+          throwsArgumentError,
+        );
+        expect(
+          () => IdempotencyKey.fromOperationId(opId, prefix: '   '),
+          throwsArgumentError,
+        );
+      },
+    );
 
     test('normalizes UUID strings to canonical lowercase', () {
       const upperUuid = 'C4B18C64-7546-4DC4-B778-4395B00C6D2C';
@@ -234,11 +246,41 @@ void main() {
 
     test('operation ID and idempotency key remain distinct and non-interchangeable', () {
       final opId = OperationId.generate();
-      final idemKey = IdempotencyKey.fromOperationId(opId);
+      final idemKey = IdempotencyKey.fromOperationId(opId, prefix: 'idem_');
 
       // Distinct types even when wrapping equivalent values
       expect(opId.runtimeType, isNot(idemKey.runtimeType));
       expect(opId == (idemKey as dynamic), isFalse);
+    });
+  });
+
+  group('OperationIdentity Pairing & Generation', () {
+    test('OperationIdentity.generate creates unique OperationId and IdempotencyKey atomically', () {
+      final identity1 = OperationIdentity.generate();
+      final identity2 = OperationIdentity.generate();
+
+      expect(identity1.id.isUuidV4, isTrue);
+      expect(identity1.key.isUuidV4, isTrue);
+      expect(identity1, isNot(identity2));
+      expect(identity1.id, isNot(identity2.id));
+      expect(identity1.key, isNot(identity2.key));
+    });
+
+    test('OperationIdentity value equality and hashing', () {
+      final id = OperationId('op-1');
+      final key = IdempotencyKey('idem-1');
+
+      final pair1 = OperationIdentity(id: id, key: key);
+      final pair2 = OperationIdentity(id: id, key: key);
+      final pair3 = OperationIdentity(id: id, key: IdempotencyKey('idem-2'));
+
+      expect(pair1, pair2);
+      expect(pair1.hashCode, pair2.hashCode);
+      expect(pair1, isNot(pair3));
+      expect(
+        pair1.toString(),
+        contains('OperationIdentity(id: op-1, key: idem-1)'),
+      );
     });
   });
 }

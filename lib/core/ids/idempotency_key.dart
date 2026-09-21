@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:novawallet/core/ids/operation_id.dart';
 import 'package:novawallet/core/ids/uuid.dart';
 
-/// Represents a stable, unique remote deduplication identity for a financial operation attempt.
+/// Represents a stable, unique remote deduplication identity for a logical financial operation.
 ///
 /// Under HC-IDEMPOTENCY and HC-EXACTLY-ONCE-EFFECT:
 /// - One logical financial action has exactly ONE stable idempotency key.
@@ -29,7 +29,7 @@ class IdempotencyKey implements Comparable<IdempotencyKey> {
   /// - No leading, trailing, or internal whitespace.
   /// - Valid identifier characters (alphanumeric, hyphens, underscores, dots, colons).
   /// - Maximum length of 255 characters.
-  /// - RFC 4122 UUIDs are normalized to canonical lowercase.
+  /// - RFC 4122 / RFC 9562 UUIDs are normalized to canonical lowercase.
   factory IdempotencyKey(String value) {
     _validate(value);
     final normalized = Uuid.isGeneralUuid(value) ? value.toLowerCase() : value;
@@ -45,13 +45,13 @@ class IdempotencyKey implements Comparable<IdempotencyKey> {
   }
 
   /// Creates an [IdempotencyKey] from a string that must strictly conform to
-  /// the RFC 4122 UUID format (versions 1 through 5).
+  /// the RFC 4122 / RFC 9562 UUID format (versions 1 through 8).
   factory IdempotencyKey.fromUuid(String uuid) {
     if (!Uuid.isValid(uuid)) {
       throw ArgumentError.value(
         uuid,
         'uuid',
-        'Idempotency key must be a valid RFC 4122 UUID.',
+        'Idempotency key must be a valid RFC 4122 / RFC 9562 UUID.',
       );
     }
     return IdempotencyKey(uuid);
@@ -59,16 +59,20 @@ class IdempotencyKey implements Comparable<IdempotencyKey> {
 
   /// Creates an [IdempotencyKey] deterministically bound to an [OperationId].
   ///
-  /// If [prefix] is supplied, it prefixes the key (e.g. `idem_`).
-  /// Otherwise, it uses the operation ID's value directly.
+  /// Requires a non-empty [prefix] (e.g. `idem_`) to ensure clear wire distinction
+  /// between the local operation ID and the remote idempotency key.
   factory IdempotencyKey.fromOperationId(
     OperationId operationId, {
-    String? prefix,
+    required String prefix,
   }) {
-    final rawKey = prefix != null
-        ? '$prefix${operationId.value}'
-        : operationId.value;
-    return IdempotencyKey(rawKey);
+    if (prefix.trim().isEmpty) {
+      throw ArgumentError.value(
+        prefix,
+        'prefix',
+        'Prefix must be non-empty to ensure wire distinction between OperationId and IdempotencyKey.',
+      );
+    }
+    return IdempotencyKey('$prefix${operationId.value}');
   }
 
   /// Returns `true` if [value] meets the validation invariants for an [IdempotencyKey].
