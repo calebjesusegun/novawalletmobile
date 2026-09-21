@@ -1,8 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 0 in progress — T-BASE-001 completed and merged into main  
-**Primary next task:** `T-BASE-002 — Configure linting and project test layout`  
-**Current branch:** `main`  
+**Status:** Phase 0 in progress — T-BASE-002 completed on branch chore/T-BASE-002-linting-tests  
+**Primary next task:** `T-BASE-003 — Add CI verification`  
+**Current branch:** `chore/T-BASE-002-linting-tests`  
+**Latest commit:** `a5300c2`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -334,16 +335,23 @@ If this handover and Git disagree, trust Git.
 
 ## 13. Next Action
 
-`T-BASE-001 — Bootstrap Flutter project` is complete on branch `chore/T-BASE-001-bootstrap`.
+`T-BASE-002 — Configure linting and project test layout` is complete on branch `chore/T-BASE-002-linting-tests`.
 
 ### Completed Work:
-- Created Flutter application in repository root with package name `novawallet` (`com.novawallet`) for `android,ios`.
-- Downloaded and bundled Plus Jakarta Sans static font files (`Regular 400`, `Medium 500`, `SemiBold 600`, `Bold 700`) in `assets/fonts/` and registered in `pubspec.yaml`.
-- Added approved baseline dependency `flutter_riverpod: ^2.6.1`.
-- Configured default `fontFamily: 'Plus Jakarta Sans'` in `ThemeData` in `lib/main.dart`.
-- Documented verified Flutter (`3.47.5` stable) and Dart (`3.13.4`) versions in `README.md` and `pubspec.yaml`.
-- Configured `.gitignore` for standard Flutter artifacts while strictly keeping `docs_internal/` ignored.
-- Ran and verified: `flutter pub get`, `dart format --output=none --set-exit-if-changed .`, `flutter analyze`, and `flutter test` (all passing cleanly).
+- Enabled strict analyzer language checks (`strict-casts: true`, `strict-inference: true`, `strict-raw-types: true`) in `analysis_options.yaml`.
+- Configured comprehensive recommended linter rules in `analysis_options.yaml` (including `unawaited_futures`, `prefer_const_*`, `avoid_print`, `avoid_relative_lib_imports`, `always_use_package_imports`, `cancel_subscriptions`, `close_sinks`, `directives_ordering`, `prefer_final_locals`, `prefer_single_quotes`, etc.).
+- Added `integration_test: sdk: flutter` to `dev_dependencies` in `pubspec.yaml`.
+- Scaffolded project test layout mirroring the approved architecture:
+  - `test/core/core_layout_test.dart`
+  - `test/features/features_layout_test.dart`
+  - `test/sync/sync_layout_test.dart`
+  - `test/fake_backend/fake_backend_layout_test.dart`
+  - `integration_test/app_test.dart` (baseline smoke integration test)
+  - `test_driver/integration_test.dart` (integration test driver)
+- Ran and verified:
+  - `dart format --output=none --set-exit-if-changed .` (8 files formatted, 0 changed)
+  - `flutter analyze` (0 issues found)
+  - `flutter test` (5 tests passed, 0 failures)
 
 ### Next Task:
-`T-BASE-002 — Configure linting and project test layout` as defined in `docs/TASKS.md`.
+`T-BASE-003 — Add CI verification` as defined in `docs/TASKS.md`.

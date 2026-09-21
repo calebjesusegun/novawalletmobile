@@ -79,22 +79,41 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
-### Prompt 3 — Review / debugging task
+### Prompt 3 — Linting configuration and test layout scaffolding (T-BASE-002)
 
-**Tool:**  
-**Stage:**  
+**Tool:** Antigravity  
+**Stage:** Phase 0 — Toolchain & Project Baseline (T-BASE-002)
 
 **Prompt**
 
-> 
+> Configure strict analyzer and linter rules in analysis_options.yaml:
+> Enable strict language checks under analyzer:
+> language:
+>   strict-casts: true
+>   strict-inference: true
+>   strict-raw-types: true
+> Configure recommended linter rules per AGENTS.md and docs/DEFINITION_OF_DONE.md (e.g. unawaited futures, prefer const, avoid print, avoid relative imports).
+> Scaffold the project test layout to mirror the architecture:
+> test/core/
+> test/features/
+> test/sync/
+> test/fake_backend/
+> integration_test/ (initialized with a driver or baseline smoke file for later offline/sync testing)
+> Do NOT implement feature logic, Drift persistence schemas, or sync logic yet.
+> Verify that dart format, flutter analyze, and flutter test pass with 0 warnings or errors.
 
 **Result**
 
-- 
+- Configured strict analyzer language checks (`strict-casts`, `strict-inference`, `strict-raw-types`) and recommended linter rules in `analysis_options.yaml`.
+- Added `integration_test: sdk: flutter` to `pubspec.yaml` `dev_dependencies`.
+- Scaffolded test directories mirroring the approved architecture: `test/core/`, `test/features/`, `test/sync/`, `test/fake_backend/`.
+- Created baseline smoke test in `integration_test/app_test.dart` and integration driver script in `test_driver/integration_test.dart`.
+- Fixed deprecated lint rule `unnecessary_await_in_return` identified during `flutter analyze`.
 
 **Action taken**
 
-- 
+- Ran `dart format`, `flutter analyze`, and `flutter test`, achieving zero warnings/errors.
+- Updated `docs/TASKS.md`, `docs/HANDOVER.md`, and recorded prompt in `AI_USAGE.md`.
 
 ---
 
