@@ -450,6 +450,42 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
+### Prompt 12 — Add local wallet, transaction and goal persistence (T-DB-002)
+
+**Tool:** Antigravity  
+**Stage:** Phase 2 — Persistence & Fake Remote (T-DB-002)
+
+**Prompt**
+
+> Implement T-DB-002 — Add local wallet, transaction and goal persistence:
+> 1. Create task branch `feature/T-DB-002-wallet-goal-persistence` from clean `main`.
+> 2. Implement Drift tables `WalletCache`, `TransactionsTable`, and `SavingsGoalsTable` in `lib/core/persistence/local_tables.dart`.
+> 3. Register tables in `AppDatabase` (`lib/core/persistence/app_database.dart`) and regenerate code with `build_runner`.
+> 4. Implement domain entities and repository boundaries:
+>    - `WalletSnapshot`, `WalletTransaction`, `TransactionType`, `TransactionStatus`, `WalletRepository`, `LocalWalletRepository` in `lib/features/wallet/`.
+>    - `NovaSaveRepository`, `LocalNovaSaveRepository` in `lib/features/novasave/`.
+> 5. Create dedicated DAOs: `WalletDao`, `TransactionDao`, `SavingsGoalDao` with integer-kobo money mapping, atomic contribution application, and paginated/lazy recent transaction queries (`HC-PERFORMANCE`).
+> 6. Author comprehensive unit tests in `test/features/wallet/data/` and `test/features/novasave/data/` including restart simulation tests verifying records survive database close and file reopen.
+> 7. Run full baseline checks (format, analyze, test).
+> 8. Update documentation, push, open PR, and merge.
+
+**Result**
+
+- Implemented `WalletSnapshot` and `WalletTransaction` domain entities strictly using `Money` value object for integer-kobo precision (HC-MONEY).
+- Created Drift tables: `WalletCache` (singleton balance cache), `TransactionsTable` (confirmed activity history), and `SavingsGoalsTable` (savings goals definitions and progress).
+- Created `WalletDao` and `TransactionDao` with support for lazy recent-transactions querying (`limit`, `offset`) per HC-PERFORMANCE and reactive stream watchers.
+- Created `SavingsGoalDao` with atomic contribution incrementing (`applyContribution`) and reactive goal stream watchers.
+- Created `WalletRepository` and `NovaSaveRepository` interfaces with `LocalWalletRepository` and `LocalNovaSaveRepository` implementations hiding Drift persistence details.
+- Authored 10 unit tests across `test/features/wallet/data/wallet_persistence_test.dart` and `test/features/novasave/data/savings_goals_persistence_test.dart` verifying integer kobo storage, singleton wallet updates, reactive streams, lazy pagination, atomic contributions, and multi-connection file reopen survival across database lifecycle cycles (bringing suite total from 201 to 211 tests).
+
+**Action taken**
+
+- Ran targeted tests for wallet and novasave data persistence (10/10 passing).
+- Ran full baseline checks (`dart format`, `flutter analyze`, `flutter test`), all passing with 0 warnings/errors across all 211 tests.
+- Updated `docs/TASKS.md`, `docs/REQUIREMENTS_TRACEABILITY.md`, `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
+---
+
 ## AI Mistakes / Risky Output
 
 At least one real example must be included before submission.

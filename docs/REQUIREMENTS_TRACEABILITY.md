@@ -106,8 +106,8 @@ These rows make the assessment's highest-risk constraints implementation-testabl
 | MNY-001 | Domain/data monetary amounts are integer kobo | ASM-002, ASM-014 | `lib/core/money/` | unit tests | VERIFIED | DONE |
 | MNY-002 | Formatting kobo → Naira is exact | ASM-002, ASM-014 | `lib/core/money/` | unit tests | VERIFIED | DONE |
 | MNY-003 | Addition/subtraction/progress calculations do not use `double` | ASM-014 | `core/money`, `features/novasave/domain` | unit tests/code review | VERIFIED | DONE |
-| MNY-004 | Confirmed wallet balance changes only after a Send is successfully processed | design flows + integrity principle | wallet/send domain | integration + widget | VERIFIED by design | TODO |
-| MNY-005 | Confirmed NovaSave progress changes only after contribution success | design flows + integrity principle | NovaSave domain | integration + widget | VERIFIED by design | TODO |
+| MNY-004 | Confirmed wallet balance changes only after a Send is successfully processed | design flows + integrity principle | wallet/send domain | integration + widget/unit | VERIFIED by design | IN_PROGRESS |
+| MNY-005 | Confirmed NovaSave progress changes only after contribution success | design flows + integrity principle | NovaSave domain | integration + widget/unit | VERIFIED by design | IN_PROGRESS |
 | MNY-006 | Policy for multiple queued outgoing operations against one cached balance must be explicitly chosen and documented | assessment leaves this unspecified | `lib/sync/domain/spendable_balance_policy.dart`, `docs/ARCHITECTURE.md` | `test/sync/domain/spendable_balance_policy_test.dart` | DECISION / INFERRED | DONE |
 
 `MNY-006` balance-reservation policy is resolved: headline balance displays confirmed cached balance, while outgoing entry forms validate against spendable balance (confirmed minus active pending outgoing operations). Implemented in `SpendableBalancePolicy`.
@@ -120,8 +120,8 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 
 | ID | Requirement / behavior | Parent | Design evidence | Implementation | Verification | Evidence | Status |
 |---|---|---|---|---|---|---|---|
-| WAL-001 | Show available wallet balance | ASM-002 | UI-WAL-01 | `features/wallet` | widget | VERIFIED | TODO |
-| WAL-002 | Render recent transactions lazily | ASM-003, ASM-017 | UI-WAL-01 | `features/wallet` | widget/performance | VERIFIED | TODO |
+| WAL-001 | Show available wallet balance | ASM-002 | UI-WAL-01 | `features/wallet` | widget/unit | VERIFIED | IN_PROGRESS |
+| WAL-002 | Render recent transactions lazily | ASM-003, ASM-017 | UI-WAL-01 | `features/wallet` | widget/performance/unit | VERIFIED | IN_PROGRESS |
 | WAL-003 | Pull to refresh wallet data | ASM-004 | UI-WAL-07 | `features/wallet` | widget | VERIFIED | TODO |
 | WAL-004 | Show empty transaction state | design-derived | UI-WAL-09 | `features/wallet` | widget/visual | VERIFIED by design | TODO |
 | WAL-005 | Show wallet offline notification + last-updated state | ASM-009 | UI-WAL-02 | wallet + connectivity | widget/visual | VERIFIED by design | TODO |
@@ -165,9 +165,9 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 
 | ID | Requirement / behavior | Parent | Design evidence | Implementation | Verification | Evidence | Status |
 |---|---|---|---|---|---|---|---|
-| NSV-001 | Show populated goal list | ASM-007, ASM-008 | UI-NSV-01 | `features/novasave` | widget | VERIFIED by design | TODO |
+| NSV-001 | Show populated goal list | ASM-007, ASM-008 | UI-NSV-01 | `features/novasave` | widget/unit | VERIFIED by design | IN_PROGRESS |
 | NSV-002 | Show empty goal state | design-derived | UI-NSV-03 | NovaSave | widget | VERIFIED by design | TODO |
-| NSV-003 | Create goal with name, target amount, target date | ASM-007 | UI-NSV-04, UI-NSV-07 | NovaSave | widget/integration | VERIFIED | TODO |
+| NSV-003 | Create goal with name, target amount, target date | ASM-007 | UI-NSV-04, UI-NSV-07 | NovaSave | widget/integration/unit | VERIFIED | IN_PROGRESS |
 | NSV-004 | Require goal name | design-derived | UI-NSV-05 | NovaSave domain | unit/widget | VERIFIED by design | TODO |
 | NSV-005 | Require positive target amount | design-derived + money rules | UI-NSV-05 | NovaSave domain | unit/widget | VERIFIED by design | TODO |
 | NSV-006 | Require future target date | design-derived | UI-NSV-05 | NovaSave domain | unit/widget | VERIFIED by design | TODO |
