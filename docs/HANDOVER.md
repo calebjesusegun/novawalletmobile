@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 3 Money-Safety Hardening COMPLETE — Ready to merge into `main`; ready for Phase 4 (Design System & App Shell)  
+**Status:** Phase 3 Money-Safety Hardening MERGED into main — Ready for Phase 4 (Design System & App Shell)  
 **Primary next task:** `T-DS-001 — Implement design tokens, theme, font and icons`  
-**Current branch:** `fix/phase-3-money-safety`  
-**Latest commit on main:** `f9d76ea`  
+**Current branch:** `main`  
+**Latest commit on main:** `fa24962` (PR #22)  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -54,7 +54,7 @@ Phase 3 (Connectivity, Queue & Synchronization) is COMPLETE and Remediated:
  
 Current Task:
 ```text
-fix/phase-3-money-safety — Phase 3 Money-Safety Remediation (P0 & P1)
+Phase 3 Money-Safety Remediation COMPLETE & MERGED into main (PR #22)
 ```
 
 Next Task:
@@ -66,12 +66,10 @@ T-DS-001 — Implement design tokens, theme, font and icons (Phase 4 — Design 
 
 ## 9. Scope Control
 
-- Focus strictly on the two identified money-safety issues (P0 & P1).
-- Do not build feature UI screens prematurely.
-- Preserve strict architectural boundaries.
 - Enforce integer-kobo money representation per `HC-MONEY`.
 - Enforce exact-once financial effects per `HC-EXACTLY-ONCE-EFFECT` and `HC-IDEMPOTENCY`.
 - Enforce `HC-STATE-SEPARATION` (connectivity, sync status, and operation status remain separate dimensions).
+- In Phase 4, establish shared design tokens and typography without prematurely building full feature flows.
 
 ---
 
@@ -92,9 +90,9 @@ Do not claim success without actually running the relevant commands.
 
 ### 13. Next Action
  
-`fix/phase-3-money-safety` is verified and ready to merge into `main`.
+`fix/phase-3-money-safety` (PR #22) is squashed and merged into `main`. Working branch is clean `main`.
  
-### Completed Work (fix/phase-3-money-safety):
+### Completed Work (fix/phase-3-money-safety, PR #22):
 1. **P0 (SyncCoordinator Atomic Settlement):**
    - Added `AppDatabase? appDatabase` to `SyncCoordinator` and injected it in `syncCoordinatorProvider`.
    - Wrapped projections in `_applySuccessfulOperationEffects()` inside `appDatabase.transaction(...)`.
@@ -115,8 +113,6 @@ Do not claim success without actually running the relevant commands.
    - Updated `docs/HANDOVER.md`.
 
 ### Next Steps:
-1. Commit changes on `fix/phase-3-money-safety`.
-2. Push branch, open PR with `gh pr create`, and squash-merge into `main`.
-3. Checkout `main`, pull latest, delete local `fix/phase-3-money-safety` branch.
-4. Begin Phase 4 (Design System & App Shell) with `T-DS-001 — Implement design tokens, theme, font and icons`.
+1. Create task branch `feature/T-DS-001-design-tokens` from clean `main`.
+2. Begin Phase 4 (Design System & App Shell) with `T-DS-001 — Implement design tokens, theme, font and icons`.
 
