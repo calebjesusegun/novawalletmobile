@@ -923,7 +923,7 @@ Use `flutter test integration_test` if this task is implemented at app-integrati
 
 # Phase 4 — Design System & App Shell
 
-## [ ] T-DS-001 — Implement design tokens, theme, font and icons
+## [x] T-DS-001 — Implement design tokens, theme, font and icons
 
 **Risk:** C  
 **Size:** M

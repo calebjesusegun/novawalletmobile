@@ -825,7 +825,36 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 **Action taken**
 
 - Ran `dart format --output=none --set-exit-if-changed .`, `flutter analyze`, and `flutter test` (all passing cleanly).
-- Documented `AI-RISK-006` in `AI_USAGE.md` and updated `docs/HANDOVER.md`.
+---
+
+### Prompt 23 — Implement design tokens, theme, font and icons (T-DS-001)
+
+**Tool:** Antigravity  
+**Stage:** Phase 4 — Design System & App Shell (`feat/ds-tokens-and-theme`)
+
+**Prompt**
+
+> Implement T-DS-001 following docs/DESIGN_SYSTEM.md and requirements DSN-001 through DSN-006:
+> 1. Centralize color palette in lib/design_system/tokens/app_colors.dart (blue, gold, grey, success, warning, error, semantic aliases).
+> 2. Centralize typography in lib/design_system/tokens/app_typography.dart (Plus Jakarta Sans, 38 scale variants).
+> 3. Centralize spacing in lib/design_system/tokens/app_spacing.dart (4-32 scale).
+> 4. Centralize radii in lib/design_system/tokens/app_radii.dart (8-999 scale).
+> 5. Centralize elevation in lib/design_system/tokens/app_elevation.dart (Y:4, Blur:48, Opacity:2%).
+> 6. Abstract approved icons in lib/design_system/icons/app_icons.dart and accessible AppIcon widget.
+> 7. Configure AppTheme.light in lib/design_system/theme/app_theme.dart.
+> 8. Author comprehensive unit and widget tests in test/design_system/.
+
+**Result**
+
+- Created centralized design tokens conforming strictly to `docs/DESIGN_SYSTEM.md`.
+- Implemented `AppIcons` and accessible `AppIcon` component with semantics exclusion for decorative icons and semantic labeling for accessible controls.
+- Configured production Material 3 `AppTheme.light` using design tokens.
+- Added 24 unit and widget tests covering all tokens, icons, and theme integration. All 334 tests passed.
+
+**Action taken**
+
+- Ran `dart format`, `flutter analyze`, and `flutter test`.
+- Updated `docs/REQUIREMENTS_TRACEABILITY.md` and `docs/HANDOVER.md`.
 
 ---
 
@@ -1045,6 +1074,31 @@ Authored automated regression tests in `test/sync/application/sync_coordinator_t
 - Verified that calling `recoverInterrupted()` while a sync pass is paused mid-flight returns 0 and leaves the row in `processing`.
 - Verified that `startup()` only runs crash recovery on the initial cold launch.
 - Verified that a recoverable failure on one operation does not head-of-line block subsequent healthy operations in the queue.
+
+### AI-RISK-007 — Redundant semantics wrapping on Flutter Icon widget
+ 
+**Tool:** Antigravity  
+**Stage:** Phase 4 — Design System & App Shell (`feat/ds-tokens-and-theme`)
+
+**Risky output / assumption**
+
+When implementing `AppIcon`, an initial implementation conditionally wrapped Flutter's built-in `Icon` widget in an outer `ExcludeSemantics` when `semanticLabel` was null, assuming `Icon` lacked automatic semantics exclusion for decorative glyphs.
+
+**Why this was risky**
+
+Flutter's internal `Icon.build` implementation already wraps its underlying `RichText` in `ExcludeSemantics` whenever `semanticLabel` is null. Adding an unnecessary second `ExcludeSemantics` wrapper inflated widget tree depth and caused widget test assertions searching for semantics exclusion boundaries to encounter multiple ambiguous candidates.
+
+**How it was caught**
+
+The widget test `testWidgets('AppIcon without semanticLabel excludes icon from semantics tree', ...)` failed immediately, identifying nested `ExcludeSemantics` nodes inside `AppIcon`.
+
+**Correction**
+
+Simplified `AppIcon` to pass `semanticLabel` directly to Flutter's native `Icon(icon, size: size, color: effectiveColor, semanticLabel: semanticLabel)`. When `semanticLabel` is null, Flutter's `Icon` excludes semantics natively; when non-null, Flutter's `Icon` creates the labeled semantics node.
+
+**Regression protection**
+
+Automated widget tests in `test/design_system/icons_test.dart` verify both the non-semantic decorative state and the accessible semantic label state.
 
 ---
 

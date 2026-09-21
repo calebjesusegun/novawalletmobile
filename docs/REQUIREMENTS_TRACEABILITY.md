@@ -232,12 +232,12 @@ These are approved-design requirements, not separate assessor wording.
 
 | ID | Requirement | Design evidence | Implementation | Verification | Evidence | Status |
 |---|---|---|---|---|---|---|
-| DSN-001 | Implement approved color scales | UI-DS-01 | `design_system/tokens` | visual | VERIFIED | TODO |
-| DSN-002 | Use Plus Jakarta Sans with approved type scale | UI-DS-02 | design system/theme | visual + font-scale | VERIFIED | TODO |
-| DSN-003 | Use approved icon set | UI-DS-03 | design system/icons | visual | VERIFIED | TODO |
-| DSN-004 | Use approved spacing scale | UI-DS-04 | design system/tokens | visual | VERIFIED | TODO |
-| DSN-005 | Use approved radii | UI-DS-04 | design system/tokens | visual | VERIFIED | TODO |
-| DSN-006 | Use approved elevation/shadow | UI-DS-04 | design system/tokens | visual | VERIFIED | TODO |
+| DSN-001 | Implement approved color scales | UI-DS-01 | `lib/design_system/tokens/app_colors.dart` | unit | test/design_system/tokens_test.dart | IMPLEMENTED |
+| DSN-002 | Use Plus Jakarta Sans with approved type scale | UI-DS-02 | `lib/design_system/tokens/app_typography.dart`, `lib/design_system/theme/app_theme.dart` | unit + widget | test/design_system/tokens_test.dart, test/design_system/theme_test.dart | IMPLEMENTED |
+| DSN-003 | Use approved icon set | UI-DS-03 | `lib/design_system/icons/app_icons.dart` | unit + widget | test/design_system/icons_test.dart | IMPLEMENTED |
+| DSN-004 | Use approved spacing scale | UI-DS-04 | `lib/design_system/tokens/app_spacing.dart` | unit | test/design_system/tokens_test.dart | IMPLEMENTED |
+| DSN-005 | Use approved radii | UI-DS-04 | `lib/design_system/tokens/app_radii.dart` | unit | test/design_system/tokens_test.dart | IMPLEMENTED |
+| DSN-006 | Use approved elevation/shadow | UI-DS-04 | `lib/design_system/tokens/app_elevation.dart` | unit | test/design_system/tokens_test.dart | IMPLEMENTED |
 | DSN-007 | Implement reusable button states | UI-CMP-01 | design system/components | widget/visual | VERIFIED | TODO |
 | DSN-008 | Implement reusable text-field states | UI-CMP-02 | design system/components | widget/visual | VERIFIED | TODO |
 | DSN-009 | Implement system notifications | UI-CMP-03 | design system/components | widget/visual | VERIFIED | TODO |
