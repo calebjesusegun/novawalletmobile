@@ -2,6 +2,21 @@ import 'package:flutter/foundation.dart';
 import 'package:novawallet/core/money/money.dart';
 import 'package:novawallet/sync/domain/operation_type.dart';
 
+/// Exception thrown when an operation payload map is missing required fields or has invalid types.
+class PayloadFormatException implements FormatException {
+  @override
+  final String message;
+  @override
+  final dynamic source;
+  @override
+  final int? offset;
+
+  const PayloadFormatException(this.message, [this.source, this.offset]);
+
+  @override
+  String toString() => 'PayloadFormatException: $message';
+}
+
 /// An immutable snapshot of the user intent payload for a financial operation.
 ///
 /// Per docs/ARCHITECTURE.md §8.3, the payload must contain enough immutable information
@@ -10,11 +25,17 @@ import 'package:novawallet/sync/domain/operation_type.dart';
 sealed class OperationPayload {
   const OperationPayload();
 
+  /// Current schema version for payload serialization.
+  static const int currentSchemaVersion = 1;
+
   /// The financial amount associated with this operation.
   Money get amount;
 
   /// The corresponding [OperationType].
   OperationType get type;
+
+  /// The schema version of this payload.
+  int get schemaVersion => currentSchemaVersion;
 
   /// Serializes the payload to a JSON-compatible map for persistence.
   Map<String, dynamic> toMap();
@@ -80,6 +101,7 @@ class SendMoneyPayload extends OperationPayload {
   @override
   Map<String, dynamic> toMap() {
     return {
+      'schemaVersion': OperationPayload.currentSchemaVersion,
       'recipientAccountNumber': recipientAccountNumber,
       'recipientName': recipientName,
       'bankName': bankName,
@@ -89,13 +111,54 @@ class SendMoneyPayload extends OperationPayload {
   }
 
   factory SendMoneyPayload.fromMap(Map<String, dynamic> map) {
-    return SendMoneyPayload(
-      recipientAccountNumber: map['recipientAccountNumber'] as String,
-      recipientName: map['recipientName'] as String,
-      bankName: map['bankName'] as String,
-      amount: Money.fromKobo(map['amountKobo'] as int),
-      narration: map['narration'] as String?,
-    );
+    final recipientAccountNumber = map['recipientAccountNumber'];
+    if (recipientAccountNumber is! String) {
+      throw PayloadFormatException(
+        'Missing or invalid recipientAccountNumber: $recipientAccountNumber',
+        map,
+      );
+    }
+
+    final recipientName = map['recipientName'];
+    if (recipientName is! String) {
+      throw PayloadFormatException(
+        'Missing or invalid recipientName: $recipientName',
+        map,
+      );
+    }
+
+    final bankName = map['bankName'];
+    if (bankName is! String) {
+      throw PayloadFormatException(
+        'Missing or invalid bankName: $bankName',
+        map,
+      );
+    }
+
+    final amountKobo = map['amountKobo'];
+    if (amountKobo is! int) {
+      throw PayloadFormatException(
+        'Missing or invalid amountKobo: $amountKobo',
+        map,
+      );
+    }
+
+    final narration = map['narration'];
+    if (narration != null && narration is! String) {
+      throw PayloadFormatException('Invalid narration: $narration', map);
+    }
+
+    try {
+      return SendMoneyPayload(
+        recipientAccountNumber: recipientAccountNumber,
+        recipientName: recipientName,
+        bankName: bankName,
+        amount: Money.fromKobo(amountKobo),
+        narration: narration as String?,
+      );
+    } catch (e) {
+      throw PayloadFormatException('Invalid SendMoneyPayload values: $e', map);
+    }
   }
 
   @override
@@ -153,15 +216,48 @@ class ContributionPayload extends OperationPayload {
 
   @override
   Map<String, dynamic> toMap() {
-    return {'goalId': goalId, 'goalName': goalName, 'amountKobo': amount.kobo};
+    return {
+      'schemaVersion': OperationPayload.currentSchemaVersion,
+      'goalId': goalId,
+      'goalName': goalName,
+      'amountKobo': amount.kobo,
+    };
   }
 
   factory ContributionPayload.fromMap(Map<String, dynamic> map) {
-    return ContributionPayload(
-      goalId: map['goalId'] as String,
-      goalName: map['goalName'] as String,
-      amount: Money.fromKobo(map['amountKobo'] as int),
-    );
+    final goalId = map['goalId'];
+    if (goalId is! String) {
+      throw PayloadFormatException('Missing or invalid goalId: $goalId', map);
+    }
+
+    final goalName = map['goalName'];
+    if (goalName is! String) {
+      throw PayloadFormatException(
+        'Missing or invalid goalName: $goalName',
+        map,
+      );
+    }
+
+    final amountKobo = map['amountKobo'];
+    if (amountKobo is! int) {
+      throw PayloadFormatException(
+        'Missing or invalid amountKobo: $amountKobo',
+        map,
+      );
+    }
+
+    try {
+      return ContributionPayload(
+        goalId: goalId,
+        goalName: goalName,
+        amount: Money.fromKobo(amountKobo),
+      );
+    } catch (e) {
+      throw PayloadFormatException(
+        'Invalid ContributionPayload values: $e',
+        map,
+      );
+    }
   }
 
   @override

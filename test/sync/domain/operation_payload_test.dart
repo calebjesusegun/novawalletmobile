@@ -77,7 +77,7 @@ void main() {
       );
     });
 
-    test('serializes to and from map with exact kobo representation', () {
+    test('serializes with schemaVersion and deserializes valid map', () {
       final original = SendMoneyPayload(
         recipientAccountNumber: '0123456789',
         recipientName: 'Jane Doe',
@@ -87,6 +87,8 @@ void main() {
       );
 
       final map = original.toMap();
+      expect(map['schemaVersion'], 1);
+      expect(original.schemaVersion, 1);
       expect(map['amountKobo'], 750000);
       expect(map['recipientName'], 'Jane Doe');
 
@@ -94,6 +96,50 @@ void main() {
       expect(deserialized, original);
       expect(deserialized.hashCode, original.hashCode);
     });
+
+    test(
+      'fromMap throws PayloadFormatException on missing or invalid types',
+      () {
+        expect(
+          () => SendMoneyPayload.fromMap(const {
+            'recipientName': 'Jane',
+            'bankName': 'Bank',
+            'amountKobo': 1000,
+          }),
+          throwsA(isA<PayloadFormatException>()),
+        );
+
+        expect(
+          () => SendMoneyPayload.fromMap(const {
+            'recipientAccountNumber': 12345, // invalid type
+            'recipientName': 'Jane',
+            'bankName': 'Bank',
+            'amountKobo': 1000,
+          }),
+          throwsA(isA<PayloadFormatException>()),
+        );
+
+        expect(
+          () => SendMoneyPayload.fromMap(const {
+            'recipientAccountNumber': '12345',
+            'recipientName': 'Jane',
+            'bankName': 'Bank',
+            'amountKobo': 'invalid', // invalid type
+          }),
+          throwsA(isA<PayloadFormatException>()),
+        );
+
+        expect(
+          () => SendMoneyPayload.fromMap(const {
+            'recipientAccountNumber': '12345',
+            'recipientName': 'Jane',
+            'bankName': 'Bank',
+            'amountKobo': 0, // non-positive
+          }),
+          throwsA(isA<PayloadFormatException>()),
+        );
+      },
+    );
   });
 
   group('ContributionPayload', () {
@@ -150,7 +196,7 @@ void main() {
       );
     });
 
-    test('serializes to and from map with exact kobo representation', () {
+    test('serializes with schemaVersion and deserializes valid map', () {
       final original = ContributionPayload(
         goalId: 'goal-999',
         goalName: 'Emergency Savings',
@@ -158,11 +204,44 @@ void main() {
       );
 
       final map = original.toMap();
+      expect(map['schemaVersion'], 1);
+      expect(original.schemaVersion, 1);
       expect(map['amountKobo'], 1000000);
 
       final deserialized = ContributionPayload.fromMap(map);
       expect(deserialized, original);
     });
+
+    test(
+      'fromMap throws PayloadFormatException on missing or invalid types',
+      () {
+        expect(
+          () => ContributionPayload.fromMap(const {
+            'goalName': 'Emergency',
+            'amountKobo': 1000,
+          }),
+          throwsA(isA<PayloadFormatException>()),
+        );
+
+        expect(
+          () => ContributionPayload.fromMap(const {
+            'goalId': 123, // invalid type
+            'goalName': 'Emergency',
+            'amountKobo': 1000,
+          }),
+          throwsA(isA<PayloadFormatException>()),
+        );
+
+        expect(
+          () => ContributionPayload.fromMap(const {
+            'goalId': 'goal-1',
+            'goalName': 'Emergency',
+            'amountKobo': 0, // non-positive
+          }),
+          throwsA(isA<PayloadFormatException>()),
+        );
+      },
+    );
   });
 
   group('Polymorphic OperationPayload.fromMap', () {
