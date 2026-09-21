@@ -56,32 +56,7 @@ class FakeRemoteApi implements RemoteApi {
     failureSimulator.checkPreExecution(operation);
 
     final key = operation.idempotencyKey.value;
-    final existingRecord = await _ledger.getRecord(key);
-
-    if (existingRecord != null) {
-      // Idempotency key already recorded
-      if (!existingRecord.matchesPayload(operation.payload)) {
-        throw ConflictingIdempotencyKeyException(idempotencyKey: key);
-      }
-
-      // Legitimate repeated delivery: return prior result without second financial effect
-      return existingRecord.result.copyWith(isDuplicate: true);
-    }
-
-    // New delivery: check remote balance
-    final currentBalance = await _ledger.getBalance();
     final debitAmount = operation.payload.amount;
-
-    if (currentBalance.kobo < debitAmount.kobo) {
-      throw InsufficientRemoteFundsException(
-        requestedKobo: debitAmount.kobo,
-        availableKobo: currentBalance.kobo,
-      );
-    }
-
-    // Apply financial effect (deduct balance)
-    await _ledger.setBalance(currentBalance - debitAmount);
-
     final now = _clock();
     final reference =
         referenceGenerator?.call(operation) ??
@@ -105,7 +80,6 @@ class FakeRemoteApi implements RemoteApi {
       reference: reference,
       narration: payload.narration,
     );
-    await _ledger.addTransaction(transaction);
 
     final record = RemoteIdempotencyRecord(
       idempotencyKey: key,
@@ -115,12 +89,20 @@ class FakeRemoteApi implements RemoteApi {
       result: result,
       recordedAt: now,
     );
-    await _ledger.saveRecord(record);
+
+    // Atomically reserve idempotency key, debit balance, and record transaction
+    final finalResult = await _ledger.executeAtomicOperation(
+      idempotencyKey: key,
+      payload: operation.payload,
+      debitAmount: debitAmount,
+      transaction: transaction,
+      record: record,
+    );
 
     // Post-execution failure check (e.g. response lost in flight after remote settlement)
-    failureSimulator.checkPostExecution(operation, reference);
+    failureSimulator.checkPostExecution(operation, finalResult.remoteReference);
 
-    return result;
+    return finalResult;
   }
 
   @override
@@ -136,32 +118,7 @@ class FakeRemoteApi implements RemoteApi {
     failureSimulator.checkPreExecution(operation);
 
     final key = operation.idempotencyKey.value;
-    final existingRecord = await _ledger.getRecord(key);
-
-    if (existingRecord != null) {
-      // Idempotency key already recorded
-      if (!existingRecord.matchesPayload(operation.payload)) {
-        throw ConflictingIdempotencyKeyException(idempotencyKey: key);
-      }
-
-      // Legitimate repeated delivery: return prior result without second financial effect
-      return existingRecord.result.copyWith(isDuplicate: true);
-    }
-
-    // New delivery: check remote balance
-    final currentBalance = await _ledger.getBalance();
     final debitAmount = operation.payload.amount;
-
-    if (currentBalance.kobo < debitAmount.kobo) {
-      throw InsufficientRemoteFundsException(
-        requestedKobo: debitAmount.kobo,
-        availableKobo: currentBalance.kobo,
-      );
-    }
-
-    // Apply financial effect (deduct balance)
-    await _ledger.setBalance(currentBalance - debitAmount);
-
     final now = _clock();
     final reference =
         referenceGenerator?.call(operation) ??
@@ -185,7 +142,6 @@ class FakeRemoteApi implements RemoteApi {
       reference: reference,
       narration: 'Contribution to ${payload.goalName}',
     );
-    await _ledger.addTransaction(transaction);
 
     final record = RemoteIdempotencyRecord(
       idempotencyKey: key,
@@ -195,12 +151,20 @@ class FakeRemoteApi implements RemoteApi {
       result: result,
       recordedAt: now,
     );
-    await _ledger.saveRecord(record);
+
+    // Atomically reserve idempotency key, debit balance, and record transaction
+    final finalResult = await _ledger.executeAtomicOperation(
+      idempotencyKey: key,
+      payload: operation.payload,
+      debitAmount: debitAmount,
+      transaction: transaction,
+      record: record,
+    );
 
     // Post-execution failure check (e.g. response lost in flight after remote settlement)
-    failureSimulator.checkPostExecution(operation, reference);
+    failureSimulator.checkPostExecution(operation, finalResult.remoteReference);
 
-    return result;
+    return finalResult;
   }
 
   @override

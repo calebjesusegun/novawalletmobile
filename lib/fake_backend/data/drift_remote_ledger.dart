@@ -3,11 +3,13 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:novawallet/core/money/money.dart';
 import 'package:novawallet/core/persistence/app_database.dart';
+import 'package:novawallet/fake_backend/remote_exceptions.dart';
 import 'package:novawallet/fake_backend/remote_idempotency_ledger.dart';
 import 'package:novawallet/fake_backend/remote_idempotency_record.dart';
 import 'package:novawallet/fake_backend/remote_operation_result.dart';
 import 'package:novawallet/features/wallet/domain/transaction_type.dart';
 import 'package:novawallet/features/wallet/domain/wallet_transaction.dart';
+import 'package:novawallet/sync/domain/operation_payload.dart';
 
 /// Drift/SQLite-backed implementation of [RemoteIdempotencyLedger].
 ///
@@ -165,6 +167,54 @@ class DriftRemoteLedger implements RemoteIdempotencyLedger {
           );
         })
         .toList(growable: false);
+  }
+
+  @override
+  Future<RemoteOperationResult> executeAtomicOperation({
+    required String idempotencyKey,
+    required OperationPayload payload,
+    required Money debitAmount,
+    required WalletTransaction transaction,
+    required RemoteIdempotencyRecord record,
+  }) async {
+    try {
+      return await _db.transaction(() async {
+        final existing = await getRecord(idempotencyKey);
+        if (existing != null) {
+          if (!existing.matchesPayload(payload)) {
+            throw ConflictingIdempotencyKeyException(
+              idempotencyKey: idempotencyKey,
+            );
+          }
+          return existing.result.copyWith(isDuplicate: true);
+        }
+
+        final currentBalance = await getBalance();
+        if (currentBalance.kobo < debitAmount.kobo) {
+          throw InsufficientRemoteFundsException(
+            requestedKobo: debitAmount.kobo,
+            availableKobo: currentBalance.kobo,
+          );
+        }
+
+        await setBalance(currentBalance - debitAmount);
+        await addTransaction(transaction);
+        await saveRecord(record);
+
+        return record.result;
+      });
+    } catch (e) {
+      final existing = await getRecord(idempotencyKey);
+      if (existing != null) {
+        if (!existing.matchesPayload(payload)) {
+          throw ConflictingIdempotencyKeyException(
+            idempotencyKey: idempotencyKey,
+          );
+        }
+        return existing.result.copyWith(isDuplicate: true);
+      }
+      rethrow;
+    }
   }
 
   @override

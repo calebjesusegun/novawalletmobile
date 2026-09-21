@@ -132,5 +132,45 @@ void main() {
         throwsA(isA<ConflictingIdempotencyKeyException>()),
       );
     });
+
+    test('concurrent sendMoney calls with identical key against SQLite ledger deduplicate atomically', () async {
+      final ledger = DriftRemoteLedger(
+        db,
+        initialBalance: const Money.fromKobo(10000000), // ₦100,000.00
+      );
+      final remote = FakeRemoteApi(ledger: ledger);
+
+      final op = FinancialOperation.send(
+        id: OperationId('op-drift-concurrent'),
+        idempotencyKey: IdempotencyKey('idem-drift-concurrent'),
+        payload: SendMoneyPayload(
+          recipientAccountNumber: '0123456789',
+          recipientName: 'Babatunde Ojo',
+          bankName: 'FirstBank',
+          amount: const Money.fromKobo(2000000), // ₦20,000.00
+        ),
+      );
+
+      final results = await Future.wait([
+        remote.sendMoney(op),
+        remote.sendMoney(op),
+      ]);
+
+      final initialResults = results.where((r) => !r.isDuplicate).toList();
+      final duplicateResults = results.where((r) => r.isDuplicate).toList();
+
+      expect(initialResults.length, 1);
+      expect(duplicateResults.length, 1);
+      expect(
+        duplicateResults.first.remoteReference,
+        initialResults.first.remoteReference,
+      );
+
+      final snapshot = await remote.fetchWalletSnapshot();
+      expect(snapshot.balance, const Money.fromKobo(8000000));
+
+      final txns = await remote.fetchTransactions();
+      expect(txns.length, 1);
+    });
   });
 }

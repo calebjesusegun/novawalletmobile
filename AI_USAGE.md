@@ -767,6 +767,39 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
+### Prompt 21 — Phase 3 money-safety hardening (P0 & P1)
+
+**Tool:** Antigravity (implementation & test authoring) & Claude Code (adversarial review)  
+**Stage:** Phase 3 — Hardening & Remediation (`fix/phase-3-money-safety`)
+
+**Prompt**
+
+> Please fix these two money-safety issues in the current branch. Keep the change focused, add regression tests, update AI_USAGE.md and HANDOVER.md truthfully, then run format, analyze, and the full test suite.
+>
+> 1. P0 — Make local settlement atomic  
+> In lib/sync/application/sync_coordinator.dart, successful operation effects update wallet balance, transactions, NovaSave progress, and the operation status through separate database writes. A crash before markCompleted allows replay to apply the local debit/contribution again. Put all local projections and the completed status transition in one AppDatabase transaction, with an idempotent projection guard.
+>
+> 2. P1 — Atomically reserve idempotency keys  
+> In lib/fake_backend/fake_remote_api.dart, checking the idempotency ledger before debiting is race-prone. Concurrent submissions with the same new key can each debit before either stores the record. Make remote debit, transaction recording, and idempotency-record persistence one atomic ledger transaction. On a unique-key conflict, return the previously recorded result without another debit effect.
+
+**Result**
+
+- Implemented `RemoteIdempotencyLedger.executeAtomicOperation` in `lib/fake_backend/remote_idempotency_ledger.dart`.
+- In `InMemoryRemoteLedger`, implemented synchronous non-interleaved atomic reservation and execution.
+- In `DriftRemoteLedger`, wrapped remote balance debit, transaction insert, and idempotency record storage inside an SQLite database transaction (`_db.transaction(...)`) with conflict recovery on unique idempotency-key violations.
+- Updated `FakeRemoteApi.sendMoney` and `FakeRemoteApi.contribute` to utilize `executeAtomicOperation`.
+- In `SyncCoordinator`, added `AppDatabase? appDatabase` injection and updated `syncCoordinatorProvider`.
+- Wrapped local balance debit, transaction history insertion, NovaSave goal increment, and operation completion status update inside `appDatabase.transaction(...)`.
+- Added an idempotent projection guard checking `walletRepository.getTransactionById(operation.id.value)` before applying projections, ensuring a crash or restart prior to `markCompleted` cannot re-debit the wallet or re-contribute to goals upon replay.
+- Added regression tests in `test/sync/application/sync_coordinator_test.dart`, `test/fake_backend/fake_remote_api_test.dart`, and `test/fake_backend/drift_remote_ledger_test.dart` (306/306 tests passing).
+
+**Action taken**
+
+- Ran `dart format --output=none --set-exit-if-changed .`, `flutter analyze`, and `flutter test` (all passing cleanly).
+- Documented `AI-RISK-005` in `AI_USAGE.md` and updated `docs/HANDOVER.md`.
+
+---
+
 ## AI Mistakes / Risky Output
 
 At least one real example must be included before submission.
@@ -919,6 +952,38 @@ Both Codex and Claude Code conducted independent adversarial peer reviews of Pha
 **Regression protection**
 
 Added adversarial tests in `test/sync/domain/spendable_balance_policy_test.dart`, `test/features/novasave/savings_progress_test.dart`, and `test/core/money/money_test.dart` asserting that large 64-bit operations fail closed, premature 100% is impossible, non-zero kobo is preserved, and malformed numeric strings are rejected.
+
+### AI-RISK-005 — Non-atomic local settlement projections in SyncCoordinator and race-prone check-then-debit in FakeRemoteApi
+
+**Tool:** Antigravity (initial Phase 3 implementation) & Claude Code (adversarial review)  
+**Stage:** Phase 3 — Connectivity, Queue & Synchronization (T-SYNC-002, T-REMOTE-001)
+
+**Risky output / assumption**
+
+1. In `SyncCoordinator._applySuccessfulOperationEffects`, successful remote operation effects updated the wallet balance, transaction ledger, NovaSave goal progress, and operation completion status sequentially via four separate database writes (`setWalletSnapshot`, `saveTransaction`, `applyContribution`, `markCompleted`) without a database transaction or transaction existence check.
+2. In `FakeRemoteApi.sendMoney` and `contribute`, the API queried `_ledger.getRecord(op.idempotencyKey)` before debiting balance and recording the transaction in separate asynchronous steps.
+
+**Why this was risky**
+
+1. If the app process was terminated or crashed after writing the transaction or balance snapshot but before persisting `markCompleted`, restart recovery would return the operation to `pending`. Upon reconnect/replay, `_applySuccessfulOperationEffects` would execute again, debiting the local wallet balance and incrementing NovaSave savings progress a second time. This directly violated `HC-EXACTLY-ONCE-EFFECT` and `HC-MONEY`.
+2. Concurrent submissions bearing the identical idempotency key could race between reading the ledger and persisting the new record, causing both requests to debit the remote balance before either wrote the idempotency record, violating `HC-IDEMPOTENCY` and `HC-EXACTLY-ONCE-EFFECT`.
+
+**How it was caught**
+
+Claude Code performed an adversarial code review of Phase 3 and flagged both vulnerabilities:
+- P0: Local settlement lacked atomic transaction boundaries and an idempotent projection guard.
+- P1: Remote ledger checking and debiting lacked atomic key reservation.
+
+**Correction**
+
+1. Added `executeAtomicOperation` to `RemoteIdempotencyLedger` contracts. Implemented non-interleaved atomic execution in `InMemoryRemoteLedger` and wrapped remote debit, transaction append, and idempotency-record persistence in an atomic SQLite transaction (`_db.transaction(...)`) in `DriftRemoteLedger`, catching unique-key conflicts to return the previously committed receipt.
+2. In `SyncCoordinator._applySuccessfulOperationEffects`, injected `AppDatabase` and wrapped all local side-effects and status completion in `appDatabase.transaction(...)`.
+3. Implemented an idempotent projection guard: before applying projections, `SyncCoordinator` queries `walletRepository.getTransactionById(operation.id.value)`. If the transaction was already projected, it transitions the operation directly to `markCompleted` and returns immediately without applying another debit or goal contribution.
+
+**Regression protection**
+
+- Authored regression tests in `test/fake_backend/fake_remote_api_test.dart` and `test/fake_backend/drift_remote_ledger_test.dart` asserting that concurrent submissions with identical idempotency keys deduplicate atomically with exactly one debit and zero unique-key errors.
+- Authored regression tests in `test/sync/application/sync_coordinator_test.dart` proving that re-synchronizing after a crash before `markCompleted` does not double-debit wallet balance or double-increment goal progress.
 
 ---
 

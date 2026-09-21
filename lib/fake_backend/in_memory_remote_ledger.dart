@@ -1,9 +1,12 @@
 import 'dart:math';
 
 import 'package:novawallet/core/money/money.dart';
+import 'package:novawallet/fake_backend/remote_exceptions.dart';
 import 'package:novawallet/fake_backend/remote_idempotency_ledger.dart';
 import 'package:novawallet/fake_backend/remote_idempotency_record.dart';
+import 'package:novawallet/fake_backend/remote_operation_result.dart';
 import 'package:novawallet/features/wallet/domain/wallet_transaction.dart';
+import 'package:novawallet/sync/domain/operation_payload.dart';
 
 /// In-memory implementation of [RemoteIdempotencyLedger].
 ///
@@ -55,6 +58,38 @@ class InMemoryRemoteLedger implements RemoteIdempotencyLedger {
     }
     final end = min(offset + limit, _transactions.length);
     return List.unmodifiable(_transactions.sublist(offset, end));
+  }
+
+  @override
+  Future<RemoteOperationResult> executeAtomicOperation({
+    required String idempotencyKey,
+    required OperationPayload payload,
+    required Money debitAmount,
+    required WalletTransaction transaction,
+    required RemoteIdempotencyRecord record,
+  }) async {
+    final existing = _records[idempotencyKey];
+    if (existing != null) {
+      if (!existing.matchesPayload(payload)) {
+        throw ConflictingIdempotencyKeyException(
+          idempotencyKey: idempotencyKey,
+        );
+      }
+      return existing.result.copyWith(isDuplicate: true);
+    }
+
+    if (_balance.kobo < debitAmount.kobo) {
+      throw InsufficientRemoteFundsException(
+        requestedKobo: debitAmount.kobo,
+        availableKobo: _balance.kobo,
+      );
+    }
+
+    _balance = _balance - debitAmount;
+    _transactions.insert(0, transaction);
+    _records[idempotencyKey] = record;
+
+    return record.result;
   }
 
   @override
