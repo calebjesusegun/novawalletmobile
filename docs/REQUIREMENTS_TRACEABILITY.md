@@ -196,8 +196,8 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 | ID | Requirement | Parent | Implementation | Verification | Evidence | Status |
 |---|---|---|---|---|---|---|
 | SYNC-001 | Observe online/offline connectivity | ASM-009, ASM-011 | `core/connectivity` | unit/widget | VERIFIED | TODO |
-| SYNC-002 | Persist pending operation before acknowledging it as saved | ASM-009, ASM-012 | `sync/data`, Drift | repository/integration | VERIFIED | TODO |
-| SYNC-003 | Restore pending operations after process restart | ASM-012 | `sync` + persistence | integration | VERIFIED | TODO |
+| SYNC-002 | Persist pending operation before acknowledging it as saved | ASM-009, ASM-012 | `sync/data`, Drift | repository/integration | VERIFIED | IN_PROGRESS |
+| SYNC-003 | Restore pending operations after process restart | ASM-012 | `sync` + persistence | integration | VERIFIED | IN_PROGRESS |
 | SYNC-004 | Synchronize eligible pending operations on reconnect | ASM-011 | `sync/application` | integration | VERIFIED | TODO |
 | SYNC-005 | Synchronization uses a single shared coordinator, not feature-specific replay loops | ASM-010, ASM-013 | `sync/application` | architectural review/tests | INFERRED implementation | TODO |
 | SYNC-006 | One logical operation has one stable operation ID | ASM-013 | `core/ids`, sync | unit | INFERRED implementation | DONE |

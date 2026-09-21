@@ -413,6 +413,43 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
+### Prompt 11 — Configure Drift and pending-operation schema (T-DB-001)
+
+**Tool:** Antigravity  
+**Stage:** Phase 2 — Persistence & Fake Remote (T-DB-001)
+
+**Prompt**
+
+> Begin Phase 2 with T-DB-001 — Configure Drift and pending-operation schema:
+> 1. Create task branch `feature/T-DB-001-drift-persistence` from clean `main`.
+> 2. Configure Drift (using sqlite3 / drift / path_provider / drift_flutter or equivalent testable setup) in `lib/core/persistence/` and `lib/sync/data/`.
+> 3. Model the durable pending operations table according to docs/ARCHITECTURE.md §11 and §16.
+> 4. Provide clean mapping between Drift database row entities and domain entities (`FinancialOperation.restore`, `OperationPayload`, `OperationType`, `OperationStatus`, `SyncError`).
+> 5. Support in-memory SQLite instances for fast, deterministic unit testing.
+> 6. Author thorough unit/data tests in `test/sync/data/` verifying:
+>    - Insert and load pending operation preserving exact integer-kobo amount, stable identities, UTC timestamps, and payload.
+>    - Status and attempt count updates.
+>    - Restart simulation: re-opening a database file preserves queued operations across connection cycles.
+> 7. Run full baseline checks: format, analyze, test.
+> 8. Update documentation, push, open PR, and prepare for T-DB-002.
+
+**Result**
+
+- Configured Drift (`drift`, `drift_dev`, `sqlite3`, `path_provider`, `path`) and ran code generation via `build_runner`.
+- Modeled `PendingOperations` Drift table in `lib/sync/data/pending_operations_table.dart` capturing stable operation ID, stable unique idempotency key, operation type, JSON payload, exact integer kobo amount (`BigInt` / 64-bit int), lifecycle status, attempt count, UTC timestamps, serialized sync error, remote reference, and completion timestamp.
+- Implemented `AppDatabase` in `lib/core/persistence/app_database.dart` with support for lazy file storage in production, explicit file connections for restart testing, and in-memory SQLite instances for fast, isolated unit tests.
+- Implemented `PendingOperationMapper` in `lib/sync/data/pending_operation_mapper.dart` ensuring strict rehydration through `FinancialOperation.restore` enforcing all domain invariants.
+- Implemented `PendingOperationsDao` in `lib/sync/data/pending_operations_dao.dart` providing atomic claiming (`claimOperation`), lifecycle updates (`updateOperation`), crash recovery query (`recoverInterruptedOperations`), and spendable balance active operation watchers (`getActiveOperations`, `watchActiveOperations`).
+- Authored 8 unit tests in `test/sync/data/pending_operations_dao_test.dart` verifying exact integer kobo storage, unique idempotency key constraint, atomic claiming, lifecycle progression with recoverable error metadata, and multi-connection database restart simulation across file open/close cycles (bringing test suite total from 193 to 201 tests).
+
+**Action taken**
+
+- Ran `flutter test test/sync/data/` (8/8 passing).
+- Ran full baseline checks (`dart format`, `flutter analyze`, `flutter test`), all passing with 0 warnings/errors across all 201 tests.
+- Updated `docs/TASKS.md`, `docs/REQUIREMENTS_TRACEABILITY.md`, `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
+---
+
 ## AI Mistakes / Risky Output
 
 At least one real example must be included before submission.
