@@ -31,4 +31,9 @@ abstract class WalletRepository {
 
   /// Retrieves a transaction by ID.
   Future<WalletTransaction?> getTransactionById(String id);
+
+  /// Synchronizes local wallet cache with the authoritative remote banking service.
+  ///
+  /// Updates local [WalletSnapshot] and [WalletTransaction] history from remote.
+  Future<void> refresh();
 }

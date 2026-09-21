@@ -47,19 +47,23 @@ class TransactionDao {
 
   TransactionDao(this.db);
 
-  /// Inserts a transaction into durable cache.
+  /// Inserts a transaction into durable cache (or updates if already exists).
   Future<void> insertTransaction(WalletTransaction tx) async {
     await db
         .into(db.transactionsTable)
-        .insert(TransactionMapper.toCompanion(tx));
+        .insert(
+          TransactionMapper.toCompanion(tx),
+          mode: InsertMode.insertOrReplace,
+        );
   }
 
-  /// Inserts multiple transactions in an atomic batch.
+  /// Inserts multiple transactions in an atomic batch (or updates existing).
   Future<void> insertTransactions(List<WalletTransaction> transactions) async {
     await db.batch((batch) {
       batch.insertAll(
         db.transactionsTable,
         transactions.map(TransactionMapper.toCompanion).toList(),
+        mode: InsertMode.insertOrReplace,
       );
     });
   }

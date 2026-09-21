@@ -920,6 +920,37 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
+### Prompt 26 — Implement wallet data projection and repositories (T-WAL-001)
+
+**Tool:** Antigravity  
+**Stage:** Phase 5 — Wallet (`feat/wallet-data-projection`)
+
+**Prompt**
+
+> Move to Phase 5 and implement T-WAL-001 — Implement wallet data projection and repositories:
+> 1. Extend TransactionStatus with processing state.
+> 2. Implement WalletActivityItem unifying confirmed transactions and live pending/processing operations.
+> 3. Implement WalletProjection calculating confirmed headline balance and spendable balance with pending reservation (MNY-004, HC-MONEY).
+> 4. Add refresh() method to WalletRepository and implement in LocalWalletRepository with RemoteApi synchronization and idempotent insertion (InsertMode.insertOrReplace).
+> 5. Expose Riverpod walletProjectionProvider.
+> 6. Author unit tests and repository tests proving integer-kobo money precision, headline balance preservation during offline operations, and zero duplication upon completion.
+
+**Result**
+
+- Implemented `WalletActivityItem` and `WalletProjection` in `lib/features/wallet/domain/`.
+- Extended `TransactionStatus` with `processing` status.
+- Added `refresh()` to `WalletRepository` and `LocalWalletRepository`, utilizing `InsertMode.insertOrReplace` to ensure idempotent caching across repeat syncs.
+- Exposed `walletSnapshotStreamProvider`, `walletRecentTransactionsStreamProvider`, and `walletProjectionProvider` in `lib/features/wallet/data/wallet_providers.dart`.
+- Authored 15 new tests in `test/features/wallet/domain/wallet_projection_test.dart` and `test/features/wallet/data/wallet_repository_test.dart`.
+- Full project test suite expanded to 371 green tests with 0 analyzer issues.
+
+**Action taken**
+
+- Ran `dart format --output=none --set-exit-if-changed .`, `flutter analyze`, and `flutter test`.
+- Updated `docs/REQUIREMENTS_TRACEABILITY.md` (WAL-001 IMPLEMENTED), `docs/TASKS.md` (T-WAL-001 marked done), `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
+---
+
 ## AI Mistakes / Risky Output
 
 At least one real example must be included before submission.

@@ -1090,7 +1090,7 @@ flutter analyze
 
 # Phase 5 — Wallet
 
-## [ ] T-WAL-001 — Implement wallet data projection and repositories
+## [x] T-WAL-001 — Implement wallet data projection and repositories
 
 **Risk:** B  
 **Size:** M
