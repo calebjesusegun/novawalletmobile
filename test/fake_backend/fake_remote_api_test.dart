@@ -519,4 +519,69 @@ void main() {
       expect(pageEmpty, isEmpty);
     });
   });
+
+  group('FakeRemoteApi — Atomic Ledger Reservation (P1 Regression)', () {
+    test('concurrent sendMoney calls with identical idempotency key debit balance exactly once', () async {
+      final op = FinancialOperation.send(
+        id: OperationId('op-concurrent-send'),
+        idempotencyKey: IdempotencyKey('idem-concurrent-send'),
+        payload: SendMoneyPayload(
+          recipientAccountNumber: '0123456789',
+          recipientName: 'Ada Lovelace',
+          bankName: 'Access Bank',
+          amount: const Money.fromKobo(500000), // ₦5,000.00
+        ),
+      );
+
+      final results = await Future.wait([
+        remoteApi.sendMoney(op),
+        remoteApi.sendMoney(op),
+      ]);
+
+      final initialResults = results.where((r) => !r.isDuplicate).toList();
+      final duplicateResults = results.where((r) => r.isDuplicate).toList();
+
+      expect(initialResults.length, 1);
+      expect(duplicateResults.length, 1);
+      expect(
+        duplicateResults.first.remoteReference,
+        initialResults.first.remoteReference,
+      );
+
+      final snapshot = await remoteApi.fetchWalletSnapshot();
+      expect(snapshot.balance, const Money.fromKobo(9500000));
+
+      final txns = await remoteApi.fetchTransactions();
+      expect(txns.length, 1);
+    });
+
+    test('concurrent contribute calls with identical idempotency key debit balance exactly once', () async {
+      final op = FinancialOperation.contribution(
+        id: OperationId('op-concurrent-contrib'),
+        idempotencyKey: IdempotencyKey('idem-concurrent-contrib'),
+        payload: ContributionPayload(
+          goalId: 'goal-1',
+          goalName: 'Tech Upgrade',
+          amount: const Money.fromKobo(300000), // ₦3,000.00
+        ),
+      );
+
+      final results = await Future.wait([
+        remoteApi.contribute(op),
+        remoteApi.contribute(op),
+      ]);
+
+      final initialResults = results.where((r) => !r.isDuplicate).toList();
+      final duplicateResults = results.where((r) => r.isDuplicate).toList();
+
+      expect(initialResults.length, 1);
+      expect(duplicateResults.length, 1);
+
+      final snapshot = await remoteApi.fetchWalletSnapshot();
+      expect(snapshot.balance, const Money.fromKobo(9700000));
+
+      final txns = await remoteApi.fetchTransactions();
+      expect(txns.length, 1);
+    });
+  });
 }

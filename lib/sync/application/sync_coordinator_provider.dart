@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:novawallet/core/connectivity/connectivity.dart';
+import 'package:novawallet/core/persistence/persistence_providers.dart';
 import 'package:novawallet/fake_backend/fake_backend_providers.dart';
 import 'package:novawallet/features/novasave/data/novasave_providers.dart';
 import 'package:novawallet/features/wallet/data/wallet_providers.dart';
@@ -15,6 +16,7 @@ final syncCoordinatorProvider = Provider<SyncCoordinator>((ref) {
     connectivityService: ref.watch(connectivityServiceProvider),
     walletRepository: ref.watch(walletRepositoryProvider),
     novaSaveRepository: ref.watch(novaSaveRepositoryProvider),
+    appDatabase: ref.watch(appDatabaseProvider),
   );
   ref.onDispose(coordinator.dispose);
   return coordinator;

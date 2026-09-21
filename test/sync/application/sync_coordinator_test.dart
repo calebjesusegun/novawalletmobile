@@ -512,6 +512,114 @@ void main() {
       expect(completedOp!.status, OperationStatus.completed);
       expect((await walletRepo.getWalletSnapshot())!.balance.kobo, 9000000);
     });
+
+    group(
+      'Atomic Local Settlement & Idempotent Projection Guard (P0 Regression)',
+      () {
+        test('idempotent projection guard prevents duplicate debit and duplicate contribution when transaction already exists', () async {
+          final op = await opRepo.enqueueContribution(
+            id: OperationId('op-p0-guard'),
+            idempotencyKey: IdempotencyKey('idem-p0-guard'),
+            payload: ContributionPayload(
+              goalId: 'goal-1',
+              goalName: 'Tech Upgrade',
+              amount: const Money.fromKobo(1000000), // ₦10,000.00
+            ),
+          );
+
+          expect(
+            (await walletRepo.getWalletSnapshot())!.balance.kobo,
+            10000000,
+          );
+          expect((await goalRepo.getGoal('goal-1'))!.savedAmount.kobo, 0);
+
+          // Simulate crash right before markCompleted
+          await walletRepo.setWalletSnapshot(
+            WalletSnapshot(
+              balance: const Money.fromKobo(9000000),
+              lastUpdatedAt: DateTime.utc(2026, 9, 21),
+            ),
+          );
+          await walletRepo.saveTransaction(
+            WalletTransaction(
+              id: op.id.value,
+              type: TransactionType.debit,
+              amount: const Money.fromKobo(1000000),
+              counterparty: 'Tech Upgrade',
+              createdAt: DateTime.utc(2026, 9, 21),
+              status: TransactionStatus.completed,
+              reference: 'REMOTE-P0-REF',
+              narration: 'NovaSave Contribution',
+            ),
+          );
+          await goalRepo.applyContribution(
+            'goal-1',
+            const Money.fromKobo(1000000),
+          );
+          expect(
+            (await opRepo.getOperationById(op.id))!.status,
+            OperationStatus.pending,
+          );
+
+          // Reconnect/sync triggered
+          final result = await coordinator.synchronize();
+          expect(result.succeeded, 1);
+
+          // Operation marked completed
+          final completedOp = await opRepo.getOperationById(op.id);
+          expect(completedOp!.status, OperationStatus.completed);
+
+          // Wallet balance must NOT be debited twice
+          final finalSnapshot = await walletRepo.getWalletSnapshot();
+          expect(finalSnapshot!.balance.kobo, 9000000);
+
+          // Goal progress must NOT be incremented twice
+          final finalGoal = await goalRepo.getGoal('goal-1');
+          expect(finalGoal!.savedAmount.kobo, 1000000);
+
+          // Transaction table must have exactly 1 record
+          final txns = await walletRepo.getRecentTransactions();
+          expect(txns.length, 1);
+        });
+
+        test('projections and status transition occur within database transaction when appDatabase is provided', () async {
+          final localCoordinator = SyncCoordinator(
+            operationRepository: opRepo,
+            remoteApi: remoteApi,
+            connectivityService: connectivityService,
+            walletRepository: walletRepo,
+            novaSaveRepository: goalRepo,
+            appDatabase: db,
+            autoSubscribeConnectivity: false,
+          );
+          addTearDown(localCoordinator.dispose);
+
+          final op = await opRepo.enqueueSendMoney(
+            id: OperationId('op-p0-tx-test'),
+            idempotencyKey: IdempotencyKey('idem-p0-tx-test'),
+            payload: SendMoneyPayload(
+              recipientAccountNumber: '0123456789',
+              recipientName: 'Kemi Adebayo',
+              bankName: 'GTBank',
+              amount: const Money.fromKobo(2000000), // ₦20,000.00
+            ),
+          );
+
+          final syncResult = await localCoordinator.synchronize();
+          expect(syncResult.succeeded, 1);
+
+          final completedOp = await opRepo.getOperationById(op.id);
+          expect(completedOp!.status, OperationStatus.completed);
+
+          final snapshot = await walletRepo.getWalletSnapshot();
+          expect(snapshot!.balance.kobo, 8000000);
+
+          final tx = await walletRepo.getTransactionById(op.id.value);
+          expect(tx, isNotNull);
+          expect(tx!.amount.kobo, 2000000);
+        });
+      },
+    );
   });
 
   group('Sync Riverpod Wire-up (T-SYNC-002)', () {

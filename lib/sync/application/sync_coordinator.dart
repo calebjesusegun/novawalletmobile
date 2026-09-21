@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:novawallet/core/connectivity/connectivity_service.dart';
 import 'package:novawallet/core/ids/operation_id.dart';
+import 'package:novawallet/core/persistence/app_database.dart';
 import 'package:novawallet/fake_backend/remote_api.dart';
 import 'package:novawallet/fake_backend/remote_operation_result.dart';
 import 'package:novawallet/features/novasave/domain/novasave_repository.dart';
@@ -37,6 +38,7 @@ class SyncCoordinator {
   final ConnectivityService connectivityService;
   final WalletRepository walletRepository;
   final NovaSaveRepository novaSaveRepository;
+  final AppDatabase? appDatabase;
   final DateTime Function() _clock;
 
   StreamSubscription<dynamic>? _connectivitySubscription;
@@ -54,6 +56,7 @@ class SyncCoordinator {
     required this.connectivityService,
     required this.walletRepository,
     required this.novaSaveRepository,
+    this.appDatabase,
     DateTime Function()? clock,
     bool autoSubscribeConnectivity = true,
   }) : _clock = clock ?? (() => DateTime.now().toUtc()) {
@@ -288,52 +291,98 @@ class SyncCoordinator {
 
   /// Atomically applies local wallet balance, transaction ledger, and savings goal progress
   /// updates before marking the financial operation completed.
+  ///
+  /// Protected by an idempotent projection guard and wrapped inside an [AppDatabase] transaction
+  /// to ensure a crash before completion cannot cause duplicate debit or contribution upon replay.
   Future<void> _applySuccessfulOperationEffects(
     FinancialOperation operation,
     RemoteOperationResult result,
     DateTime now,
   ) async {
-    // 1. Update confirmed wallet balance
-    final currentSnapshot = await walletRepository.getWalletSnapshot();
-    if (currentSnapshot != null) {
-      final updatedBalance = currentSnapshot.balance - operation.payload.amount;
-      await walletRepository.setWalletSnapshot(
-        currentSnapshot.copyWith(balance: updatedBalance, lastUpdatedAt: now),
+    // 0. Idempotent projection guard:
+    // If the operation is already marked completed, skip projection.
+    final existingOp = await operationRepository.getOperationById(operation.id);
+    if (existingOp?.status == OperationStatus.completed) {
+      return;
+    }
+
+    // If local transaction was already recorded (e.g., prior interrupted run or manual recovery),
+    // do not debit wallet or apply goal contribution again.
+    final existingTx = await walletRepository.getTransactionById(
+      operation.id.value,
+    );
+    if (existingTx != null) {
+      await operationRepository.markCompleted(
+        operation.id,
+        remoteReference: result.remoteReference,
+        at: now,
+      );
+      return;
+    }
+
+    Future<void> projectAll() async {
+      // Re-check within transaction boundary to prevent race/duplicate projection
+      final inTxExisting = await walletRepository.getTransactionById(
+        operation.id.value,
+      );
+      if (inTxExisting != null) {
+        await operationRepository.markCompleted(
+          operation.id,
+          remoteReference: result.remoteReference,
+          at: now,
+        );
+        return;
+      }
+
+      // 1. Update confirmed wallet balance
+      final currentSnapshot = await walletRepository.getWalletSnapshot();
+      if (currentSnapshot != null) {
+        final updatedBalance =
+            currentSnapshot.balance - operation.payload.amount;
+        await walletRepository.setWalletSnapshot(
+          currentSnapshot.copyWith(balance: updatedBalance, lastUpdatedAt: now),
+        );
+      }
+
+      // 2. Insert confirmed transaction in wallet activity history
+      final transaction = WalletTransaction(
+        id: operation.id.value,
+        type: TransactionType.debit,
+        amount: operation.payload.amount,
+        counterparty: operation.type == OperationType.send
+            ? (operation.payload as SendMoneyPayload).recipientName
+            : (operation.payload as ContributionPayload).goalName,
+        createdAt: now,
+        status: TransactionStatus.completed,
+        reference: result.remoteReference,
+        narration: operation.type == OperationType.send
+            ? (operation.payload as SendMoneyPayload).narration
+            : 'NovaSave Contribution',
+      );
+      await walletRepository.saveTransaction(transaction);
+
+      // 3. If contribution, increment the savings goal progress
+      if (operation.type == OperationType.contribution) {
+        final payload = operation.payload as ContributionPayload;
+        await novaSaveRepository.applyContribution(
+          payload.goalId,
+          operation.payload.amount,
+        );
+      }
+
+      // 4. Mark the financial operation as completed in durable storage
+      await operationRepository.markCompleted(
+        operation.id,
+        remoteReference: result.remoteReference,
+        at: now,
       );
     }
 
-    // 2. Insert confirmed transaction in wallet activity history
-    final transaction = WalletTransaction(
-      id: operation.id.value,
-      type: TransactionType.debit,
-      amount: operation.payload.amount,
-      counterparty: operation.type == OperationType.send
-          ? (operation.payload as SendMoneyPayload).recipientName
-          : (operation.payload as ContributionPayload).goalName,
-      createdAt: now,
-      status: TransactionStatus.completed,
-      reference: result.remoteReference,
-      narration: operation.type == OperationType.send
-          ? (operation.payload as SendMoneyPayload).narration
-          : 'NovaSave Contribution',
-    );
-    await walletRepository.saveTransaction(transaction);
-
-    // 3. If contribution, increment the savings goal progress
-    if (operation.type == OperationType.contribution) {
-      final payload = operation.payload as ContributionPayload;
-      await novaSaveRepository.applyContribution(
-        payload.goalId,
-        operation.payload.amount,
-      );
+    if (appDatabase != null) {
+      await appDatabase!.transaction(projectAll);
+    } else {
+      await projectAll();
     }
-
-    // 4. Mark the financial operation as completed in durable storage
-    await operationRepository.markCompleted(
-      operation.id,
-      remoteReference: result.remoteReference,
-      at: now,
-    );
   }
 
   /// Retries a single pending operation explicitly (e.g. user taps Retry button).
