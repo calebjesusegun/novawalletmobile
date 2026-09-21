@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 0 complete — T-BASE-003 completed on chore/T-BASE-003-ci  
+**Status:** Phase 0 complete — T-BASE-003 merged into main  
 **Primary next task:** `T-MNY-001 — Implement integer-kobo Money value object`  
-**Current branch:** `chore/T-BASE-003-ci`  
-**Latest commit:** `21dd579`  
+**Current branch:** `main`  
+**Latest commit:** `e6eed11`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -335,7 +335,7 @@ If this handover and Git disagree, trust Git.
 
 ## 13. Next Action
 
-`T-BASE-003 — Add CI verification` is complete on branch `chore/T-BASE-003-ci`.
+`T-BASE-003 — Add CI verification` is complete and merged into `main` via PR #2.
 
 ### Completed Work:
 - Created GitHub Actions CI workflow in `.github/workflows/ci.yml`.
