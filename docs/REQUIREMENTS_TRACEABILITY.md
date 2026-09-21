@@ -106,7 +106,7 @@ These rows make the assessment's highest-risk constraints implementation-testabl
 | MNY-001 | Domain/data monetary amounts are integer kobo | ASM-002, ASM-014 | `lib/core/money/` | unit tests | VERIFIED | DONE |
 | MNY-002 | Formatting kobo → Naira is exact | ASM-002, ASM-014 | `lib/core/money/` | unit tests | VERIFIED | DONE |
 | MNY-003 | Addition/subtraction/progress calculations do not use `double` | ASM-014 | `core/money`, `features/novasave/domain` | unit tests/code review | VERIFIED | DONE |
-| MNY-004 | Confirmed wallet balance changes only after a Send is successfully processed | design flows + integrity principle | wallet/send domain | integration + widget/unit | VERIFIED by design | IN_PROGRESS |
+| MNY-004 | Confirmed wallet balance changes only after a Send is successfully processed | design flows + integrity principle | wallet/send domain | integration + widget/unit | VERIFIED by design | DONE |
 | MNY-005 | Confirmed NovaSave progress changes only after contribution success | design flows + integrity principle | NovaSave domain | integration + widget/unit | VERIFIED by design | IN_PROGRESS |
 | MNY-006 | Policy for multiple queued outgoing operations against one cached balance must be explicitly chosen and documented | assessment leaves this unspecified | `lib/sync/domain/spendable_balance_policy.dart`, `docs/ARCHITECTURE.md` | `test/sync/domain/spendable_balance_policy_test.dart` | DECISION / INFERRED | DONE |
 
@@ -124,11 +124,11 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 | WAL-002 | Render recent transactions lazily | ASM-003, ASM-017 | UI-WAL-01 | `features/wallet` | widget/performance/unit | VERIFIED | IMPLEMENTED |
 | WAL-003 | Pull to refresh wallet data | ASM-004 | UI-WAL-07 | `features/wallet` | widget | VERIFIED | IMPLEMENTED |
 | WAL-004 | Show empty transaction state | design-derived | UI-WAL-09 | `features/wallet` | widget/visual | VERIFIED by design | IMPLEMENTED |
-| WAL-005 | Show wallet offline notification + last-updated state | ASM-009 | UI-WAL-02 | wallet + connectivity | widget/visual | VERIFIED by design | TODO |
-| WAL-006 | Show pending transfer in recent activity | ASM-009 | UI-WAL-03 | wallet + sync projection | widget | VERIFIED by design | TODO |
-| WAL-007 | Show reconnect/processing state | ASM-011 | UI-WAL-04 | wallet + sync projection | integration/widget | VERIFIED by design | TODO |
-| WAL-008 | Show completed transfer and confirmed new balance | ASM-011 | UI-WAL-05 | wallet | integration/widget | VERIFIED by design | TODO |
-| WAL-009 | Show sync-failure state while preserving queued intent | ASM-009, ASM-010 | UI-WAL-06 | wallet + sync | integration/widget | VERIFIED by design | TODO |
+| WAL-005 | Show wallet offline notification + last-updated state | ASM-009 | UI-WAL-02 | wallet + connectivity | widget/visual | VERIFIED by design | IMPLEMENTED |
+| WAL-006 | Show pending transfer in recent activity | ASM-009 | UI-WAL-03 | wallet + sync projection | widget | VERIFIED by design | IMPLEMENTED |
+| WAL-007 | Show reconnect/processing state | ASM-011 | UI-WAL-04 | wallet + sync projection | integration/widget | VERIFIED by design | IMPLEMENTED |
+| WAL-008 | Show completed transfer and confirmed new balance | ASM-011 | UI-WAL-05 | wallet | integration/widget | VERIFIED by design | IMPLEMENTED |
+| WAL-009 | Show sync-failure state while preserving queued intent | ASM-009, ASM-010 | UI-WAL-06 | wallet + sync | integration/widget | VERIFIED by design | IMPLEMENTED |
 | WAL-010 | Show loading/skeleton state | design-derived | UI-WAL-08 | wallet | widget/visual | VERIFIED by design | TODO |
 | WAL-011 | Show pending transaction details | design-derived | UI-WAL-10 | wallet | widget | VERIFIED by design | TODO |
 

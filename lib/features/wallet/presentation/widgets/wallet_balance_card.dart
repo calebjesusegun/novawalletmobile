@@ -12,10 +12,13 @@ import 'package:novawallet/design_system/tokens/app_typography.dart';
 /// Implements requirements:
 /// - WAL-001 / ASM-002: Available balance formatted in Naira from integer kobo.
 /// - UI-WAL-01: Headline card with Send Money and NovaSave shortcuts.
+/// - UI-WAL-02: Offline balance with last-updated timestamp.
 /// - UI-WAL-07: Refreshing presentation.
 /// - A11Y-001, A11Y-002: Accessible semantics and responsive text scaling.
 class WalletBalanceCard extends StatelessWidget {
   final Money balance;
+  final DateTime? lastUpdatedAt;
+  final bool isOffline;
   final bool isRefreshing;
   final VoidCallback onSendMoneyTap;
   final VoidCallback onNovaSaveTap;
@@ -23,13 +26,29 @@ class WalletBalanceCard extends StatelessWidget {
   const WalletBalanceCard({
     super.key,
     required this.balance,
+    this.lastUpdatedAt,
+    this.isOffline = false,
     this.isRefreshing = false,
     required this.onSendMoneyTap,
     required this.onNovaSaveTap,
   });
 
+  String _formatLastUpdated(DateTime dt) {
+    final local = dt.toLocal();
+    final hour = local.hour == 0
+        ? 12
+        : (local.hour > 12 ? local.hour - 12 : local.hour);
+    final minute = local.minute.toString().padLeft(2, '0');
+    final amPm = local.hour >= 12 ? 'PM' : 'AM';
+    return 'Last updated at $hour:$minute $amPm';
+  }
+
   @override
   Widget build(BuildContext context) {
+    final semanticLabel = isOffline && lastUpdatedAt != null
+        ? 'Available balance: ${balance.format()}, ${_formatLastUpdated(lastUpdatedAt!)}'
+        : 'Available balance: ${balance.format()}';
+
     return AppCard(
       padding: AppSpacing.insetsAll20,
       backgroundColor: AppColors.surface,
@@ -61,7 +80,7 @@ class WalletBalanceCard extends StatelessWidget {
           ),
           AppSpacing.gapVertical8,
           Semantics(
-            label: 'Available balance: ${balance.format()}',
+            label: semanticLabel,
             child: Text(
               balance.format(),
               style: AppTypography.headlineBold32.copyWith(
@@ -70,6 +89,15 @@ class WalletBalanceCard extends StatelessWidget {
               ),
             ),
           ),
+          if (isOffline && lastUpdatedAt != null) ...[
+            AppSpacing.gapVertical4,
+            Text(
+              _formatLastUpdated(lastUpdatedAt!),
+              style: AppTypography.bodyMedium12.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
           AppSpacing.gapVertical20,
           Row(
             children: [

@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -68,13 +69,22 @@ class MockWalletRepository implements WalletRepository {
 }
 
 void main() {
+  setUpAll(() {
+    driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+  });
+
   Widget buildTestableWidget({
     required Widget child,
     List<dynamic> overrides = const [],
     TextScaler? textScaler,
+    WalletRepository? repository,
   }) {
+    final effectiveRepo = repository ?? MockWalletRepository();
     return ProviderScope(
-      overrides: overrides.cast(),
+      overrides: [
+        walletRepositoryProvider.overrideWithValue(effectiveRepo),
+        ...overrides.cast(),
+      ],
       child: MaterialApp(
         theme: ThemeData(fontFamily: 'Inter'),
         home: MediaQuery(
@@ -124,6 +134,7 @@ void main() {
     ) async {
       final container = ProviderContainer(
         overrides: [
+          walletRepositoryProvider.overrideWithValue(MockWalletRepository()),
           walletProjectionProvider.overrideWithValue(
             AsyncValue.data(WalletProjection.build()),
           ),

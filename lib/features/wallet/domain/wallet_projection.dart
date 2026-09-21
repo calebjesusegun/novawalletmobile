@@ -54,9 +54,10 @@ class WalletProjection {
         op.status == OperationStatus.processing,
   );
 
-  /// True if any queued operation encountered a sync failure.
-  bool get hasSyncFailure =>
-      pendingOperations.any((op) => op.status == OperationStatus.failed);
+  /// True if any queued operation encountered a sync failure or error.
+  bool get hasSyncFailure => pendingOperations.any(
+    (op) => op.status == OperationStatus.failed || op.lastError != null,
+  );
 
   /// Count of active pending/processing operations.
   int get pendingCount => pendingOperations

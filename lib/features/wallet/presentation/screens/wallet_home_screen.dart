@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:novawallet/app/navigation/app_destination.dart';
 import 'package:novawallet/app/navigation/app_navigation_provider.dart';
+import 'package:novawallet/core/connectivity/connectivity.dart';
+import 'package:novawallet/design_system/components/notifications/app_system_notification.dart';
 import 'package:novawallet/design_system/tokens/app_colors.dart';
 import 'package:novawallet/design_system/tokens/app_spacing.dart';
 import 'package:novawallet/design_system/tokens/app_typography.dart';
@@ -10,13 +12,22 @@ import 'package:novawallet/features/wallet/domain/wallet_projection.dart';
 import 'package:novawallet/features/wallet/presentation/controllers/wallet_controller.dart';
 import 'package:novawallet/features/wallet/presentation/widgets/wallet_balance_card.dart';
 import 'package:novawallet/features/wallet/presentation/widgets/wallet_recent_activity_section.dart';
+import 'package:novawallet/sync/application/sync_coordinator_provider.dart';
+import 'package:novawallet/sync/application/sync_result.dart';
+import 'package:novawallet/sync/domain/operation_status.dart';
+import 'package:novawallet/sync/domain/sync_status.dart';
 
-/// The primary Wallet Home Screen (UI-WAL-01).
+/// The primary Wallet Home Screen (UI-WAL-01 through UI-WAL-07).
 ///
 /// Implements requirements:
 /// - WAL-001 / ASM-002: Available balance in Naira backed by integer kobo.
 /// - WAL-002 / ASM-003: Reverse-chronological activity feed.
 /// - WAL-003 / ASM-004: Pull-to-refresh via [RefreshIndicator].
+/// - WAL-005 / ASM-009 / UI-WAL-02: Offline notification banner & last-updated balance.
+/// - WAL-006 / UI-WAL-03: Pending transfer in recent activity.
+/// - WAL-007 / ASM-011 / UI-WAL-04: Reconnect / syncing processing state.
+/// - WAL-008 / UI-WAL-05: Confirmed balance update and completed activity.
+/// - WAL-009 / UI-WAL-06: Sync failure notification banner with retry action.
 /// - ASM-017 / PERF-001: Lazy-rendered activity list.
 /// - UI-WAL-01: Default layout with shortcuts to Send Money and NovaSave.
 /// - UI-WAL-07: Refreshing presentation.
@@ -94,8 +105,45 @@ class _WalletContent extends ConsumerWidget {
     required this.onRefresh,
   });
 
+  Widget? _buildSystemBanner(
+    BuildContext context,
+    WidgetRef ref, {
+    required ConnectivityStatus connectivity,
+    required SyncStatus syncStatus,
+  }) {
+    if (connectivity == ConnectivityStatus.offline) {
+      return AppSystemNotification.offline();
+    }
+    if (syncStatus == SyncStatus.syncing ||
+        projection.pendingOperations.any(
+          (op) => op.status == OperationStatus.processing,
+        )) {
+      return AppSystemNotification.backOnline();
+    }
+    if (syncStatus == SyncStatus.failed || projection.hasSyncFailure) {
+      return AppSystemNotification.syncFailure(
+        onActionPressed: () {
+          ref
+              .read(syncCoordinatorProvider)
+              .synchronize(trigger: SyncTrigger.userRetry);
+        },
+      );
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final connectivity = ref.watch(connectivityStatusProvider);
+    final syncStatus = ref.watch(syncStatusProvider);
+    final isOffline = connectivity == ConnectivityStatus.offline;
+    final banner = _buildSystemBanner(
+      context,
+      ref,
+      connectivity: connectivity,
+      syncStatus: syncStatus,
+    );
+
     return RefreshIndicator(
       onRefresh: onRefresh,
       color: AppColors.primaryAction,
@@ -107,8 +155,11 @@ class _WalletContent extends ConsumerWidget {
           vertical: AppSpacing.space16,
         ),
         children: [
+          if (banner != null) ...[banner, AppSpacing.gapVertical16],
           WalletBalanceCard(
             balance: projection.confirmedBalance,
+            lastUpdatedAt: projection.lastUpdatedAt,
+            isOffline: isOffline,
             isRefreshing: isRefreshing,
             onSendMoneyTap: () {
               ref

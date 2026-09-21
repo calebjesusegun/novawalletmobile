@@ -1194,7 +1194,7 @@ flutter analyze
 
 ---
 
-## [ ] T-WAL-003 — Implement Wallet offline/pending/reconnect/sync-failure states
+## [x] T-WAL-003 — Implement Wallet offline/pending/reconnect/sync-failure states
 
 **Risk:** B  
 **Size:** M
