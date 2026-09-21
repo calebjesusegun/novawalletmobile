@@ -277,6 +277,58 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
+### Prompt 8 — Stable operation and idempotency identities (T-ID-001)
+
+**Tool:** Antigravity  
+**Stage:** Phase 1 — Money, Identity & Core Operation Model (T-ID-001)
+
+**Prompt**
+
+> Read AGENTS.md first, then docs/HANDOVER.md, and then task T-ID-001 in docs/TASKS.md.
+> Confirm:
+> - You are on branch main and git status is clean.
+> - Latest commit includes completion and merge of T-MNY-002 (commit 012db7f / 55af79d).
+> Then:
+> 1. Create task branch feature/T-ID-001-identities from main.
+> 2. Follow docs/GIT_WORKFLOW.md and docs/DEFINITION_OF_DONE.md.
+> 3. Implement T-ID-001 — Implement stable operation and idempotency identities:
+>    - Location: lib/core/ids/ (e.g. operation_id.dart, idempotency_key.dart).
+>    - Touch: Core identity models and unit tests in test/core/ids/.
+>    - Do NOT touch: sync queue schemas, UI screens, or fake backend yet.
+>    - Enforce HC-IDEMPOTENCY:
+>      * Model stable operation identities (OperationId) and stable idempotency keys (IdempotencyKey).
+>      * Distinguish clearly between operation identity (identifying the logical action) and idempotency key (identifying the financial delivery attempt/logical request).
+>      * Keys must be stable, immutable, deterministic/UUID-backed, and safely reusable across retries.
+>      * Validate invariants: non-empty, non-whitespace, valid formatting.
+>    - Add comprehensive unit tests in test/core/ids/ covering equality, hashing, validation, string formatting, and retry key stability.
+> 4. Run targeted and full baseline checks before and after changes:
+>    - flutter test test/core/ids/
+>    - dart format --output=none --set-exit-if-changed .
+>    - flutter analyze
+>    - flutter test
+> 5. Update docs/REQUIREMENTS_TRACEABILITY.md, docs/TASKS.md, AI_USAGE.md, and docs/HANDOVER.md before finishing.
+
+**Result**
+
+- Created feature branch `feature/T-ID-001-identities` from clean `main`.
+- Implemented `Uuid` utility in `lib/core/ids/uuid.dart` providing cryptographically secure RFC 4122 v4 UUID generation (`Uuid.v4([Random? random])`) and validation (`isValid`, `isValidV4`, `isGeneralUuid`) without third-party dependencies.
+- Implemented `OperationId` domain value object in `lib/core/ids/operation_id.dart` representing stable local operation identity for durable storage.
+- Implemented `IdempotencyKey` domain value object in `lib/core/ids/idempotency_key.dart` representing remote deduplication identity per HC-IDEMPOTENCY and HC-EXACTLY-ONCE-EFFECT.
+- Clearly differentiated `OperationId` and `IdempotencyKey` by type, preventing cross-assignment and ensuring distinct hash codes and non-equality even with identical underlying values.
+- Supported deterministic key binding (`IdempotencyKey.fromOperationId(operationId, {String? prefix})`) and reproducible seed-based UUID generation.
+- Enforced strict domain invariants: rejected empty strings, whitespace (leading, trailing, internal), characters outside permitted set (`[a-zA-Z0-9_\-\.:]`), and lengths exceeding 255 with `ArgumentError`.
+- Canonicalized RFC 4122 UUID representations to lowercase across both identity objects to guarantee casing consistency in hash sets and persistence.
+- Exported identity types via barrel `lib/core/ids/ids.dart`.
+- Authored 52 unit tests across `test/core/ids/uuid_test.dart`, `test/core/ids/operation_id_test.dart`, and `test/core/ids/idempotency_key_test.dart`, verifying invariants, retry stability, reload recovery, type differentiation, and RFC 4122 compliance (total project tests increased from 81 to 133).
+
+**Action taken**
+
+- Ran targeted tests `flutter test test/core/ids/` (52/52 passing).
+- Ran full baseline checks (`dart format`, `flutter analyze`, `flutter test`), all passing with 0 warnings/errors across all 133 tests.
+- Updated `docs/REQUIREMENTS_TRACEABILITY.md` (`SYNC-006` marked DONE; `ASM-006`, `ASM-013`, `SND-010`, `NSV-012`, `SYNC-007` updated to IN_PROGRESS), `docs/TASKS.md` (checked off T-ID-001), `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
+---
+
 ## AI Mistakes / Risky Output
 
 At least one real example must be included before submission.
