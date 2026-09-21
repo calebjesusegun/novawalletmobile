@@ -858,6 +858,37 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
+### Prompt 24 — Implement shared UI components (T-DS-002)
+
+**Tool:** Antigravity  
+**Stage:** Phase 4 — Design System & App Shell (`feat/ds-components`)
+
+**Prompt**
+
+> Implement T-DS-002 following docs/DESIGN_SYSTEM.md §9 and requirements DSN-007, DSN-008, DSN-009, DSN-010, DSN-012, DSN-013, DSN-014, A11Y-001, A11Y-002:
+> 1. Buttons (AppButton: primary, secondary, outline, text, loading, disabled).
+> 2. Fields (AppTextField, AppAmountField with currency and input formatters).
+> 3. Notifications (AppSystemNotification: offline, backOnline, syncFailure, savedOnPhone).
+> 4. Status (AppStatusBadge, AppResultIndicator: completed, pending, processing, failed).
+> 5. Cards & Rows (AppCard, AppKeyValueRow).
+> 6. Progress (AppProgressBar with integer-kobo percentage calculations).
+> 7. Sheets & Empty States (AppBottomSheet, AppEmptyState).
+> 8. Widget tests for all components with semantics and text scaling.
+
+**Result**
+
+- Created reusable UI primitives under `lib/design_system/components/`.
+- Ensured components accept state/data rather than fetching their own data.
+- Excluded internal text from interfering with Semantics nodes on buttons.
+- Authored 18 widget tests in `test/design_system/components_test.dart`. All 352 project tests pass.
+
+**Action taken**
+
+- Ran `dart format`, `flutter analyze`, and `flutter test`.
+- Updated `docs/REQUIREMENTS_TRACEABILITY.md`, `docs/TASKS.md`, and `docs/HANDOVER.md`.
+
+---
+
 ## AI Mistakes / Risky Output
 
 At least one real example must be included before submission.
