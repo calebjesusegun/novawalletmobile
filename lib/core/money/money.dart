@@ -131,6 +131,10 @@ class Money implements Comparable<Money> {
   }
 
   static _ParseResult _parseInternal(String input) {
+    if (input.length > 40) {
+      return const _ParseResult.malformed();
+    }
+
     var cleaned = input.trim();
     if (cleaned.isEmpty) {
       return const _ParseResult.malformed();
@@ -145,7 +149,8 @@ class Money implements Comparable<Money> {
     // Strip currency symbols and whitespace between symbol and amount
     if (cleaned.startsWith('₦') || cleaned.startsWith('\u20A6')) {
       cleaned = cleaned.substring(1).trim();
-    } else if (cleaned.toUpperCase().startsWith('NGN')) {
+    } else if (cleaned.startsWith('NGN')) {
+      // Must be uppercase NGN; lowercase ngn is rejected
       cleaned = cleaned.substring(3).trim();
     }
 
@@ -173,10 +178,20 @@ class Money implements Comparable<Money> {
       return const _ParseResult.malformed();
     }
 
+    // Trailing dot without fractional digits (e.g. "50.") is rejected
+    if (parts.length == 2 && (fracStr == null || fracStr.isEmpty)) {
+      return const _ParseResult.malformed();
+    }
+
     BigInt wholePart;
     if (wholeStr.isEmpty) {
       wholePart = BigInt.zero;
     } else {
+      // Reject leading zeros on multi-digit whole numbers (e.g. "007", "0,001", "01")
+      if (wholeStr.startsWith('0') && wholeStr.length > 1) {
+        return const _ParseResult.malformed();
+      }
+
       // If wholeStr contains commas, it MUST follow valid thousands grouping: e.g. "1,000", "125,450"
       if (wholeStr.contains(',')) {
         if (!_thousandsRegex.hasMatch(wholeStr)) {
@@ -307,6 +322,15 @@ class Money implements Comparable<Money> {
   @override
   int get hashCode => kobo.hashCode;
 
+  /// Formats this money value into a compact string:
+  /// - If fractional kobo is zero, formats as whole Naira: `₦50,000`
+  /// - If fractional kobo is non-zero, retains full kobo: `₦50,000.75`
+  ///
+  /// This prevents silent truncation of fractional kobo while supporting
+  /// clean whole-Naira display when no fractional amount exists.
+  String formatCompact({bool includeSymbol = true}) =>
+      format(includeSymbol: includeSymbol, includeKobo: false);
+
   /// Formats this money value into a standardized Naira string.
   ///
   /// Examples:
@@ -316,6 +340,7 @@ class Money implements Comparable<Money> {
   /// - `Money.fromKobo(-12545000).format()` -> `'-₦125,450.00'`
   /// - `Money.fromKobo(1000000).format(includeSymbol: false)` -> `'10,000.00'`
   /// - `Money.fromKobo(1000000).format(includeKobo: false)` -> `'₦10,000'`
+  /// - `Money.fromKobo(12545075).format(includeKobo: false)` -> `'₦125,450.75'` (preserves non-zero kobo)
   String format({bool includeSymbol = true, bool includeKobo = true}) {
     final isNeg = kobo < 0;
     final bigKobo = BigInt.from(kobo).abs();
@@ -333,7 +358,9 @@ class Money implements Comparable<Money> {
     }
     buffer.write(formattedNaira);
 
-    if (includeKobo) {
+    // Only omit kobo if explicitly requested AND kobo remainder is zero,
+    // preventing silent truncation of financial value.
+    if (includeKobo || koboValue != 0) {
       buffer.write('.');
       buffer.write(koboValue.toString().padLeft(2, '0'));
     }

@@ -79,8 +79,14 @@ class SavingsProgress {
   int get percentage => basisPoints ~/ 100;
 
   /// Nearest-integer rounded percentage capped at 100%.
+  ///
+  /// Guarantees that progress never reports 100% unless the target has actually
+  /// been reached ([isGoalReached] is `true`).
   int get roundedPercentage {
     final rounded = (basisPoints + 50) ~/ 100;
+    if (!isGoalReached && rounded >= 100) {
+      return 99;
+    }
     return rounded > 100 ? 100 : rounded;
   }
 
@@ -114,10 +120,11 @@ class SavingsProgress {
   /// Examples:
   /// - `formatPercentage()` -> `'30%'`
   /// - `formatPercentage(includeSymbol: false)` -> `'30'`
-  /// - `formatPercentage(decimalPlaces: 2)` -> `'30.00%'`
+  /// - `formatPercentage(decimalPlaces: 1)` -> `'30.0%'`
   /// - `formatPercentage(decimalPlaces: 2)` (for 33.33%) -> `'33.33%'`
   ///
   /// This formatting is performed purely via integer arithmetic without `double`.
+  /// Never reports 100% (or 100.0%) unless [isGoalReached] is true.
   String formatPercentage({
     bool includeSymbol = true,
     int decimalPlaces = 0,
@@ -134,10 +141,17 @@ class SavingsProgress {
     final buffer = StringBuffer();
 
     if (decimalPlaces == 0) {
-      final val = rounded ? roundedPercentage : percentage;
+      var val = rounded ? roundedPercentage : percentage;
+      if (!isGoalReached && val >= 100) {
+        val = 99;
+      }
       buffer.write(val.toString());
     } else if (decimalPlaces == 1) {
-      final tenths = (basisPoints + 5) ~/ 10;
+      // 1 decimal place: floored tenths to prevent premature 100.0%
+      var tenths = basisPoints ~/ 10;
+      if (!isGoalReached && tenths >= 1000) {
+        tenths = 999;
+      }
       final whole = tenths ~/ 10;
       final frac = tenths % 10;
       buffer.write('$whole.$frac');
@@ -158,8 +172,9 @@ class SavingsProgress {
   /// Converts progress to a UI rendering fraction strictly within `[0.0, 1.0]`
   /// for Flutter progress indicators (such as `LinearProgressIndicator(value: ...)`).
   ///
-  /// This is the explicit presentation boundary converter. All domain arithmetic
-  /// and financial state remain strictly integer-based via [basisPoints] and [Money].
+  /// This is the explicit presentation boundary converter. Uses exact basis points
+  /// divided by 10,000 so the visual progress bar and text percentage are always
+  /// in exact alignment.
   double toProgressFraction() {
     if (savedAmount.isZero) {
       return 0.0;
@@ -167,7 +182,7 @@ class SavingsProgress {
     if (isGoalReached) {
       return 1.0;
     }
-    return (savedAmount.kobo / targetAmount.kobo).clamp(0.0, 1.0);
+    return basisPoints / 10000.0;
   }
 
   /// Projects savings progress assuming a successful [contribution].
