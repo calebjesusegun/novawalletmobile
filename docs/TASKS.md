@@ -195,7 +195,7 @@ flutter test
 
 # Phase 1 — Money, Identity & Core Operation Model
 
-## [ ] T-MNY-001 — Implement integer-kobo Money value object
+## [x] T-MNY-001 — Implement integer-kobo Money value object
 
 **Risk:** A  
 **Size:** S

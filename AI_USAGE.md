@@ -176,6 +176,53 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
+### Prompt 6 — Integer-kobo Money value object (T-MNY-001)
+
+**Tool:** Antigravity  
+**Stage:** Phase 1 — Money, Identity & Core Operation Model (T-MNY-001)
+
+**Prompt**
+
+> Read AGENTS.md first, then docs/HANDOVER.md, and then task T-MNY-001 in docs/TASKS.md.
+> Confirm:
+> - You are on branch main and git status is clean.
+> - Latest commit includes the completion of Phase 0.
+> Then:
+> 1. Create task branch feature/T-MNY-001-money from main.
+> 2. Follow docs/GIT_WORKFLOW.md and docs/DEFINITION_OF_DONE.md.
+> 3. Implement T-MNY-001 — Implement integer-kobo Money value object:
+>    - Create the Money value object in lib/core/money/
+>    - Enforce integer-kobo representation (never double/floating point for money)
+>    - Support addition, subtraction, comparison, zero and negative validations
+>    - Implement exact currency formatting (e.g. 12545000 kobo -> ₦125,450.00; 1000000 kobo -> ₦10,000.00)
+>    - Add unit tests in test/core/money/ covering all arithmetic, invariants, edge cases, and formatting rules
+>    - Do NOT touch persistence, routing, or feature UI
+> 4. Run targeted and full baseline checks before and after changes:
+>    - flutter test test/core/money/
+>    - dart format --output=none --set-exit-if-changed .
+>    - flutter analyze
+>    - flutter test
+> 5. Update docs/REQUIREMENTS_TRACEABILITY.md, docs/TASKS.md, AI_USAGE.md, and docs/HANDOVER.md before finishing.
+
+**Result**
+
+- Created branch `feature/T-MNY-001-money` from clean `main`.
+- Implemented `Money` value object in `lib/core/money/money.dart` backed strictly by `final int kobo`.
+- Implemented exact integer arithmetic (`+`, `-`, `-()`, `*`, `~/`), relational operators (`<`, `<=`, `>`, `>=`), `Comparable<Money>`, value equality, and hash code.
+- Added validation methods and properties (`isZero`, `isPositive`, `isNegative`, `isNonNegative`, `ensurePositive`, `ensureNonNegative`, `checkPositive`, `checkNonNegative`, and `MoneyValidationException`).
+- Implemented exact string parsing (`Money.parse`, `Money.tryParse`, `MoneyParseException`) without any floating-point conversions.
+- Implemented exact currency formatting with thousands separators and two-digit decimal kobo (`12545000` -> `₦125,450.00`; `1000000` -> `₦10,000.00`; negative amounts -> `-₦125,450.00`).
+- Authored 38 focused unit tests in `test/core/money/money_test.dart` verifying all invariants, acceptance criteria, arithmetic exactness, and edge cases.
+- Replaced deprecated `IntegerDivisionByZeroException` with standard `UnsupportedError` per Dart 3 analyzer.
+
+**Action taken**
+
+- Ran `flutter test test/core/money/` (38/38 tests passing).
+- Ran full baseline checks (`dart format`, `flutter analyze`, `flutter test`), all passing with 0 warnings/errors.
+- Updated `docs/REQUIREMENTS_TRACEABILITY.md`, `docs/TASKS.md`, `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
+---
+
 ## AI Mistakes / Risky Output
 
 At least one real example must be included before submission.
@@ -219,6 +266,46 @@ The project architecture now requires:
 **Regression protection**
 
 Implementation must include tests covering repeated delivery, restart recovery and exactly-one financial effect.
+
+---
+
+### AI-RISK-002 — Silent integer overflow and malformed parsing in Money value object
+
+**Tool:** Antigravity (initial implementation & refactor) & Codex (peer code review)  
+**Stage:** Phase 1 — Core Money implementation (T-MNY-001)
+
+**Risky output / assumption**
+
+Antigravity initially implemented the `Money` value object using native Dart 64-bit `int` operations directly (`+`, `-`, `*`, `~/`, `fromNaira`, and parsing) without overflow guards or boundary checks, and used naive character-stripping in string parsing.
+
+**Why this was risky**
+
+In 64-bit Dart (AOT/VM on mobile), native integer operations silently wrap around under two's-complement arithmetic instead of throwing an exception:
+- Adding to a large positive balance (`maxInt + 1`) silently rolls over to `minInt`, turning a positive balance negative.
+- Subtracting from a deficit (`minInt - 1`) rolls over to positive `maxInt`.
+- In 64-bit two's complement, `-minInt` and `minInt.abs()` cannot fit in the positive 64-bit integer range, evaluating back to `minInt` (remaining negative).
+- `fromNaira(naira)` executing `naira * 100` wraps around silently if `naira > 92,233,720,368,547,758`.
+- In string parsing, removing all commas and spaces before validation allowed malformed inputs like `"1,2,3"` to be silently accepted as `123`, `"1 0"` as `10`, and `"."` as zero.
+- In financial applications, silent overflow and permissive parsing corrupt balances and invalidate financial invariants without triggering errors.
+
+**How it was caught**
+
+The user submitted Antigravity's initial implementation to Codex for independent peer code review. Codex reviewed the code and caught two issues:
+1. `[P1]` Integer overflow can silently corrupt financial amounts because native Dart arithmetic wraps around, and boundary tests were missing.
+2. `[P2]` Malformed monetary inputs were accepted because commas and spaces were stripped before digit validation.
+
+**Correction**
+
+Antigravity reviewed Codex's findings, confirmed the flaws, and refactored `Money`:
+- Used `BigInt` for intermediate arithmetic calculations funneled through a centralized `_checked(BigInt value)` helper enforcing signed 64-bit bounds (`[-9223372036854775808, 9223372036854775807]`), matching SQLite's integer storage.
+- Throws `MoneyOverflowException` on arithmetic overflow (`+`, `-`, `*`, `~/`), `fromNaira` bounds breach, and oversized string parsing.
+- Safe `operator -()` and `abs()` that reject `minInt`, preventing negative rollover.
+- Added strict regex validation in parsing (`_thousandsRegex`, `_digitsOnlyRegex`) rejecting internal spaces, malformed commas, and empty digits (`"."`).
+- Preserved `const Money.fromKobo` and `const Money.zero()`.
+
+**Regression protection**
+
+Added exhaustive tests in `test/core/money/money_test.dart` asserting that `maxKobo + 1`, `minKobo - 1`, `-minKobo`, `minKobo.abs()`, `minKobo ~/ -1`, multiplication overflow, `fromNaira` boundary overflow, oversized strings, and malformed inputs (`"1,2,3"`, `"1 0"`, `"."`, `"1,00"`) fail fast and reject invalid values.
 
 ---
 
