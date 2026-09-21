@@ -42,7 +42,7 @@ class SpendableBalancePolicy {
       if (excluding != null && op.id == excluding) {
         continue;
       }
-      if (op.isPending || op.isProcessing) {
+      if (op.reservesFunds) {
         reserved += op.payload.amount;
       }
     }

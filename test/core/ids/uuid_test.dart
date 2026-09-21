@@ -54,6 +54,10 @@ void main() {
       expect(Uuid.isValid('886313e1-3b8a-5372-9b90-0c9aee199e5d'), isTrue);
       expect(Uuid.isValidV4('886313e1-3b8a-5372-9b90-0c9aee199e5d'), isFalse);
 
+      // v7 (RFC 9562 time-ordered)
+      expect(Uuid.isValid('01890a5e-2f9b-7e62-bb44-8848c772c638'), isTrue);
+      expect(Uuid.isValidV4('01890a5e-2f9b-7e62-bb44-8848c772c638'), isFalse);
+
       // uppercase v4
       expect(Uuid.isValid('C4B18C64-7546-4DC4-B778-4395B00C6D2C'), isTrue);
       expect(Uuid.isValidV4('C4B18C64-7546-4DC4-B778-4395B00C6D2C'), isTrue);

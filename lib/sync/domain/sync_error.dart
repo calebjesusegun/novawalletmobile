@@ -39,7 +39,7 @@ class SyncError {
       message: message,
       code: code,
       isRecoverable: true,
-      timestamp: timestamp ?? DateTime.now(),
+      timestamp: (timestamp ?? DateTime.now()).toUtc(),
     );
   }
 
@@ -53,7 +53,7 @@ class SyncError {
       message: message,
       code: code,
       isRecoverable: false,
-      timestamp: timestamp ?? DateTime.now(),
+      timestamp: (timestamp ?? DateTime.now()).toUtc(),
     );
   }
 
@@ -63,7 +63,7 @@ class SyncError {
       'message': message,
       if (code != null) 'code': code,
       'isRecoverable': isRecoverable,
-      'timestamp': timestamp.toIso8601String(),
+      'timestamp': timestamp.toUtc().toIso8601String(),
     };
   }
 
@@ -73,7 +73,7 @@ class SyncError {
       message: map['message'] as String,
       code: map['code'] as String?,
       isRecoverable: map['isRecoverable'] as bool,
-      timestamp: DateTime.parse(map['timestamp'] as String),
+      timestamp: DateTime.parse(map['timestamp'] as String).toUtc(),
     );
   }
 
