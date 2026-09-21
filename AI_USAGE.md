@@ -986,6 +986,36 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
+### Prompt 28 — Implement Wallet offline, pending, reconnect and sync failure states (T-WAL-003)
+
+**Tool:** Antigravity  
+**Stage:** Phase 5 — Wallet (`feat/wallet-offline-and-sync-states`)
+
+**Prompt**
+
+> Implement Wallet offline, pending, reconnect, and sync failure states per T-WAL-003:
+> 1. Offline banner and last-updated state matching UI-WAL-02 and WAL-005.
+> 2. Pending transfer row matching UI-WAL-03 and WAL-006 with Pending badge in activity list without prematurely debiting confirmed headline balance (MNY-004, HC-MONEY).
+> 3. Reconnect / processing state matching UI-WAL-04 and WAL-007 rendering "Back online. Syncing pending actions..." notification banner and "Processing" badge.
+> 4. Successful send updates confirmed balance and row once per UI-WAL-05 and WAL-008.
+> 5. Recoverable sync failure renders sync failure banner with working "Retry" action triggering SyncCoordinator, and activity tile displays "Failed" status badge per UI-WAL-06 and WAL-009.
+> 6. Author widget tests verifying all 5 states and test coverage.
+
+**Result**
+
+- Updated `WalletBalanceCard` to accept `isOffline` and `lastUpdatedAt`, rendering "Last updated at HH:MM AM/PM" with accessible semantics.
+- Updated `WalletActivityItem` and `WalletProjection` to map recoverable errors (`lastError != null`) to `TransactionStatus.failed` and mark `hasSyncFailure`.
+- Implemented `_buildSystemBanner` in `WalletHomeScreen` to present `AppSystemNotification.offline()`, `AppSystemNotification.backOnline()`, or `AppSystemNotification.syncFailure()` with retry callback invoking `syncCoordinatorProvider.synchronize(trigger: SyncTrigger.userRetry)`.
+- Authored 5 comprehensive widget tests in `test/features/wallet/presentation/wallet_offline_and_sync_states_test.dart`.
+- All 383 unit and widget tests pass cleanly with 0 analyzer issues.
+
+**Action taken**
+
+- Ran `dart format --output=none --set-exit-if-changed .`, `flutter analyze`, and `flutter test`.
+- Updated `docs/REQUIREMENTS_TRACEABILITY.md` (WAL-005 to WAL-009, MNY-004 marked IMPLEMENTED/DONE), `docs/TASKS.md` (T-WAL-003 marked done), `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
+---
+
 ## AI Mistakes / Risky Output
 
 At least one real example must be included before submission.

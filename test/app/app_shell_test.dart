@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,6 +15,10 @@ import 'package:novawallet/features/wallet/domain/wallet_projection.dart';
 import 'package:novawallet/features/wallet/presentation/screens/wallet_home_screen.dart';
 
 void main() {
+  setUpAll(() {
+    driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+  });
+
   group(
     'T-APP-001 / ASM-001 / DSN-011 / A11Y-001 — App Shell and Navigation',
     () {

@@ -42,6 +42,9 @@ class WalletActivityItem {
   /// True if this item represents an unconfirmed local queue operation.
   final bool isPendingSync;
 
+  /// True if this in-flight operation encountered a sync failure.
+  final bool hasSyncError;
+
   /// Stable operation identity, if this item originated from a queued [FinancialOperation].
   final OperationId? operationId;
 
@@ -60,6 +63,7 @@ class WalletActivityItem {
     required DateTime timestamp,
     required this.status,
     this.isPendingSync = false,
+    this.hasSyncError = false,
     this.operationId,
     this.reference,
     this.narration,
@@ -81,6 +85,7 @@ class WalletActivityItem {
       timestamp: tx.createdAt,
       status: tx.status,
       isPendingSync: false,
+      hasSyncError: false,
       reference: tx.reference,
       narration: tx.narration,
     );
@@ -103,10 +108,13 @@ class WalletActivityItem {
       subtitle = op.type.name;
     }
 
+    final hasError = op.lastError != null;
     final TransactionStatus status;
     switch (op.status) {
       case OperationStatus.pending:
-        status = TransactionStatus.pending;
+        status = hasError
+            ? TransactionStatus.failed
+            : TransactionStatus.pending;
       case OperationStatus.processing:
         status = TransactionStatus.processing;
       case OperationStatus.completed:
@@ -124,6 +132,7 @@ class WalletActivityItem {
       timestamp: op.createdAt,
       status: status,
       isPendingSync: op.status != OperationStatus.completed,
+      hasSyncError: hasError,
       operationId: op.id,
       reference: op.remoteReference,
     );
