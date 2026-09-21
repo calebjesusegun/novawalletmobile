@@ -68,14 +68,14 @@ These IDs represent the original assessment rather than invented feature require
 | ASM-003 | Wallet shows a scrollable recent-transactions list | Assessment §2.1 | `features/wallet` | widget/performance | VERIFIED | TODO |
 | ASM-004 | Wallet supports pull-to-refresh | Assessment §2.1 | `features/wallet` | widget | VERIFIED | TODO |
 | ASM-005 | Send Money implements Recipient → Amount → Confirm | Assessment §2.1 | `features/send_money` | widget | VERIFIED | TODO |
-| ASM-006 | A Send uses idempotency so retry cannot double-process the transfer | Assessment §2.1 | `core/ids`, `sync`, `fake_backend`, send | unit + integration | VERIFIED | TODO |
+| ASM-006 | A Send uses idempotency so retry cannot double-process the transfer | Assessment §2.1 | `core/ids`, `sync`, `fake_backend`, send | unit + integration | VERIFIED | IN_PROGRESS |
 | ASM-007 | NovaSave supports goal creation with name, target amount and target date | Assessment §2.1 | `features/novasave` | widget/unit | VERIFIED | TODO |
 | ASM-008 | NovaSave supports contributions and progress as bar/percentage | Assessment §2.1 | `features/novasave` | widget/unit | VERIFIED | IN_PROGRESS |
 | ASM-009 | Send/Contribution while offline is queued locally and shown as Pending rather than lost | Assessment §2.1 | `sync`, feature presentation | repository + widget + integration | VERIFIED | TODO |
 | ASM-010 | Offline actions are not silently retried in an uncontrolled loop | Assessment §2.1 | `sync` | unit/integration | VERIFIED | TODO |
 | ASM-011 | On reconnect, queued actions are replayed without duplicate financial effect | Assessment §2.1 | `sync`, `fake_backend` | integration | VERIFIED | TODO |
 | ASM-012 | A queued action survives an app restart while offline | Assessment §2.2 | Drift persistence / `sync` | integration | VERIFIED | TODO |
-| ASM-013 | A queued action is not sent twice after reconnect/restart | Assessment §2.2 | `sync`, `fake_backend` | integration | VERIFIED | TODO |
+| ASM-013 | A queued action is not sent twice after reconnect/restart | Assessment §2.2 | `sync`, `fake_backend` | integration | VERIFIED | IN_PROGRESS |
 | ASM-014 | Money calculations never use floating-point arithmetic | Assessment §2.2 | `core/money`, `features/novasave/domain` | unit/static review | VERIFIED | IN_PROGRESS |
 | ASM-015 | Key interactive elements expose proper Flutter `Semantics` | Assessment §2.2 | presentation/design system | widget/accessibility | VERIFIED | TODO |
 | ASM-016 | Text respects system font scaling without breaking layout | Assessment §2.2 | presentation/design system | widget/manual at enlarged scale | VERIFIED | TODO |
@@ -147,7 +147,7 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 | SND-007 | Reject amount above available/spendable balance | design-derived | UI-SND-07 | send domain | unit/widget | VERIFIED by design | TODO |
 | SND-008 | Show offline amount state with last-updated balance | ASM-009 | UI-SND-09 | send + connectivity | widget | VERIFIED by design | TODO |
 | SND-009 | Show transfer confirmation | ASM-005 | UI-SND-10 | send | widget | VERIFIED | TODO |
-| SND-010 | Create one stable operation identity/idempotency key for one logical transfer | ASM-006, ASM-013 | UI-SND-10/14 | send + IDs + sync | unit/integration | INFERRED implementation required by verified idempotency requirement | TODO |
+| SND-010 | Create one stable operation identity/idempotency key for one logical transfer | ASM-006, ASM-013 | UI-SND-10/14 | send + IDs + sync | unit/integration | INFERRED implementation required by verified idempotency requirement | IN_PROGRESS |
 | SND-011 | Online transfer enters Processing | flow/design | UI-SND-11 | send | widget/integration | VERIFIED by design | TODO |
 | SND-012 | Online transfer success shows amount, recipient, reference/date/status | flow/design | UI-SND-12 | send | widget/integration | VERIFIED by design | TODO |
 | SND-013 | Immediate online failure shows no debit + retry/back actions | flow/design | UI-SND-13 | send | widget/integration | VERIFIED by design | TODO |
@@ -176,7 +176,7 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 | NSV-009 | Show contribution amount entry and projected progress | ASM-008 | UI-NSV-09 | NovaSave (`domain`) | widget/unit | VERIFIED | IN_PROGRESS |
 | NSV-010 | Reject contribution above wallet balance | design-derived | UI-NSV-10 | NovaSave domain | unit/widget | VERIFIED by design | TODO |
 | NSV-011 | Show contribution confirmation | flow/design | UI-NSV-11 | NovaSave | widget | VERIFIED by design | TODO |
-| NSV-012 | Create one stable operation identity/idempotency key for one logical contribution | ASM-011, ASM-013 | UI-NSV-11/16 | NovaSave + IDs + sync | unit/integration | INFERRED implementation required by duplicate-prevention requirement | TODO |
+| NSV-012 | Create one stable operation identity/idempotency key for one logical contribution | ASM-011, ASM-013 | UI-NSV-11/16 | NovaSave + IDs + sync | unit/integration | INFERRED implementation required by duplicate-prevention requirement | IN_PROGRESS |
 | NSV-013 | Online contribution enters Processing | flow/design | UI-NSV-12 | NovaSave | widget/integration | VERIFIED by design | TODO |
 | NSV-014 | Successful contribution updates amount/progress | ASM-008 | UI-NSV-13, UI-NSV-14 | NovaSave (`domain`) | unit/widget/integration | VERIFIED | IN_PROGRESS |
 | NSV-015 | Immediate online contribution failure leaves wallet unchanged and offers retry | flow/design | UI-NSV-15 | NovaSave | widget/integration | VERIFIED by design | TODO |
@@ -200,8 +200,8 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 | SYNC-003 | Restore pending operations after process restart | ASM-012 | `sync` + persistence | integration | VERIFIED | TODO |
 | SYNC-004 | Synchronize eligible pending operations on reconnect | ASM-011 | `sync/application` | integration | VERIFIED | TODO |
 | SYNC-005 | Synchronization uses a single shared coordinator, not feature-specific replay loops | ASM-010, ASM-013 | `sync/application` | architectural review/tests | INFERRED implementation | TODO |
-| SYNC-006 | One logical operation has one stable operation ID | ASM-013 | `core/ids`, sync | unit | INFERRED implementation | TODO |
-| SYNC-007 | One logical operation has one stable idempotency key reused across retry/restart | ASM-006, ASM-013 | `core/ids`, sync, fake backend | unit/integration | INFERRED implementation | TODO |
+| SYNC-006 | One logical operation has one stable operation ID | ASM-013 | `core/ids`, sync | unit | INFERRED implementation | DONE |
+| SYNC-007 | One logical operation has one stable idempotency key reused across retry/restart | ASM-006, ASM-013 | `core/ids`, sync, fake backend | unit/integration | INFERRED implementation | IN_PROGRESS |
 | SYNC-008 | Fake remote deduplicates repeated idempotency keys | ASM-006, ASM-013 | `fake_backend` | unit/integration | INFERRED implementation required to demonstrate guarantee | TODO |
 | SYNC-009 | Repeated key with conflicting payload is rejected/flagged | ASM-013 | fake backend | unit | INFERRED defensive rule | TODO |
 | SYNC-010 | Concurrent sync triggers cannot process the same local operation concurrently | ASM-013 | sync + database claim | unit/integration | INFERRED implementation | TODO |

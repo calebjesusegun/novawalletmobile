@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 1 in progress — T-MNY-002 merged into main  
-**Primary next task:** `T-ID-001 — Implement stable operation and idempotency identities`  
-**Current branch:** `main`  
-**Latest commit:** `012db7f`  
+**Status:** Phase 1 in progress — T-ID-001 implemented on feature branch  
+**Primary next task:** `T-OP-001 — Define financial operation model and state transitions`  
+**Current branch:** `feature/T-ID-001-identities`  
+**Latest commit on main:** `55af79d`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -225,15 +225,15 @@ Do not invent a hidden policy before that task is completed.
 ---
 
 ## 8. Current Execution Task
-
+ 
 Current Task:
 ```text
-T-MNY-002 — Implement exact savings-progress calculation (complete on branch, ready for review/merge)
+T-ID-001 — Implement stable operation and idempotency identities (complete on branch, ready for review/merge)
 ```
 
 Next Task:
 ```text
-T-ID-001 — Implement stable operation and idempotency identities
+T-OP-001 — Define financial operation model and state transitions
 ```
 
 ---
@@ -301,30 +301,25 @@ If this handover and Git disagree, trust Git.
 
 ### 13. Next Action
  
-`T-MNY-002 — Implement exact savings-progress calculation` is complete and merged into `main` via PR #5 (`012db7f`).
+`T-ID-001 — Implement stable operation and idempotency identities` is complete and verified on branch `feature/T-ID-001-identities`.
  
-### Completed Work (T-MNY-002):
-- Implemented `SavingsProgress` domain calculation model in `lib/features/novasave/domain/savings_progress.dart` backed strictly by integer kobo via `Money` per HC-MONEY.
-- Implemented `SavingsGoal` domain entity in `lib/features/novasave/domain/savings_goal.dart` per `docs/ARCHITECTURE.md` §8.2 with derived progress and remaining amount.
-- Enforced exact integer basis points calculations (`10000 bps = 100%`) using intermediate `BigInt` arithmetic (`savedKobo * 10000 ~/ targetKobo`), eliminating floating-point rounding errors and guarding against 64-bit integer multiplication overflow on large balances.
-- Implemented exact remaining amount calculation (`targetAmount - savedAmount`), guaranteeing that over-saving returns `Money.zero()` (never negative balance), and providing `excessAmount` to represent savings beyond target.
-- Supported capped progress (0–100% percentage, 0–10,000 basis points) and arbitrary-precision uncapped metric (`uncappedBasisPoints` as `BigInt`), with flags `isGoalReached` and `isOverTarget`.
-- Implemented pure integer string formatting for progress percentages (`formatPercentage()`).
-- Provided an explicit UI presentation boundary converter (`toProgressFraction()`) strictly returning values within `[0.0, 1.0]` for Flutter progress indicators, keeping domain arithmetic exact and integer-based.
-- Handled all domain invariants and edge cases:
-  - Non-positive target amounts rejected with `ArgumentError`.
-  - Negative saved amounts rejected with `ArgumentError`.
-  - Negative contribution attempts rejected with `ArgumentError`.
-  - Zero contribution returns unchanged progress state.
-  - Exceeding target caps progress to 100% and flags over-achievement without negative remaining balance.
-- Authored 29 unit tests across `test/features/novasave/savings_progress_test.dart` and `test/features/novasave/savings_goal_test.dart` verifying all acceptance criteria, edge cases, basis points precision, 64-bit bounds, and extreme ratio (`maxKobo / 1 kobo`) exactness (total project tests increased from 52 to 81).
-- Maintained strict architectural boundaries: untouched UI screens, sync engine, and database persistence schemas.
-- Updated `docs/REQUIREMENTS_TRACEABILITY.md` (MNY-003 marked DONE; ASM-008, ASM-014, NSV-008, NSV-009, NSV-014 updated to IN_PROGRESS), `docs/TASKS.md` (T-MNY-002 checked off), and `AI_USAGE.md` (recorded Prompt 7 and AI-RISK-003).
+### Completed Work (T-ID-001):
+- Implemented `Uuid` utility in `lib/core/ids/uuid.dart` providing zero-dependency RFC 4122 version 4 cryptographically secure UUID generation (`Uuid.v4([Random? random])`) and validation (`isValid`, `isValidV4`, `isGeneralUuid`).
+- Implemented `OperationId` domain value object in `lib/core/ids/operation_id.dart` representing a stable local durable identity for logical financial actions per HC-IDEMPOTENCY.
+- Implemented `IdempotencyKey` domain value object in `lib/core/ids/idempotency_key.dart` representing a stable remote deduplication identity for delivery attempts per HC-IDEMPOTENCY and HC-EXACTLY-ONCE-EFFECT.
+- Differentiated `OperationId` and `IdempotencyKey` by type, preventing accidental cross-assignment and ensuring distinct hash codes and non-equality even with identical underlying strings.
+- Implemented deterministic key derivation via `IdempotencyKey.fromOperationId(operationId, {String? prefix})`.
+- Enforced domain invariants across both identities: non-empty string, no leading/trailing/internal whitespace, allowed character set (`[a-zA-Z0-9_\-\.:]`), and maximum length of 255 characters with descriptive `ArgumentError` exceptions.
+- Canonicalized RFC 4122 UUID representations to lowercase across both identity objects to guarantee casing consistency in hash sets, comparisons, and persistence.
+- Created barrel export in `lib/core/ids/ids.dart`.
+- Preserved strict architectural boundaries: untouched sync queues, UI screens, or fake backend.
+- Authored 52 unit tests across `test/core/ids/uuid_test.dart`, `test/core/ids/operation_id_test.dart`, and `test/core/ids/idempotency_key_test.dart` verifying all invariants, retry stability, reload recovery, type differentiation, and RFC 4122 compliance (total project tests increased from 81 to 133).
+- Updated `docs/REQUIREMENTS_TRACEABILITY.md` (`SYNC-006` marked DONE; `ASM-006`, `ASM-013`, `SND-010`, `NSV-012`, `SYNC-007` updated to IN_PROGRESS), `docs/TASKS.md` (T-ID-001 checked off), and `AI_USAGE.md` (recorded Prompt 8).
 - Ran and verified local checks:
-  - `flutter test test/features/novasave/` (29/29 tests passed)
-  - `dart format --output=none --set-exit-if-changed .` (14 files formatted, 0 changed)
+  - `flutter test test/core/ids/` (52/52 tests passed)
+  - `dart format --output=none --set-exit-if-changed .` (21 files formatted, 0 changed)
   - `flutter analyze` (0 issues found)
-  - `flutter test` (81 tests passed, 0 failures)
+  - `flutter test` (133 tests passed, 0 failures)
 
 ### Next Task:
-`T-ID-001 — Implement stable operation and idempotency identities` as defined in `docs/TASKS.md`.
+`T-OP-001 — Define financial operation model and state transitions` as defined in `docs/TASKS.md`.
