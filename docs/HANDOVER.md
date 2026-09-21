@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 0 complete — T-BASE-003 merged into main  
+**Status:** Phase 0 complete — Documentation and launch config update on chore/readme-launch-config  
 **Primary next task:** `T-MNY-001 — Implement integer-kobo Money value object`  
-**Current branch:** `main`  
-**Latest commit:** `e6eed11`  
+**Current branch:** `chore/readme-launch-config`  
+**Latest commit:** `59e135c`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -336,20 +336,13 @@ If this handover and Git disagree, trust Git.
 ## 13. Next Action
 
 `T-BASE-003 — Add CI verification` is complete and merged into `main` via PR #2.
+Branch `chore/readme-launch-config` updates `README.md` (Figma design link, removed AI tools sentence, added closing motto) and `.vscode/launch.json`.
 
 ### Completed Work:
-- Created GitHub Actions CI workflow in `.github/workflows/ci.yml`.
-- Configured triggers for pushes to `main`, pull requests targeting `main`, and `workflow_dispatch`.
-- Configured runner using `ubuntu-latest` and `subosito/flutter-action@v2` targeting Flutter `3.47.5` (channel `stable`) with caching enabled.
-- Configured steps running the exact repository-supported verification commands:
-  - `flutter pub get`
-  - `dart format --output=none --set-exit-if-changed .`
-  - `flutter analyze`
-  - `flutter test`
-- Validated YAML syntax with Ruby/YAML parser.
-- Documented CI verification in `README.md`.
-- Updated `docs/TASKS.md` marking `T-BASE-003` complete.
-- Recorded prompt and results in `AI_USAGE.md`.
+- Updated `.vscode/launch.json` configuration.
+- Added official Figma design link under Design References in `README.md`.
+- Removed AI tools sentence and appended "Let's build NovaWallet together 🌍" to `README.md`.
+- Recorded Prompt 5 in `AI_USAGE.md`.
 - Ran and verified local checks:
   - `dart format --output=none --set-exit-if-changed .` (8 files formatted, 0 changed)
   - `flutter analyze` (0 issues found)
