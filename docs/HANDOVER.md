@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** T-WAL-003 (wallet offline, pending, reconnect and sync failure states) COMPLETE on `feat/wallet-offline-and-sync-states` — Ready to merge into `main`  
-**Primary next task:** `T-WAL-004 — Implement Wallet loading, empty and pending-detail states`  
-**Current branch:** `feat/wallet-offline-and-sync-states`  
-**Latest commit on main:** `43dd69e`  
+**Status:** T-WAL-004 (Wallet loading, empty, and pending-detail states) COMPLETE on `feat/wallet-loading-empty-detail` — Ready to merge into `main` (Phase 5 complete!)  
+**Primary next task:** `T-SND-001 — Implement recipient entry, validation and fake resolution` (Phase 6 — Send Money)  
+**Current branch:** `feat/wallet-loading-empty-detail`  
+**Latest commit on main:** `f10f074`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -53,17 +53,18 @@ Phase 3 (Connectivity, Queue & Synchronization) is COMPLETE and Hardened:
 
 Phase 4 (Design System & App Shell) is COMPLETE and merged into `main` (`3e14dc7`).
 
-Phase 5 (Wallet) is IN PROGRESS:
+Phase 5 (Wallet) is COMPLETE:
 - `T-WAL-001` (Implement wallet data projection and repositories) is COMPLETE and merged into `main` (`162317e`).
 - `T-WAL-002` (Implement wallet home, lazy transactions and refresh) is COMPLETE and merged into `main` (`43dd69e`).
-- `T-WAL-003` (Implement wallet offline, pending, reconnect and sync failure states) is COMPLETE on `feat/wallet-offline-and-sync-states`:
-  - `WalletBalanceCard` enhanced with `isOffline` and `lastUpdatedAt` with formatted time and accessible semantics (`UI-WAL-02`, `WAL-005`).
-  - Pending transfer row in recent activity with `Pending` status badge without prematurely debiting confirmed headline balance (`UI-WAL-03`, `WAL-006`, `MNY-004`, `HC-MONEY`).
-  - Reconnect / syncing state renders `AppSystemNotification.backOnline()` ("Back online. Syncing pending actions...") and `Processing` badge in activity row (`UI-WAL-04`, `WAL-007`).
-  - Confirmed send completion updates confirmed balance and removes pending badge (`UI-WAL-05`, `WAL-008`).
-  - Recoverable sync failure renders `AppSystemNotification.syncFailure()` with working Retry callback (`syncCoordinator.synchronize(trigger: SyncTrigger.userRetry)`) and `Failed` badge (`UI-WAL-06`, `WAL-009`).
-  - Authored 5 comprehensive widget tests in `test/features/wallet/presentation/wallet_offline_and_sync_states_test.dart`.
-  - All 383 unit and widget tests across the project pass cleanly.
+- `T-WAL-003` (Implement wallet offline, pending, reconnect and sync failure states) is COMPLETE and merged into `main` (`f10f074`).
+- `T-WAL-004` (Implement wallet loading, empty, and pending-detail states) is COMPLETE on `feat/wallet-loading-empty-detail`:
+  - `WalletLoadingSkeleton` (`lib/features/wallet/presentation/widgets/wallet_loading_skeleton.dart`) matching `UI-WAL-08` / `WAL-010`.
+  - Empty activity state via `AppEmptyState.walletTransactions()` matching `UI-WAL-09` / `WAL-004`.
+  - `WalletTransactionDetailSheet` (`lib/features/wallet/presentation/widgets/wallet_transaction_detail_sheet.dart`) matching `UI-WAL-10` / `WAL-011` with saved-on-phone explanation, formatted metadata, failure reason, and retry action.
+  - Connected `onItemTap` in `WalletHomeScreen`.
+  - Fixed Drift multi-database warnings across test runner (`AI-RISK-008`).
+  - Authored 5 widget tests in `test/features/wallet/presentation/wallet_loading_empty_detail_test.dart`.
+  - All 388 unit and widget tests pass cleanly with 0 analyzer issues.
 
 ---
 
@@ -71,12 +72,12 @@ Phase 5 (Wallet) is IN PROGRESS:
  
 Current Task:
 ```text
-T-WAL-003 (Implement wallet offline, pending, reconnect and sync failure states) COMPLETE on feat/wallet-offline-and-sync-states
+T-WAL-004 (Wallet loading, empty, and pending-detail states) COMPLETE on feat/wallet-loading-empty-detail
 ```
 
 Next Task:
 ```text
-T-WAL-004 — Implement Wallet loading, empty and pending-detail states (Phase 5 — Wallet)
+T-SND-001 — Implement recipient entry, validation and fake resolution (Phase 6 — Send Money)
 ```
 
 ---
@@ -107,11 +108,11 @@ Do not claim success without actually running the relevant commands.
 
 ### 13. Next Action
  
-`T-WAL-003` is fully completed on `feat/wallet-offline-and-sync-states`. All 383 tests pass, analyzer clean, formatting checked.
+`T-WAL-004` is fully completed on `feat/wallet-loading-empty-detail`. All 388 tests pass, analyzer clean, formatting checked.
  
 ### Next Steps:
-1. Merge `feat/wallet-offline-and-sync-states` into `main`.
-2. Proceed to Phase 5: `T-WAL-004 — Implement Wallet loading, empty and pending-detail states`.
+1. Merge `feat/wallet-loading-empty-detail` into `main`.
+2. Proceed to Phase 6: `T-SND-001 — Implement recipient entry, validation and fake resolution`.
 
 
 

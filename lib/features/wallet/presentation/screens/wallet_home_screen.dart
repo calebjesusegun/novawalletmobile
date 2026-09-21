@@ -11,7 +11,9 @@ import 'package:novawallet/features/wallet/data/wallet_providers.dart';
 import 'package:novawallet/features/wallet/domain/wallet_projection.dart';
 import 'package:novawallet/features/wallet/presentation/controllers/wallet_controller.dart';
 import 'package:novawallet/features/wallet/presentation/widgets/wallet_balance_card.dart';
+import 'package:novawallet/features/wallet/presentation/widgets/wallet_loading_skeleton.dart';
 import 'package:novawallet/features/wallet/presentation/widgets/wallet_recent_activity_section.dart';
+import 'package:novawallet/features/wallet/presentation/widgets/wallet_transaction_detail_sheet.dart';
 import 'package:novawallet/sync/application/sync_coordinator_provider.dart';
 import 'package:novawallet/sync/application/sync_result.dart';
 import 'package:novawallet/sync/domain/operation_status.dart';
@@ -54,11 +56,7 @@ class WalletHomeScreen extends ConsumerWidget {
           onRefresh: () =>
               ref.read(walletControllerProvider.notifier).refresh(),
         ),
-        loading: () => const Center(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryAction),
-          ),
-        ),
+        loading: () => const WalletLoadingSkeleton(),
         error: (error, _) => Center(
           child: Padding(
             padding: AppSpacing.insetsAll24,
@@ -173,7 +171,22 @@ class _WalletContent extends ConsumerWidget {
             },
           ),
           AppSpacing.gapVertical24,
-          WalletRecentActivitySection(activities: projection.activities),
+          WalletRecentActivitySection(
+            activities: projection.activities,
+            onItemTap: (item) {
+              WalletTransactionDetailSheet.show(
+                context: context,
+                item: item,
+                onRetry: item.hasSyncError
+                    ? () {
+                        ref
+                            .read(syncCoordinatorProvider)
+                            .synchronize(trigger: SyncTrigger.userRetry);
+                      }
+                    : null,
+              );
+            },
+          ),
         ],
       ),
     );

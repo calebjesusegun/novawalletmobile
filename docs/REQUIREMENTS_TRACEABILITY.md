@@ -129,8 +129,8 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 | WAL-007 | Show reconnect/processing state | ASM-011 | UI-WAL-04 | wallet + sync projection | integration/widget | VERIFIED by design | IMPLEMENTED |
 | WAL-008 | Show completed transfer and confirmed new balance | ASM-011 | UI-WAL-05 | wallet | integration/widget | VERIFIED by design | IMPLEMENTED |
 | WAL-009 | Show sync-failure state while preserving queued intent | ASM-009, ASM-010 | UI-WAL-06 | wallet + sync | integration/widget | VERIFIED by design | IMPLEMENTED |
-| WAL-010 | Show loading/skeleton state | design-derived | UI-WAL-08 | wallet | widget/visual | VERIFIED by design | TODO |
-| WAL-011 | Show pending transaction details | design-derived | UI-WAL-10 | wallet | widget | VERIFIED by design | TODO |
+| WAL-010 | Show loading/skeleton state | design-derived | UI-WAL-08 | wallet | widget/visual | VERIFIED by design | IMPLEMENTED |
+| WAL-011 | Show pending transaction details | design-derived | UI-WAL-10 | wallet | widget | VERIFIED by design | IMPLEMENTED |
 
 ---
 

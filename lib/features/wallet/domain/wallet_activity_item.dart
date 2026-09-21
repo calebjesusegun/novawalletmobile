@@ -54,6 +54,12 @@ class WalletActivityItem {
   /// Optional narration or memo.
   final String? narration;
 
+  /// Specific counterparty details (e.g. bank name and account number).
+  final String? counterpartyDetail;
+
+  /// Human-readable failure explanation if this operation failed.
+  final String? failureReason;
+
   WalletActivityItem({
     required this.id,
     required this.title,
@@ -67,6 +73,8 @@ class WalletActivityItem {
     this.operationId,
     this.reference,
     this.narration,
+    this.counterpartyDetail,
+    this.failureReason,
   }) : timestamp = timestamp.toUtc() {
     if (id.trim().isEmpty) {
       throw ArgumentError.value(id, 'id', 'Activity item ID cannot be empty.');
@@ -88,6 +96,7 @@ class WalletActivityItem {
       hasSyncError: false,
       reference: tx.reference,
       narration: tx.narration,
+      counterpartyDetail: tx.narration,
     );
   }
 
@@ -96,16 +105,21 @@ class WalletActivityItem {
     final payload = op.payload;
     final String title;
     final String subtitle;
+    final String? counterpartyDetail;
 
     if (payload is SendMoneyPayload) {
       title = payload.recipientName;
       subtitle = 'Transfer';
+      counterpartyDetail =
+          '${payload.bankName} • ${payload.recipientAccountNumber}';
     } else if (payload is ContributionPayload) {
       title = payload.goalName;
       subtitle = 'NovaSave';
+      counterpartyDetail = 'NovaSave Goal';
     } else {
       title = 'Transaction';
       subtitle = op.type.name;
+      counterpartyDetail = null;
     }
 
     final hasError = op.lastError != null;
@@ -135,6 +149,8 @@ class WalletActivityItem {
       hasSyncError: hasError,
       operationId: op.id,
       reference: op.remoteReference,
+      counterpartyDetail: counterpartyDetail,
+      failureReason: op.lastError?.message,
     );
   }
 
@@ -152,7 +168,9 @@ class WalletActivityItem {
           other.isPendingSync == isPendingSync &&
           other.operationId == operationId &&
           other.reference == reference &&
-          other.narration == narration);
+          other.narration == narration &&
+          other.counterpartyDetail == counterpartyDetail &&
+          other.failureReason == failureReason);
 
   @override
   int get hashCode => Object.hash(
@@ -167,6 +185,8 @@ class WalletActivityItem {
     operationId,
     reference,
     narration,
+    counterpartyDetail,
+    failureReason,
   );
 
   @override
