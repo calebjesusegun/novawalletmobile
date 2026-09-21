@@ -387,7 +387,7 @@ flutter analyze
 
 ---
 
-## [ ] T-DOM-001 — Decide queued-spendability policy
+## [x] T-DOM-001 — Decide queued-spendability policy
 
 **Risk:** A  
 **Size:** S

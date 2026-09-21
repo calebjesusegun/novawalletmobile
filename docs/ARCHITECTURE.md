@@ -814,11 +814,12 @@ A pending offline action must not make the headline balance appear successfully 
 
 ### Multiple pending outgoing operations
 
-The supplied material demonstrates a single pending outgoing operation but does not define reservation semantics when several offline debits are queued against the same cached balance.
+The project explicitly adopts the **Spendable Balance Reservation Policy** (`SpendableBalancePolicy` in `lib/sync/domain/spendable_balance_policy.dart`) to resolve MNY-006:
 
-**Not supported by the supplied evidence - TO VERIFY / document as an implementation assumption before feature completion.**
-
-Do not silently invent production banking reservation behavior.
+1. **Headline balance remains confirmed balance:** Per AD-09, the headline wallet balance continues to show the last confirmed cached balance and timestamp; it is never debited in the UI before remote confirmation.
+2. **Spendable balance deducts active outgoing operations:** When the user initiates a new Send Money or Contribution while offline, amount validation evaluates against `spendableBalance = max(0, confirmedBalance - sum(activePendingKobo))` where active operations are those in `pending` or `processing` states.
+3. **Over-reservation prevention:** An offline operation that would exceed `spendableBalance` is blocked in the UI with an insufficient spendable balance message, preventing the queuing of operations that are guaranteed to bounce or overdraft upon reconnection.
+4. **Lifecycle release:** Completed operations are reconciled with remote confirmed balance updates and do not double-deduct; terminally failed operations release their reservation immediately.
 
 ---
 
@@ -1132,11 +1133,14 @@ Until the Flutter repository is bootstrapped/inspected:
 
 These are implementation/toolchain decisions, not missing assessment requirements.
 
-### Multiple queued outgoing debits
+### Multiple queued outgoing debits (RESOLVED)
 
-The supplied material does not define whether pending offline outgoing operations reserve spendable balance against subsequent offline attempts.
+The policy for multiple queued outgoing operations against one cached confirmed balance is resolved and implemented in `SpendableBalancePolicy` (`lib/sync/domain/spendable_balance_policy.dart`):
 
-Record the chosen implementation assumption in README/traceability before that behavior is considered complete.
+- **Confirmed Balance Display:** The headline wallet balance continues to display the confirmed cached balance from the local store/remote until an operation completes successfully (per AD-09 / UI design flows).
+- **Available Spendable Balance:** Outgoing transfer and contribution entry screens validate against `spendableBalance = max(0, confirmedBalance - sum(activePendingKobo))`.
+- **Reservation Lifecycle:** Outgoing operations in `pending` and `processing` statuses reserve funds. Completed operations are reflected in confirmed balance updates without double deduction. Terminally failed operations release their reservations immediately.
+- See Section 16 for the complete reservation ledger specification.
 
 Everything previously marked `TO VERIFY` regarding a production backend/API/authentication contract is removed: the assessment explicitly provides no real backend and gives the project ownership of the fake implementation.
 
