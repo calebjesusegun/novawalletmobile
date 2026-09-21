@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:novawallet/core/connectivity/connectivity.dart';
@@ -620,6 +622,170 @@ void main() {
         });
       },
     );
+
+    group('Concurrency & Head-of-Line Blocking Hardening', () {
+      test('recoverInterrupted is a no-op when a sync pass is actively in-flight (SYNC-010 guard)', () async {
+        final pausedApi = _PausedRemoteApi(remoteApi);
+        final inFlightCoordinator = SyncCoordinator(
+          operationRepository: opRepo,
+          remoteApi: pausedApi,
+          connectivityService: connectivityService,
+          walletRepository: walletRepo,
+          novaSaveRepository: goalRepo,
+          appDatabase: db,
+          autoSubscribeConnectivity: false,
+        );
+        addTearDown(inFlightCoordinator.dispose);
+
+        final op = await opRepo.enqueueSendMoney(
+          id: OperationId('op-in-flight-guard'),
+          idempotencyKey: IdempotencyKey('idem-in-flight-guard'),
+          payload: SendMoneyPayload(
+            recipientAccountNumber: '0123456789',
+            recipientName: 'Kemi Adebayo',
+            bankName: 'GTBank',
+            amount: const Money.fromKobo(1500000), // ₦15,000.00
+          ),
+        );
+
+        // Start synchronize pass (will pause in remoteApi.sendMoney)
+        final syncFuture = inFlightCoordinator.synchronize();
+
+        // Wait until remoteApi is entered and operation is claimed into processing
+        await pausedApi.enteredCompleter.future;
+
+        expect(inFlightCoordinator.isSyncing, isTrue);
+        final claimedOp = await opRepo.getOperationById(op.id);
+        expect(claimedOp!.status, OperationStatus.processing);
+
+        // Now attempt recoverInterrupted while pass is live in-flight
+        final recoveredCount = await inFlightCoordinator.recoverInterrupted();
+
+        // MUST return 0 and MUST NOT reset actively processing operation to pending!
+        expect(recoveredCount, 0);
+        final stillClaimedOp = await opRepo.getOperationById(op.id);
+        expect(stillClaimedOp!.status, OperationStatus.processing);
+
+        // Resume remote call and let sync complete
+        pausedApi.pauseCompleter.complete();
+        final syncResult = await syncFuture;
+        expect(syncResult.succeeded, 1);
+
+        final completedOp = await opRepo.getOperationById(op.id);
+        expect(completedOp!.status, OperationStatus.completed);
+      });
+
+      test('startup runs recoverInterrupted only on first cold-launch call and skips on subsequent calls', () async {
+        // Put an operation in processing before coordinator starts
+        final op = await opRepo.enqueueSendMoney(
+          id: OperationId('op-startup-once'),
+          idempotencyKey: IdempotencyKey('idem-startup-once'),
+          payload: SendMoneyPayload(
+            recipientAccountNumber: '0123456789',
+            recipientName: 'Kemi Adebayo',
+            bankName: 'GTBank',
+            amount: const Money.fromKobo(1000000),
+          ),
+        );
+        await opRepo.claim(op.id);
+
+        final coldCoordinator = SyncCoordinator(
+          operationRepository: opRepo,
+          remoteApi: remoteApi,
+          connectivityService: connectivityService,
+          walletRepository: walletRepo,
+          novaSaveRepository: goalRepo,
+          appDatabase: db,
+          autoSubscribeConnectivity: false,
+        );
+        addTearDown(coldCoordinator.dispose);
+
+        // First startup call: recovers the orphaned processing operation
+        await coldCoordinator.startup(triggerSyncIfOnline: false);
+        final recovered = await opRepo.getOperationById(op.id);
+        expect(recovered!.status, OperationStatus.pending);
+
+        // Manually claim it into processing again to simulate a live operation
+        await opRepo.claim(op.id);
+
+        // Second startup call (e.g. app lifecycle resume): must NOT re-run crash recovery
+        await coldCoordinator.startup(triggerSyncIfOnline: false);
+        final notDisrupted = await opRepo.getOperationById(op.id);
+        expect(notDisrupted!.status, OperationStatus.processing);
+      });
+
+      test('recoverable failure on one operation does not head-of-line block subsequent healthy operations', () async {
+        final op1 = await opRepo.enqueueSendMoney(
+          id: OperationId('op-failing-1'),
+          idempotencyKey: IdempotencyKey('idem-failing-1'),
+          payload: SendMoneyPayload(
+            recipientAccountNumber: '0123456789',
+            recipientName: 'Failing Recipient',
+            bankName: 'Access Bank',
+            amount: const Money.fromKobo(1000000), // ₦10,000.00
+          ),
+        );
+
+        final op2 = await opRepo.enqueueSendMoney(
+          id: OperationId('op-healthy-2'),
+          idempotencyKey: IdempotencyKey('idem-healthy-2'),
+          payload: SendMoneyPayload(
+            recipientAccountNumber: '9876543210',
+            recipientName: 'Healthy Recipient',
+            bankName: 'FirstBank',
+            amount: const Money.fromKobo(2000000), // ₦20,000.00
+          ),
+        );
+
+        // Configure simulator to fail ONLY op1 with recoverable transport error
+        failureSimulator.failForIdempotencyKey(
+          op1.idempotencyKey.value,
+          SimulatedFailureType.transport,
+        );
+
+        final result = await coordinator.synchronize();
+
+        // Both operations were attempted: op1 had recoverable failure, op2 succeeded!
+        expect(result.totalClaimed, 2);
+        expect(result.recoverableFailures, 1);
+        expect(result.succeeded, 1);
+        expect(coordinator.status, SyncStatus.failed);
+
+        // Op1 remains pending with recoverable error
+        final op1Db = await opRepo.getOperationById(op1.id);
+        expect(op1Db!.status, OperationStatus.pending);
+        expect(op1Db.lastError, isNotNull);
+        expect(op1Db.lastError!.isRecoverable, isTrue);
+
+        // Op2 was NOT blocked — successfully completed!
+        final op2Db = await opRepo.getOperationById(op2.id);
+        expect(op2Db!.status, OperationStatus.completed);
+
+        // Wallet balance was debited for op2 (₦100,000 - ₦20,000 = ₦80,000)
+        final snapshot = await walletRepo.getWalletSnapshot();
+        expect(snapshot!.balance.kobo, 8000000);
+      });
+
+      test('retryOperation returns notRetryable if operation raced to completed before claim', () async {
+        final op = await opRepo.enqueueSendMoney(
+          id: OperationId('op-already-completed'),
+          idempotencyKey: IdempotencyKey('idem-already-completed'),
+          payload: SendMoneyPayload(
+            recipientAccountNumber: '0123456789',
+            recipientName: 'Kemi Adebayo',
+            bankName: 'GTBank',
+            amount: const Money.fromKobo(1000000),
+          ),
+        );
+
+        // Mark it completed before retry
+        await opRepo.claim(op.id);
+        await opRepo.markCompleted(op.id, remoteReference: 'REMOTE-RACE');
+
+        final retryResult = await coordinator.retryOperation(op.id);
+        expect(retryResult.status, RetryStatus.notRetryable);
+      });
+    });
   });
 
   group('Sync Riverpod Wire-up (T-SYNC-002)', () {
@@ -662,6 +828,46 @@ class _MonitoredRemoteApi implements RemoteApi {
   @override
   Future<RemoteOperationResult> contribute(FinancialOperation operation) =>
       _delegate.contribute(operation);
+
+  @override
+  Future<RemoteOperationResult> submitOperation(FinancialOperation operation) =>
+      _delegate.submitOperation(operation);
+
+  @override
+  Future<WalletSnapshot> fetchWalletSnapshot() =>
+      _delegate.fetchWalletSnapshot();
+
+  @override
+  Future<List<WalletTransaction>> fetchTransactions({
+    int limit = 50,
+    int offset = 0,
+  }) => _delegate.fetchTransactions(limit: limit, offset: offset);
+}
+
+class _PausedRemoteApi implements RemoteApi {
+  final RemoteApi _delegate;
+  final Completer<void> pauseCompleter = Completer<void>();
+  final Completer<void> enteredCompleter = Completer<void>();
+
+  _PausedRemoteApi(this._delegate);
+
+  @override
+  Future<RemoteOperationResult> sendMoney(FinancialOperation operation) async {
+    if (!enteredCompleter.isCompleted) {
+      enteredCompleter.complete();
+    }
+    await pauseCompleter.future;
+    return _delegate.sendMoney(operation);
+  }
+
+  @override
+  Future<RemoteOperationResult> contribute(FinancialOperation operation) async {
+    if (!enteredCompleter.isCompleted) {
+      enteredCompleter.complete();
+    }
+    await pauseCompleter.future;
+    return _delegate.contribute(operation);
+  }
 
   @override
   Future<RemoteOperationResult> submitOperation(FinancialOperation operation) =>

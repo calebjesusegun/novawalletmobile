@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 3 Money-Safety Hardening MERGED into main — Ready for Phase 4 (Design System & App Shell)  
+**Status:** Phase 3 Concurrency & Queue Hardening COMPLETE — Ready to merge into `main`; ready for Phase 4 (Design System & App Shell)  
 **Primary next task:** `T-DS-001 — Implement design tokens, theme, font and icons`  
-**Current branch:** `main`  
-**Latest commit on main:** `fa24962` (PR #22)  
+**Current branch:** `fix/sync-concurrency-and-head-of-line`  
+**Latest commit on main:** `f81d515`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -37,16 +37,19 @@ Phase 2 (Persistence & Fake Remote) is COMPLETE:
 - `T-REMOTE-001` (Implement idempotent fake remote) is COMPLETE and merged (`734313a`, PR #14).
 - `T-REMOTE-002` (Add deterministic failure simulation) is COMPLETE and merged (`4b3934e`, PR #15).
 
-Phase 3 (Connectivity, Queue & Synchronization) is COMPLETE and Remediated:
+Phase 3 (Connectivity, Queue & Synchronization) is COMPLETE and Hardened:
 - `T-CONN-001` (Implement connectivity abstraction) is COMPLETE and merged (`def0ab9`, PR #16).
 - `T-SYNC-001` (Implement durable enqueue API) is COMPLETE and merged (`4d10bcb`, PR #17).
 - `T-SYNC-002` (Implement single shared sync coordinator and operation claim) is COMPLETE and merged (`11fb065`, PR #18).
 - `T-SYNC-003` (Implement restart recovery) is COMPLETE and merged (`05635ff`, PR #19).
 - `T-SYNC-004` (Implement failure classification and retry policy) is COMPLETE and merged (`d4bbf27`, PR #20).
 - `T-SYNC-005` (Prove offline → restart → reconnect kernel) is COMPLETE and merged (`50d40a1`, PR #21).
-- **Phase 3 Adversarial Review & Money-Safety Hardening (`fix/phase-3-money-safety`):**
-  - **P0 — Atomic Local Settlement & Idempotent Projection Guard:** In `SyncCoordinator._applySuccessfulOperationEffects`, wrapped local wallet balance update, transaction ledger insertion, NovaSave goal progress increment, and `markCompleted` operation transition inside an atomic `AppDatabase` transaction (`appDatabase.transaction(...)`). Injected `AppDatabase` via `SyncCoordinator` and `syncCoordinatorProvider`. Added an idempotent projection guard checking `walletRepository.getTransactionById(operation.id.value)` so that if a crash or restart occurs right before `markCompleted`, subsequent sync passes mark the operation completed without double-debiting wallet balance or double-incrementing goal progress.
-  - **P1 — Atomic Remote Idempotency Key Reservation:** In `FakeRemoteApi` and `RemoteIdempotencyLedger`, replaced the race-prone check-then-debit pattern with `executeAtomicOperation`. In `InMemoryRemoteLedger`, atomic reservation runs synchronously without async interleaving. In `DriftRemoteLedger`, remote balance debit, transaction ledger insert, and idempotency-record storage are executed in a single SQLite transaction with unique-key collision fallback to return the already committed result without an additional debit.
+- **Remediation PR #22 (`fix/phase-3-money-safety`):** P0 atomic settlement inside `AppDatabase.transaction(...)` with idempotent projection guard; P1 atomic ledger reservation via `executeAtomicOperation`.
+- **Hardening (`fix/sync-concurrency-and-head-of-line`):**
+  - In-flight operation tracking (`_inFlightOperationIds`) and live-pass guard in `recoverInterrupted()` (eliminating re-entrancy race and preserving `SYNC-010`).
+  - Cold-launch-only crash recovery in `startup()` (`_hasStartedUp` guard).
+  - Head-of-line blocking elimination in `_executeSyncPass`: recoverable failures record error and continue to subsequent healthy operations.
+  - Accurate `retryOperation` status checking on failed claim and preserved coalesced trigger metadata.
 
 ---
 
@@ -54,7 +57,7 @@ Phase 3 (Connectivity, Queue & Synchronization) is COMPLETE and Remediated:
  
 Current Task:
 ```text
-Phase 3 Money-Safety Remediation COMPLETE & MERGED into main (PR #22)
+fix/sync-concurrency-and-head-of-line — Concurrency and Head-of-Line Blocking Hardening
 ```
 
 Next Task:
@@ -69,7 +72,7 @@ T-DS-001 — Implement design tokens, theme, font and icons (Phase 4 — Design 
 - Enforce integer-kobo money representation per `HC-MONEY`.
 - Enforce exact-once financial effects per `HC-EXACTLY-ONCE-EFFECT` and `HC-IDEMPOTENCY`.
 - Enforce `HC-STATE-SEPARATION` (connectivity, sync status, and operation status remain separate dimensions).
-- In Phase 4, establish shared design tokens and typography without prematurely building full feature flows.
+- Keep changes strictly focused on closing the re-entrancy and head-of-line gaps.
 
 ---
 
@@ -90,29 +93,28 @@ Do not claim success without actually running the relevant commands.
 
 ### 13. Next Action
  
-`fix/phase-3-money-safety` (PR #22) is squashed and merged into `main`. Working branch is clean `main`.
+`fix/sync-concurrency-and-head-of-line` is verified and ready to merge into `main`.
  
-### Completed Work (fix/phase-3-money-safety, PR #22):
-1. **P0 (SyncCoordinator Atomic Settlement):**
-   - Added `AppDatabase? appDatabase` to `SyncCoordinator` and injected it in `syncCoordinatorProvider`.
-   - Wrapped projections in `_applySuccessfulOperationEffects()` inside `appDatabase.transaction(...)`.
-   - Added idempotent projection guard checking `walletRepository.getTransactionById(...)` to prevent duplicate debit/contribution on replay after an interrupted run.
-   - Authored regression tests in `test/sync/application/sync_coordinator_test.dart`.
-2. **P1 (FakeRemoteApi Atomic Ledger Reservation):**
-   - Added `executeAtomicOperation` method to `RemoteIdempotencyLedger`.
-   - Implemented synchronous non-interleaved atomic reservation in `InMemoryRemoteLedger`.
-   - Implemented SQLite transaction with unique-key constraint handling in `DriftRemoteLedger`.
-   - Updated `FakeRemoteApi.sendMoney` and `contribute` to use `executeAtomicOperation`.
-   - Authored regression tests in `test/fake_backend/fake_remote_api_test.dart` and `test/fake_backend/drift_remote_ledger_test.dart`.
-3. **Verification Trinity:**
+### Completed Work (fix/sync-concurrency-and-head-of-line):
+1. **Live-Pass Guard for Crash Recovery (SYNC-010):**
+   - Added `_inFlightOperationIds` tracking across `_executeSyncPass` and `retryOperation`.
+   - Guarded `recoverInterrupted()` to return 0 when `isSyncing || _activeSyncCompleter != null || _inFlightOperationIds.isNotEmpty`.
+   - Added `_hasStartedUp` guard so `startup()` executes crash recovery at most once on cold launch.
+2. **Head-of-Line Blocking Elimination:**
+   - In `_executeSyncPass`, changed recoverable failure outcome from premature return to recording error and continuing queue iteration.
+3. **Polish:**
+   - Improved `retryOperation` failed-claim branch to check if the operation already completed/failed and report `RetryStatus.notRetryable`.
+   - Tracked coalesced caller's trigger in `_pendingTrigger`.
+4. **Verification Trinity:**
    - `dart format --output=none --set-exit-if-changed .` -> 0 issues.
    - `flutter analyze` -> 0 issues.
-   - `flutter test` -> 306/306 passing tests across entire suite.
-4. **Documentation:**
-   - Updated `AI_USAGE.md` (Prompt 21 & `AI-RISK-005`).
+   - `flutter test` -> 310/310 passing tests across entire suite.
+5. **Documentation:**
+   - Updated `AI_USAGE.md` (Prompt 22 & `AI-RISK-006`).
    - Updated `docs/HANDOVER.md`.
 
 ### Next Steps:
-1. Create task branch `feature/T-DS-001-design-tokens` from clean `main`.
-2. Begin Phase 4 (Design System & App Shell) with `T-DS-001 — Implement design tokens, theme, font and icons`.
+1. Commit, push `fix/sync-concurrency-and-head-of-line`, open PR, squash-merge into `main`.
+2. Checkout `main`, pull latest, delete fix branch.
+3. Begin Phase 4 (Design System & App Shell) with `T-DS-001 — Implement design tokens, theme, font and icons`.
 
