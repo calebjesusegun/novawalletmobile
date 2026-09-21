@@ -734,6 +734,37 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 - Ran full project verification (`dart format`, `flutter analyze`, `flutter test`), passing cleanly with 0 warnings/errors across all 296 tests.
 - Updated `docs/TASKS.md` (`T-SYNC-004` marked `[x]`), `docs/REQUIREMENTS_TRACEABILITY.md` (`ASM-010`, `SYNC-012`, `SYNC-013`, `SND-020`, `NSV-023` marked `DONE`; `SND-019`, `NSV-022` marked `IN_PROGRESS`), `AI_USAGE.md`, and `docs/HANDOVER.md`.
 
+### Prompt 20 — Prove offline → restart → reconnect kernel (T-SYNC-005)
+
+**Tool:** Antigravity  
+**Stage:** Phase 3 — Connectivity, Queue & Synchronization (T-SYNC-005)
+
+**Prompt**
+
+> Implement T-SYNC-005 — Prove offline → restart → reconnect kernel:
+> 1. Create task branch `feature/T-SYNC-005-kernel-verification` from clean `main`.
+> 2. Build `SyncKernelTestHarness` in `test/sync/kernel/sync_kernel_test_harness.dart` encapsulating real SQLite storage (`AppDatabase.forFile`), Riverpod `ProviderContainer` lifecycles, and `FakeRemoteApi`.
+> 3. Author integration tests in `test/sync/kernel/sync_kernel_test.dart` proving:
+>    - Offline enqueue of Send Money and NovaSave operations.
+>    - App termination and restart while offline preserves pending operations in SQLite.
+>    - Reconnect triggers automatic synchronization and processes operations to completion.
+>    - Resulting financial effect occurs exactly once (remote balance, local balance, transactions, goal progress).
+>    - Replaying completed operations deduplicates and cannot create duplicate effects (`HC-IDEMPOTENCY`, `ASM-013`).
+>    - Pre-completion crash recovery resolves without duplicate financial effects (`SYNC-011`).
+>    - Negative tests fail if idempotency or restart recovery is removed.
+> 4. Verify all tests pass with 0 analyzer issues, 0 format issues.
+
+**Result**
+
+- Created `SyncKernelTestHarness` with process crash/restart simulation capabilities across real SQLite files and fresh Riverpod containers.
+- Implemented 5 integration tests in `test/sync/kernel/sync_kernel_test.dart` covering complete offline-to-reconnect journeys, replay deduplication guards, crash-after-remote-execution recovery, and negative invariant guards.
+- Total test count expanded to 301 passing tests.
+
+**Action taken**
+
+- Ran full project verification (`dart format`, `flutter analyze`, `flutter test`), passing cleanly with 0 warnings/errors across all 301 tests.
+- Updated `docs/TASKS.md` (`T-SYNC-005` marked `[x]`), `docs/REQUIREMENTS_TRACEABILITY.md` (`ASM-011`, `SND-018`, `NSV-021` marked `DONE`; `TST-006` marked `IN_PROGRESS`), `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
 ---
 
 ## AI Mistakes / Risky Output
