@@ -339,7 +339,7 @@ flutter analyze
 
 ---
 
-## [ ] T-OP-001 — Define financial operation model and state transitions
+## [x] T-OP-001 — Define financial operation model and state transitions
 
 **Risk:** A  
 **Size:** S
