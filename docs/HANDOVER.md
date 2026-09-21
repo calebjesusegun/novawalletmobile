@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 3 Concurrency & Queue Hardening MERGED into `main` — Ready for Phase 4 (Design System & App Shell)  
-**Primary next task:** `T-DS-001 — Implement design tokens, theme, font and icons`  
-**Current branch:** `main`  
-**Latest commit on main:** `e853ee3`  
+**Status:** T-DS-001 (tokens, theme, font, icons) COMPLETE and verified on `feat/ds-tokens-and-theme` — Ready for review / merge  
+**Primary next task:** `T-DS-002 — Implement shared UI components`  
+**Current branch:** `feat/ds-tokens-and-theme`  
+**Latest commit on main:** `a965d6d`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -51,18 +51,29 @@ Phase 3 (Connectivity, Queue & Synchronization) is COMPLETE and Hardened:
   - Head-of-line blocking elimination in `_executeSyncPass`: recoverable failures record error and continue to subsequent healthy operations.
   - Accurate `retryOperation` status checking on failed claim and preserved coalesced trigger metadata.
 
+Phase 4 (Design System & App Shell) in progress:
+- `T-DS-001` (Implement design tokens, theme, font and icons) is COMPLETE and verified on branch `feat/ds-tokens-and-theme`.
+  - All color palettes (blue, gold, grey, success, warning, error) centralized in `AppColors`.
+  - Full 38-variant typography scale in Plus Jakarta Sans centralized in `AppTypography`.
+  - Spacing scale (4 to 32) centralized in `AppSpacing`.
+  - Radii (8 to 999) centralized in `AppRadii`.
+  - Elevation (Y:4, Blur:48, Opacity:2%) centralized in `AppElevation`.
+  - All 19 approved icons abstracted in `AppIcons` with accessible `AppIcon` widget.
+  - Production `AppTheme.light` configured with Material 3 and custom tokens.
+  - 24 unit and widget tests passing (334 total tests passing across project).
+
 ---
 
 ## 8. Current Execution Task
  
 Current Task:
 ```text
-T-DS-001 — Implement design tokens, theme, font and icons (Phase 4 — Design System & App Shell)
+T-DS-001 — Implement design tokens, theme, font and icons (COMPLETE on feat/ds-tokens-and-theme)
 ```
 
 Next Task:
 ```text
-T-DS-002 — Build shared UI components
+T-DS-002 — Implement shared UI components
 ```
 
 ---
@@ -72,7 +83,7 @@ T-DS-002 — Build shared UI components
 - Enforce integer-kobo money representation per `HC-MONEY`.
 - Enforce exact-once financial effects per `HC-EXACTLY-ONCE-EFFECT` and `HC-IDEMPOTENCY`.
 - Enforce `HC-STATE-SEPARATION` (connectivity, sync status, and operation status remain separate dimensions).
-- Keep changes strictly focused on closing the re-entrancy and head-of-line gaps.
+- Centralize all design tokens and do not introduce hardcoded values in feature widgets.
 
 ---
 
@@ -93,11 +104,10 @@ Do not claim success without actually running the relevant commands.
 
 ### 13. Next Action
  
-`fix/sync-concurrency-and-head-of-line` has been squash-merged into `main` (commit `a965d6d`, PR #23). Phase 3 is fully closed and hardened.
+`T-DS-001` is completed on `feat/ds-tokens-and-theme`. All 334 tests pass, analyzer clean, formatting checked.
  
 ### Next Steps:
-1. Create feature branch `feat/ds-tokens-and-theme` for `T-DS-001`.
-2. Implement tokens, theme data, and custom icons.
-3. Verify formatting, analyzer, and tests.
-4. Open PR, merge into `main`.
+1. Merge `feat/ds-tokens-and-theme` into `main`.
+2. Proceed to `T-DS-002` (Implement shared UI components: buttons, fields, notifications, status badges, cards).
+
 
