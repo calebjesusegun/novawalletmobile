@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 3 Concurrency & Queue Hardening COMPLETE — Ready to merge into `main`; ready for Phase 4 (Design System & App Shell)  
+**Status:** Phase 3 Concurrency & Queue Hardening MERGED into `main` — Ready for Phase 4 (Design System & App Shell)  
 **Primary next task:** `T-DS-001 — Implement design tokens, theme, font and icons`  
-**Current branch:** `fix/sync-concurrency-and-head-of-line`  
-**Latest commit on main:** `f81d515`  
+**Current branch:** `main`  
+**Latest commit on main:** `a965d6d`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -57,12 +57,12 @@ Phase 3 (Connectivity, Queue & Synchronization) is COMPLETE and Hardened:
  
 Current Task:
 ```text
-fix/sync-concurrency-and-head-of-line — Concurrency and Head-of-Line Blocking Hardening
+T-DS-001 — Implement design tokens, theme, font and icons (Phase 4 — Design System & App Shell)
 ```
 
 Next Task:
 ```text
-T-DS-001 — Implement design tokens, theme, font and icons (Phase 4 — Design System & App Shell)
+T-DS-002 — Build shared UI components
 ```
 
 ---
@@ -93,28 +93,11 @@ Do not claim success without actually running the relevant commands.
 
 ### 13. Next Action
  
-`fix/sync-concurrency-and-head-of-line` is verified and ready to merge into `main`.
+`fix/sync-concurrency-and-head-of-line` has been squash-merged into `main` (commit `a965d6d`, PR #23). Phase 3 is fully closed and hardened.
  
-### Completed Work (fix/sync-concurrency-and-head-of-line):
-1. **Live-Pass Guard for Crash Recovery (SYNC-010):**
-   - Added `_inFlightOperationIds` tracking across `_executeSyncPass` and `retryOperation`.
-   - Guarded `recoverInterrupted()` to return 0 when `isSyncing || _activeSyncCompleter != null || _inFlightOperationIds.isNotEmpty`.
-   - Added `_hasStartedUp` guard so `startup()` executes crash recovery at most once on cold launch.
-2. **Head-of-Line Blocking Elimination:**
-   - In `_executeSyncPass`, changed recoverable failure outcome from premature return to recording error and continuing queue iteration.
-3. **Polish:**
-   - Improved `retryOperation` failed-claim branch to check if the operation already completed/failed and report `RetryStatus.notRetryable`.
-   - Tracked coalesced caller's trigger in `_pendingTrigger`.
-4. **Verification Trinity:**
-   - `dart format --output=none --set-exit-if-changed .` -> 0 issues.
-   - `flutter analyze` -> 0 issues.
-   - `flutter test` -> 310/310 passing tests across entire suite.
-5. **Documentation:**
-   - Updated `AI_USAGE.md` (Prompt 22 & `AI-RISK-006`).
-   - Updated `docs/HANDOVER.md`.
-
 ### Next Steps:
-1. Commit, push `fix/sync-concurrency-and-head-of-line`, open PR, squash-merge into `main`.
-2. Checkout `main`, pull latest, delete fix branch.
-3. Begin Phase 4 (Design System & App Shell) with `T-DS-001 — Implement design tokens, theme, font and icons`.
+1. Create feature branch `feat/ds-tokens-and-theme` for `T-DS-001`.
+2. Implement tokens, theme data, and custom icons.
+3. Verify formatting, analyzer, and tests.
+4. Open PR, merge into `main`.
 
