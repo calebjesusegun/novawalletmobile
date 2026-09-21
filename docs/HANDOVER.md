@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 1 Complete — all tasks implemented, verified, and ready for Codex review  
-**Primary next task:** Phase 1 Codex In-Depth Review, followed by Phase 2 (`T-DB-001`)  
-**Current branch:** `feature/T-DOM-001-spendability-policy`  
-**Latest commit on main:** `b5a3d6a`  
+**Status:** Phase 1 Remediations in Progress — PRs 1 and 2 merged into `main`; PR 3 ready for review and merge  
+**Primary next task:** Merge PR 3 (`docs/T-DOM-fix-contracts-and-polish`), then proceed to Phase 2 (`T-DB-001`)  
+**Current branch:** `docs/T-DOM-fix-contracts-and-polish`  
+**Latest commit on main:** `2d0dc75`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -20,13 +20,16 @@ Phase 0 (Toolchain & Project Baseline) is complete:
 - Strict linter configuration, analyzer rules, and test architecture scaffolded (`T-BASE-002`).
 - GitHub Actions CI pipeline active (`T-BASE-003`).
 
-Phase 1 (Money, Identity & Core Operation Model) is COMPLETE:
+Phase 1 (Money, Identity & Core Operation Model) is COMPLETE and Remediated:
 - `T-MNY-001` (integer-kobo `Money` value object) is complete and merged into `main` (`ad871bb`).
 - `T-MNY-002` (exact savings-progress calculation) is complete and merged into `main` (`55af79d`).
 - `T-ID-001` (stable operation & idempotency identities) is complete and merged into `main` (`cbdb4a0`).
 - `T-OP-001` (financial operation model & state transitions) is complete and merged into `main` (`b5a3d6a`).
-- `T-DOM-001` (queued-spendability policy) is complete and verified on branch `feature/T-DOM-001-spendability-policy`.
-- Next step: PR & merge `T-DOM-001` into `main`, then run Phase 1 Codex in-depth review.
+- `T-DOM-001` (queued-spendability policy) is complete and merged into `main` (`55b9552`).
+- **Phase 1 Adversarial Reviews & Remediation PRs:**
+  - Remediation PR 1 (`fix/T-MNY-money-safety`, PR #9, merged `cdc940f`): Fixed `SpendableBalancePolicy` integer wrapping (fail-closed, `Money` accumulation, self-exclusion parameter), savings-progress ceiling (99% until goal reached), compact formatting, strict grammar.
+  - Remediation PR 2 (`fix/T-OP-operation-invariants`, PR #10, merged `2d0dc75`): Fixed `FinancialOperation` immutability (private constructor, eliminated public `copyWith`, added strict `.restore`), transition matrix enforcement (processing guards, 64-bit attempt check, UTC timestamp normalization), and RFC 9562 v1-8 UUID support.
+  - Remediation PR 3 (`docs/T-DOM-fix-contracts-and-polish`, in progress): Added `PayloadFormatException` and `schemaVersion: 1` to `OperationPayload`, documented atomic balance update contract in `ARCHITECTURE.md` §16, added acceptance criterion to `T-XF-001` in `TASKS.md`, and marked `MNY-006` as `DECISION / INFERRED` in `REQUIREMENTS_TRACEABILITY.md`.
 
 ---
 
@@ -297,38 +300,22 @@ At the end of a work session or when another tool takes over:
    - decisions made;
    - exact next steps.
 
-If this handover and Git disagree, trust Git.
-
----
-
 ### 13. Next Action
  
-`T-DOM-001 — Decide queued-spendability policy` is complete and verified on branch `feature/T-DOM-001-spendability-policy`.
+`docs/T-DOM-fix-contracts-and-polish` is verified and ready to merge into `main`.
  
-### Completed Work (T-DOM-001):
-- Implemented `SpendableBalancePolicy` in `lib/sync/domain/spendable_balance_policy.dart` using exact integer kobo `Money` arithmetic per HC-MONEY.
-- Reconciled design requirement AD-09 (headline balance displays confirmed cached balance) with safe offline spending preventing accidental overdrafts.
-- Created `canSpend`, `calculateSpendableBalance`, and `calculateReservedAmount` methods accounting for both `SendMoneyPayload` and `ContributionPayload` in `pending` and `processing` statuses.
-- Handled negative edge cases gracefully using `Money.zero()` floor.
-- Exported policy via barrel `lib/sync/domain/sync_domain.dart`.
-- Documented the policy comprehensively in `docs/ARCHITECTURE.md` §16 and §26.
-- Authored 12 unit tests in `test/sync/domain/spendable_balance_policy_test.dart` verifying multi-operation reservation, failure release, completion handling, and edge cases (suite total: 177 tests, all passing).
-- Updated `docs/REQUIREMENTS_TRACEABILITY.md` (`MNY-006` marked DONE), `docs/TASKS.md` (checked off T-DOM-001), and `AI_USAGE.md` (recorded Prompt 10).
-- Ran and verified local checks:
-  - `flutter test test/sync/domain/spendable_balance_policy_test.dart` (12/12 tests passed)
-  - `dart format --output=none --set-exit-if-changed .` (0 changed)
-  - `flutter analyze` (0 issues found)
-  - `flutter test` (177 tests passed, 0 failures)
-
-### Phase 1 Completion Summary:
-All five Phase 1 tasks are complete and verified:
-1. `T-MNY-001` — Core integer-kobo Money value object (merged `ad871bb`)
-2. `T-MNY-002` — Exact savings-progress calculation (merged `55af79d`)
-3. `T-ID-001` — Stable operation and idempotency identities (merged `cbdb4a0`)
-4. `T-OP-001` — Financial operation model and state transitions (merged `b5a3d6a`)
-5. `T-DOM-001` — Queued-spendability policy (branch `feature/T-DOM-001-spendability-policy`)
+### Completed Work (Remediation PR 3):
+- Implemented `PayloadFormatException` implementing `FormatException` and added `OperationPayload.currentSchemaVersion = 1` serialized in `toMap()` for migration safety.
+- Made `fromMap()` strictly validate required keys and value types, throwing typed `PayloadFormatException` on invalid or missing data.
+- Added comprehensive unit tests in `test/sync/domain/operation_payload_test.dart` verifying serialization with `schemaVersion` and rejection of malformed maps with `PayloadFormatException`.
+- Documented the Atomic Balance Update Contract in `docs/ARCHITECTURE.md` §16 (atomic transaction when applying financial effect and completing operation to prevent spendable balance overspend spikes; fail-closed behavior on lost-response balance refreshes).
+- Added explicit acceptance criterion to `T-XF-001` in `docs/TASKS.md` requiring this atomic transaction.
+- Removed dangling self-referential sentence in `docs/ARCHITECTURE.md` §26.
+- Updated `MNY-006` status in `docs/REQUIREMENTS_TRACEABILITY.md` to `DECISION / INFERRED` reflecting that the offline balance reservation policy was an engineering architectural decision rather than an explicit assessment specification.
+- Ran and verified full test suite (191 tests passing, 0 analyzer issues, 0 formatting issues).
 
 ### Next Steps:
-1. PR and merge `T-DOM-001` into `main`.
-2. Provide Codex in-depth Phase 1 review prompt.
-3. Address any review findings before proceeding to Phase 2 (`T-DB-001`).
+1. Commit, push `docs/T-DOM-fix-contracts-and-polish`, create PR, and squash-merge to `main`.
+2. Checkout `main`, pull latest.
+3. All Phase 1 tasks and all adversarial review remediations are complete and signed off.
+4. Begin Phase 2 (`T-DB-001 — Configure Drift and pending-operation schema`) on a new feature branch `feature/T-DB-001-drift-persistence`.

@@ -819,7 +819,11 @@ The project explicitly adopts the **Spendable Balance Reservation Policy** (`Spe
 1. **Headline balance remains confirmed balance:** Per AD-09, the headline wallet balance continues to show the last confirmed cached balance and timestamp; it is never debited in the UI before remote confirmation.
 2. **Spendable balance deducts active outgoing operations:** When the user initiates a new Send Money or Contribution while offline, amount validation evaluates against `spendableBalance = max(0, confirmedBalance - sum(activePendingKobo))` where active operations are those in `pending` or `processing` states.
 3. **Over-reservation prevention:** An offline operation that would exceed `spendableBalance` is blocked in the UI with an insufficient spendable balance message, preventing the queuing of operations that are guaranteed to bounce or overdraft upon reconnection.
-4. **Lifecycle release:** Completed operations are reconciled with remote confirmed balance updates and do not double-deduct; terminally failed operations release their reservation immediately.
+4. **Lifecycle release & Atomic Balance Update Contract:**
+   - Applying remote financial effects to the local confirmed balance and calling `markCompleted` on the operation MUST occur within a single atomic local database transaction (Phase 2/Phase 9, `T-XF-001`).
+   - If an operation were marked `completed` before the local confirmed balance is decremented, the reservation is released while the confirmed balance is still at its prior higher amount, creating a transient overspend window where spendable balance temporarily jumps upward.
+   - Conversely, in lost-response recovery scenarios where the remote backend settled an operation and a wallet refresh pulls down the updated remote balance *before* the local sync coordinator finishes marking the queued operation completed, the local state will temporarily double-deduct (the new lower confirmed balance minus the still-pending reservation). This temporary under-reporting is in the safe, fail-closed direction (protecting against overdrafts) and immediately resolves to the true balance as soon as sync completes the operation row.
+   - Terminally failed operations release their reservations immediately upon entering `failed` status.
 
 ---
 
@@ -1139,8 +1143,7 @@ The policy for multiple queued outgoing operations against one cached confirmed 
 
 - **Confirmed Balance Display:** The headline wallet balance continues to display the confirmed cached balance from the local store/remote until an operation completes successfully (per AD-09 / UI design flows).
 - **Available Spendable Balance:** Outgoing transfer and contribution entry screens validate against `spendableBalance = max(0, confirmedBalance - sum(activePendingKobo))`.
-- **Reservation Lifecycle:** Outgoing operations in `pending` and `processing` statuses reserve funds. Completed operations are reflected in confirmed balance updates without double deduction. Terminally failed operations release their reservations immediately.
-- See Section 16 for the complete reservation ledger specification.
+- **Reservation Lifecycle:** Outgoing operations in `pending` and `processing` statuses reserve funds. Completed operations are reflected in confirmed balance updates without double deduction (via atomic transaction, per Section 16). Terminally failed operations release their reservations immediately.
 
 Everything previously marked `TO VERIFY` regarding a production backend/API/authentication contract is removed: the assessment explicitly provides no real backend and gives the project ownership of the fake implementation.
 

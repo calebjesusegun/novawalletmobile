@@ -1981,6 +1981,7 @@ flutter analyze
 **Acceptance**
 - Completed Send changes confirmed wallet state once.
 - Completed Contribution changes confirmed goal state once.
+- Applying remote financial effect to local confirmed balance and setting operation status to completed must execute in a single atomic local database transaction to prevent spendable balance overspend windows.
 - Wallet transaction history reflects completed operations consistently.
 - Replaying/reloading a completed idempotent operation does not duplicate projections.
 
