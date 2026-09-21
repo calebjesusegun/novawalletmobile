@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 1 in progress — T-MNY-001 complete  
+**Status:** Phase 1 in progress — T-MNY-001 merged into main  
 **Primary next task:** `T-MNY-002 — Implement exact savings-progress calculation`  
-**Current branch:** `feature/T-MNY-001-money`  
-**Base commit:** `fb2cabf`  
+**Current branch:** `main`  
+**Latest commit:** `ad871bb`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -335,7 +335,7 @@ If this handover and Git disagree, trust Git.
 
 ## 13. Next Action
  
-`T-MNY-001 — Implement integer-kobo Money value object` is complete on branch `feature/T-MNY-001-money`.
+`T-MNY-001 — Implement integer-kobo Money value object` is complete and merged into `main` via PR #4 (`ad871bb`).
  
 ### Completed Work (T-MNY-001):
 - Implemented `Money` value object in `lib/core/money/money.dart` backed strictly by integer kobo (`final int kobo`) per HC-MONEY.
