@@ -61,8 +61,8 @@ Targeted versions:
 ## 📦 Getting Started
 
 ```bash
-git clone <repository-url>
-cd novawallet
+git clone https://github.com/calebjesusegun/novawalletmobile.git
+cd novawalletmobile
 flutter pub get
 flutter run
 ```
@@ -86,7 +86,7 @@ flutter test integration_test
 ## Project Structure
 
 ```text
-novawallet/
+novawalletmobile/
 ├── assets/
 │   └── fonts/
 │

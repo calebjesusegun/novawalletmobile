@@ -158,7 +158,7 @@ OperationStatus
 The intended repository layout is:
 
 ```text
-novawallet/
+novawalletmobile/
 ├── README.md
 ├── AGENTS.md
 ├── AI_USAGE.md
