@@ -626,6 +626,57 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
+### Prompt 17 — Implement single shared sync coordinator and operation claim (T-SYNC-002)
+
+**Tool:** Antigravity  
+**Stage:** Phase 3 — Connectivity, Queue & Synchronization (T-SYNC-002)
+
+**Prompt**
+
+> Implement T-SYNC-002 — Implement single shared sync coordinator and operation claim:
+> 1. Create task branch `feature/T-SYNC-002-sync-coordinator` from clean `main`.
+> 2. Implement `SyncCoordinator` in `lib/sync/application/sync_coordinator.dart`:
+>    - Own all pending-operation synchronization centrally across Send Money and NovaSave (HC-SYNC, SYNC-005).
+>    - Ensure atomic operation claim (`claim(id)`) before dispatching to remote (SYNC-010).
+>    - Deterministic FIFO processing order (oldest first by `createdAt`).
+>    - Strict serialization across concurrent sync triggers (coalesce concurrent runs; SYNC-010).
+>    - Offline skipping: if offline or disconnected mid-pass, skip remote calls cleanly.
+>    - Auto-subscribe to reconnect events (`ConnectivityService.onConnectivityChanged`) to trigger replay (ASM-011, SYNC-004).
+>    - Apply local side-effects (wallet balance debit, transaction record, and NovaSave goal progress) BEFORE exposing operation completion (docs/ARCHITECTURE.md §12, §16).
+>    - Handle transient errors by setting `SyncStatus.failed` and keeping operations pending with `SyncError`; terminal failures mark operations failed and continue queue.
+>    - Support direct single operation retry (`retryOperation(id)`).
+> 3. Implement `SyncRunResult` and `SyncTrigger` in `lib/sync/application/sync_result.dart`.
+> 4. Implement Riverpod providers `syncCoordinatorProvider`, `syncStatusStreamProvider`, and `syncStatusProvider` in `lib/sync/application/sync_coordinator_provider.dart`.
+> 5. Wire feature providers (`wallet_providers.dart`, `novasave_providers.dart`, `fake_backend_providers.dart`).
+> 6. Author comprehensive unit and integration tests in `test/sync/application/sync_coordinator_test.dart` covering:
+>    - Single shared coordinator processing both Send and Contribution operations.
+>    - Deterministic FIFO processing order.
+>    - Concurrent sync calls coalescing and atomic claiming.
+>    - Offline skipping.
+>    - Reconnect automatic sync.
+>    - Recoverable network error handling and SyncError retention.
+>    - Terminal error handling.
+>    - Response-lost retry recovery with exact-once financial effect (SYNC-011, TST-007, HC-EXACTLY-ONCE-EFFECT).
+>    - Direct single-operation retry (`retryOperation`).
+>    - Riverpod container wire-up.
+> 7. Verify full checks pass: format, analyzer, tests.
+
+**Result**
+
+- Implemented `SyncCoordinator` in `lib/sync/application/sync_coordinator.dart`.
+- Implemented `SyncRunResult` and `SyncTrigger` in `lib/sync/application/sync_result.dart`.
+- Implemented `syncCoordinatorProvider`, `syncStatusStreamProvider`, and `syncStatusProvider` in `lib/sync/application/sync_coordinator_provider.dart`.
+- Created provider files `wallet_providers.dart`, `novasave_providers.dart`, and `fake_backend_providers.dart` for clean dependency injection.
+- Authored 10 exhaustive unit and integration tests in `test/sync/application/sync_coordinator_test.dart`, bringing total tests to 278.
+
+**Action taken**
+
+- Fixed initial domain property mismatches (`payload.amount`, `savedAmount`, and `TransactionType.debit`).
+- Ran full project verification (`dart format`, `flutter analyze`, `flutter test`), passing cleanly with 0 warnings/errors across all 278 tests.
+- Updated `docs/TASKS.md`, `docs/REQUIREMENTS_TRACEABILITY.md` (`SYNC-004`, `SYNC-005`, `SYNC-007`, `SYNC-010`, `SYNC-011`, `SYNC-012`, `SYNC-013` marked `DONE`), `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
+---
+
 ## AI Mistakes / Risky Output
 
 At least one real example must be included before submission.
