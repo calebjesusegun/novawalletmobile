@@ -45,7 +45,7 @@ Sizes:
 
 # Phase 0 — Repository & Toolchain Baseline
 
-## [ ] T-BASE-001 — Bootstrap Flutter project
+## [x] T-BASE-001 — Bootstrap Flutter project
 
 **Risk:** C  
 **Size:** S

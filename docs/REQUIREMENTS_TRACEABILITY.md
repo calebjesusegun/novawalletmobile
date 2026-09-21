@@ -63,7 +63,7 @@ These IDs represent the original assessment rather than invented feature require
 
 | ID | Assessment requirement | Evidence | Implementation area | Required verification | Evidence status | Impl. status |
 |---|---|---|---|---|---|---|
-| ASM-001 | Build the solution as a Flutter mobile app covering Send Money and NovaSave contribution journeys | Assessment §2 | whole app | app builds/runs | VERIFIED | TODO |
+| ASM-001 | Build the solution as a Flutter mobile app covering Send Money and NovaSave contribution journeys | Assessment §2 | whole app | app builds/runs | VERIFIED | IN_PROGRESS |
 | ASM-002 | Wallet balance is displayed in Naira from an integer-kobo value | Assessment §2.1, §2.2 | `core/money`, wallet | unit + widget | VERIFIED | TODO |
 | ASM-003 | Wallet shows a scrollable recent-transactions list | Assessment §2.1 | `features/wallet` | widget/performance | VERIFIED | TODO |
 | ASM-004 | Wallet supports pull-to-refresh | Assessment §2.1 | `features/wallet` | widget | VERIFIED | TODO |
@@ -87,8 +87,8 @@ These IDs represent the original assessment rather than invented feature require
 | ASM-022 | Widget tests cover Send Money | Assessment §2.3 | `test/features/send_money` | `flutter test` | VERIFIED | TODO |
 | ASM-023 | Widget tests cover NovaSave contribution | Assessment §2.3 | `test/features/novasave` | `flutter test` | VERIFIED | TODO |
 | ASM-024 | At least one integration test covers offline queue → sync | Assessment §2.3 | `integration_test/` | integration test | VERIFIED | TODO |
-| ASM-025 | App runs with a single command on a standard Flutter setup | Assessment §2.3 | repository/toolchain | clean-run verification | VERIFIED | TODO |
-| ASM-026 | README states targeted Flutter/Dart versions | Assessment §2.3 | `README.md`, toolchain | submission review | VERIFIED | TODO |
+| ASM-025 | App runs with a single command on a standard Flutter setup | Assessment §2.3 | repository/toolchain | clean-run verification | VERIFIED | IN_PROGRESS |
+| ASM-026 | README states targeted Flutter/Dart versions | Assessment §2.3 | `README.md`, toolchain | submission review | VERIFIED | DONE |
 | ASM-027 | Submission provides a Git repository link/access | Assessment §2.3 | repository delivery | submission review | VERIFIED | TODO |
 
 ### Assessment context that is not a build requirement
@@ -264,8 +264,8 @@ For exact token values, `docs/DESIGN_SYSTEM.md` and the authoritative Style Guid
 | TST-007 | Failure/retry path is tested for lost/uncertain response behavior | ASM-013 | sync/fake backend | integration | INFERRED high-value regression test | TODO |
 | DOC-001 | README is truthful about implemented state and required architecture/trade-offs/run/test info | ASM-021, ASM-026 | `README.md` | submission review | VERIFIED | TODO |
 | DOC-002 | AI usage log is maintained from implementation start | ASM-019, ASM-020 | `AI_USAGE.md` | submission review | VERIFIED | TODO |
-| DOC-003 | Flutter/Dart versions are pinned/recorded | ASM-026 | README/pubspec/toolchain | clean setup review | VERIFIED | TODO |
-| DOC-004 | App runs with one standard Flutter command after setup | ASM-025 | repository | clean-run verification | VERIFIED | TODO |
+| DOC-003 | Flutter/Dart versions are pinned/recorded | ASM-026 | README/pubspec/toolchain | clean setup review | VERIFIED | DONE |
+| DOC-004 | App runs with one standard Flutter command after setup | ASM-025 | repository | clean-run verification | VERIFIED | IN_PROGRESS |
 | DOC-005 | Repository link/access is ready for submission | ASM-027 | remote repo | submission review | VERIFIED | TODO |
 
 ---

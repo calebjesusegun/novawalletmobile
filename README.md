@@ -47,12 +47,14 @@ The assessment does not provide a real backend, so NovaWallet uses a fake remote
 
 Make sure the following tools are installed:
 
-- [Flutter SDK](https://docs.flutter.dev/get-started/install)
-- [Dart SDK](https://dart.dev/get-dart)
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) (verified with Flutter `3.47.5`, channel stable)
+- [Dart SDK](https://dart.dev/get-dart) (verified with Dart `3.13.4`, SDK constraint `^3.13.4`)
 - [Git](https://git-scm.com/)
 - Android Studio / Android Emulator, or an iOS simulator
 
-The exact Flutter and Dart versions used by the project are documented in the repository configuration.
+Targeted versions:
+- Flutter: `3.47.5` (channel stable)
+- Dart: `3.13.4`
 
 ---
 

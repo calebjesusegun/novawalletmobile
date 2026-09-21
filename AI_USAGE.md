@@ -55,22 +55,27 @@ The architecture, implementation plan, requirements traceability, agent rules an
 
 ---
 
-### Prompt 2 — Implementation task
+### Prompt 2 — Flutter project bootstrap (T-BASE-001)
 
-**Tool:**  
-**Stage:**  
+**Tool:** Antigravity  
+**Stage:** Phase 0 — Toolchain & Project Baseline  
 
 **Prompt**
 
-> 
+> Read FIRST_AGENT_PROMPT.md and execute it exactly. Do not start the next task.
 
 **Result**
 
-- 
+- Initialized Flutter application in existing repository root with package name `novawallet` on mobile platforms (Android/iOS).
+- Preserved existing project documentation (`README.md`, `docs/`, `AGENTS.md`) and maintained `.gitignore` protection for `docs_internal/`.
+- Downloaded and verified static Plus Jakarta Sans font assets (Regular 400, Medium 500, SemiBold 600, Bold 700) into `assets/fonts/` and registered them in `pubspec.yaml`.
+- Added `flutter_riverpod` baseline dependency as approved in `AGENTS.md`.
+- Documented verified Flutter (3.47.5 stable) and Dart (3.13.4) versions in `README.md` and repository config.
+- Ran `dart format`, `flutter analyze`, and `flutter test` with zero issues.
 
 **Action taken**
 
-- 
+Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIREMENTS_TRACEABILITY.md`, and prepared handover for `T-BASE-002`.
 
 ---
 

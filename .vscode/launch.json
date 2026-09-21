@@ -1,0 +1,59 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Nova Wallet (Active Device)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart"
+        },
+        {
+            "name": "Nova Wallet (Android Emulator)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "deviceId": "emulator-5554"
+        },
+        {
+            "name": "Nova Wallet (iOS Simulator)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "deviceId": "iPhone 17"
+        },
+        {
+            "name": "Nova Wallet (Profile Mode)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "Run Unit & Widget Tests",
+            "request": "launch",
+            "type": "dart",
+            "program": "test/"
+        },
+        {
+            "name": "Run Current Test File",
+            "request": "launch",
+            "type": "dart",
+            "program": "${file}"
+        },
+        {
+            "name": "Run Integration Tests",
+            "request": "launch",
+            "type": "dart",
+            "program": "integration_test/"
+        },
+        {
+            "name": "Update Golden Tests",
+            "request": "launch",
+            "type": "dart",
+            "program": "test/",
+            "args": [
+                "--update-goldens"
+            ]
+        }
+    ]
+}

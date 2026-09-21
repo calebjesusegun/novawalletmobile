@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Planning complete — repository assembly complete / implementation kickoff  
-**Primary next task:** `T-BASE-001 — Bootstrap Flutter project`  
+**Status:** Phase 0 in progress — T-BASE-001 completed and merged into main  
+**Primary next task:** `T-BASE-002 — Configure linting and project test layout`  
 **Current branch:** `main`  
-**Planning baseline commit:** `64fb41d` (`64fb41d6cad20de9ab5edbecaf34ef3470ce3049`)
+**Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
 
@@ -17,7 +17,7 @@ Flutter implementation has **not** started yet.
 
 Repository assembly is complete:
 - Git initialized on branch `main`.
-- Planning baseline committed (`8a43b7b`).
+- Planning baseline committed (`2bb6f8b`).
 - Core engineering documentation organized under `docs/`.
 - Screen index organized under `docs/design/SCREEN_INDEX.md`.
 - Approved design PDFs organized under `docs/design/pdf/`.
@@ -334,6 +334,16 @@ If this handover and Git disagree, trust Git.
 
 ## 13. Next Action
 
-Begin `T-BASE-001 — Bootstrap Flutter project`. Follow `FIRST_AGENT_PROMPT.md` and `docs/TASKS.md` for execution.
+`T-BASE-001 — Bootstrap Flutter project` is complete on branch `chore/T-BASE-001-bootstrap`.
 
-Planning and repository setup are complete. Do not start another broad architecture/planning pass unless implementation exposes new evidence that requires one.
+### Completed Work:
+- Created Flutter application in repository root with package name `novawallet` (`com.novawallet`) for `android,ios`.
+- Downloaded and bundled Plus Jakarta Sans static font files (`Regular 400`, `Medium 500`, `SemiBold 600`, `Bold 700`) in `assets/fonts/` and registered in `pubspec.yaml`.
+- Added approved baseline dependency `flutter_riverpod: ^2.6.1`.
+- Configured default `fontFamily: 'Plus Jakarta Sans'` in `ThemeData` in `lib/main.dart`.
+- Documented verified Flutter (`3.47.5` stable) and Dart (`3.13.4`) versions in `README.md` and `pubspec.yaml`.
+- Configured `.gitignore` for standard Flutter artifacts while strictly keeping `docs_internal/` ignored.
+- Ran and verified: `flutter pub get`, `dart format --output=none --set-exit-if-changed .`, `flutter analyze`, and `flutter test` (all passing cleanly).
+
+### Next Task:
+`T-BASE-002 — Configure linting and project test layout` as defined in `docs/TASKS.md`.
