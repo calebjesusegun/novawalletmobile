@@ -151,7 +151,7 @@ flutter test
 
 ---
 
-## [ ] T-BASE-003 — Add CI verification
+## [x] T-BASE-003 — Add CI verification
 
 **Risk:** C  
 **Size:** S

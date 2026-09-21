@@ -117,6 +117,40 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
+### Prompt 4 — CI workflow configuration (T-BASE-003)
+
+**Tool:** Antigravity  
+**Stage:** Phase 0 — Toolchain & Project Baseline (T-BASE-003)
+
+**Prompt**
+
+> Read AGENTS.md first, then docs/HANDOVER.md, and then task T-BASE-003 in docs/TASKS.md.
+> Confirm:
+> - You are on branch main and git status is clean.
+> - Latest commit includes T-BASE-002.
+> Then:
+> 1. Create task branch chore/T-BASE-003-ci from main.
+> 2. Follow docs/GIT_WORKFLOW.md and docs/DEFINITION_OF_DONE.md.
+> 3. Implement T-BASE-003 — Add CI verification (configure GitHub Actions workflow for flutter analyze, dart format, and flutter test).
+> 4. Run local baseline verification before and after changes.
+> 5. Update docs/TASKS.md, AI_USAGE.md, and docs/HANDOVER.md before finishing.
+
+**Result**
+
+- Verified clean working tree and latest commit including T-BASE-002 on `main`.
+- Created task branch `chore/T-BASE-003-ci`.
+- Added GitHub Actions workflow in `.github/workflows/ci.yml` with triggers for push to `main`, pull request to `main`, and `workflow_dispatch`.
+- Configured steps with `subosito/flutter-action@v2` targeting Flutter `3.47.5` (channel `stable`) with tool/pub caching.
+- Enforced identical repository-supported verification commands: `flutter pub get`, `dart format --output=none --set-exit-if-changed .`, `flutter analyze`, and `flutter test`.
+- Validated YAML syntax and updated `README.md` to document CI verification.
+
+**Action taken**
+
+- Verified local checks pass with zero issues.
+- Updated `docs/TASKS.md`, `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
+---
+
 ## AI Mistakes / Risky Output
 
 At least one real example must be included before submission.

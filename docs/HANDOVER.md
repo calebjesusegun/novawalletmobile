@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 0 in progress — T-BASE-002 completed and merged into main  
-**Primary next task:** `T-BASE-003 — Add CI verification`  
-**Current branch:** `main`  
-**Latest commit:** `e852ae1`  
+**Status:** Phase 0 complete — T-BASE-003 completed on chore/T-BASE-003-ci  
+**Primary next task:** `T-MNY-001 — Implement integer-kobo Money value object`  
+**Current branch:** `chore/T-BASE-003-ci`  
+**Latest commit:** `21dd579`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -335,23 +335,25 @@ If this handover and Git disagree, trust Git.
 
 ## 13. Next Action
 
-`T-BASE-002 — Configure linting and project test layout` is complete on branch `chore/T-BASE-002-linting-tests`.
+`T-BASE-003 — Add CI verification` is complete on branch `chore/T-BASE-003-ci`.
 
 ### Completed Work:
-- Enabled strict analyzer language checks (`strict-casts: true`, `strict-inference: true`, `strict-raw-types: true`) in `analysis_options.yaml`.
-- Configured comprehensive recommended linter rules in `analysis_options.yaml` (including `unawaited_futures`, `prefer_const_*`, `avoid_print`, `avoid_relative_lib_imports`, `always_use_package_imports`, `cancel_subscriptions`, `close_sinks`, `directives_ordering`, `prefer_final_locals`, `prefer_single_quotes`, etc.).
-- Added `integration_test: sdk: flutter` to `dev_dependencies` in `pubspec.yaml`.
-- Scaffolded project test layout mirroring the approved architecture:
-  - `test/core/core_layout_test.dart`
-  - `test/features/features_layout_test.dart`
-  - `test/sync/sync_layout_test.dart`
-  - `test/fake_backend/fake_backend_layout_test.dart`
-  - `integration_test/app_test.dart` (baseline smoke integration test)
-  - `test_driver/integration_test.dart` (integration test driver)
-- Ran and verified:
+- Created GitHub Actions CI workflow in `.github/workflows/ci.yml`.
+- Configured triggers for pushes to `main`, pull requests targeting `main`, and `workflow_dispatch`.
+- Configured runner using `ubuntu-latest` and `subosito/flutter-action@v2` targeting Flutter `3.47.5` (channel `stable`) with caching enabled.
+- Configured steps running the exact repository-supported verification commands:
+  - `flutter pub get`
+  - `dart format --output=none --set-exit-if-changed .`
+  - `flutter analyze`
+  - `flutter test`
+- Validated YAML syntax with Ruby/YAML parser.
+- Documented CI verification in `README.md`.
+- Updated `docs/TASKS.md` marking `T-BASE-003` complete.
+- Recorded prompt and results in `AI_USAGE.md`.
+- Ran and verified local checks:
   - `dart format --output=none --set-exit-if-changed .` (8 files formatted, 0 changed)
   - `flutter analyze` (0 issues found)
   - `flutter test` (5 tests passed, 0 failures)
 
 ### Next Task:
-`T-BASE-003 — Add CI verification` as defined in `docs/TASKS.md`.
+`T-MNY-001 — Implement integer-kobo Money value object` (Phase 1 start) as defined in `docs/TASKS.md`.

@@ -81,6 +81,13 @@ Run integration tests with:
 flutter test integration_test
 ```
 
+### Continuous Integration
+
+Pull requests and pushes to `main` are automatically verified via GitHub Actions (`.github/workflows/ci.yml`) running the exact same baseline checks:
+- Formatting: `dart format --output=none --set-exit-if-changed .`
+- Static analysis: `flutter analyze`
+- Unit and widget tests: `flutter test`
+
 ---
 
 ## Project Structure
