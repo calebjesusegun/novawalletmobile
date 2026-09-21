@@ -329,6 +329,53 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
+### Prompt 9 — Financial operation model and state transitions (T-OP-001)
+
+**Tool:** Antigravity  
+**Stage:** Phase 1 — Money, Identity & Core Operation Model (T-OP-001)
+
+**Prompt**
+
+> Implement T-OP-001 — Define financial operation model and state transitions:
+> - Location: lib/sync/domain/ (financial_operation.dart, operation_status.dart, operation_type.dart, operation_payload.dart, sync_error.dart, connectivity_status.dart, sync_status.dart, sync_domain.dart).
+> - Touch: Operation model, state transitions, recoverable error metadata, and unit tests in test/sync/domain/.
+> - Do NOT touch: Drift implementation, feature UI, connectivity implementation.
+> - Acceptance criteria:
+>   * Operation type represents at least Send and Contribution.
+>   * Operation state distinguishes pending, processing, completed and terminal failure.
+>   * Recoverable sync error metadata can exist without turning a pending operation into a terminal failure.
+>   * Connectivity/sync status is not embedded into the operation enum (HC-STATE-SEPARATION).
+>   * Invalid transitions are prevented or handled explicitly.
+> - Verify: flutter test test/sync/, dart format, flutter analyze, flutter test.
+> - Update: docs/REQUIREMENTS_TRACEABILITY.md, docs/TASKS.md, AI_USAGE.md, docs/HANDOVER.md.
+
+**Result**
+
+- Created task branch `feature/T-OP-001-operation-model`.
+- Modeled independent state dimensions per HC-STATE-SEPARATION:
+  * `ConnectivityStatus` (`online`, `offline`) in `lib/sync/domain/connectivity_status.dart`
+  * `SyncStatus` (`idle`, `syncing`, `failed`) in `lib/sync/domain/sync_status.dart`
+  * `OperationStatus` (`pending`, `processing`, `completed`, `failed`) in `lib/sync/domain/operation_status.dart`
+- Implemented `OperationType` (`send`, `contribution`) in `lib/sync/domain/operation_type.dart`.
+- Implemented `OperationPayload` hierarchy (`SendMoneyPayload`, `ContributionPayload`) in `lib/sync/domain/operation_payload.dart` backed strictly by integer kobo `Money` per HC-MONEY with JSON serialization.
+- Implemented `SyncError` in `lib/sync/domain/sync_error.dart` distinguishing recoverable errors from terminal failures.
+- Implemented `FinancialOperation` (aliased as `PendingOperation` per `docs/ARCHITECTURE.md` §8.3) in `lib/sync/domain/financial_operation.dart` managing state transitions:
+  * `pending` -> `processing`: atomic claim for delivery.
+  * `processing` -> `completed`: successful remote settlement with reference.
+  * `processing` -> `pending`: recoverable sync error (keeps operation queued and retryable).
+  * `processing` -> `failed`: terminal failure.
+  * Explicitly rejected invalid transitions with `InvalidOperationTransitionException`.
+- Exported all models via barrel `lib/sync/domain/sync_domain.dart`.
+- Authored 32 unit tests across `test/sync/domain/` covering state separation, payload serialization, lifecycle transitions, and invalid transition guards (total project tests increased from 133 to 165).
+
+**Action taken**
+
+- Ran `flutter test test/sync/` (33/33 tests passing).
+- Ran full verification (`dart format`, `flutter analyze`, `flutter test`), all passing with 0 warnings/errors across all 165 tests.
+- Updated `docs/REQUIREMENTS_TRACEABILITY.md` (`SYNC-014` marked DONE; `ASM-009`, `ASM-010`, `ASM-012` marked IN_PROGRESS), `docs/TASKS.md` (checked off T-OP-001), `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
+---
+
 ## AI Mistakes / Risky Output
 
 At least one real example must be included before submission.

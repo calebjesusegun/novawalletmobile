@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 1 in progress — T-ID-001 implemented on feature branch  
-**Primary next task:** `T-OP-001 — Define financial operation model and state transitions`  
-**Current branch:** `feature/T-ID-001-identities`  
-**Latest commit on main:** `55af79d`  
+**Status:** Phase 1 in progress — T-OP-001 implemented on feature branch  
+**Primary next task:** `T-DOM-001 — Decide queued-spendability policy`  
+**Current branch:** `feature/T-OP-001-operation-model`  
+**Latest commit on main:** `cbdb4a0`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -228,12 +228,12 @@ Do not invent a hidden policy before that task is completed.
  
 Current Task:
 ```text
-T-ID-001 — Implement stable operation and idempotency identities (complete on branch, ready for review/merge)
+T-OP-001 — Define financial operation model and state transitions (complete on branch, ready for review/merge)
 ```
 
 Next Task:
 ```text
-T-OP-001 — Define financial operation model and state transitions
+T-DOM-001 — Decide queued-spendability policy (final task of Phase 1)
 ```
 
 ---
@@ -301,25 +301,31 @@ If this handover and Git disagree, trust Git.
 
 ### 13. Next Action
  
-`T-ID-001 — Implement stable operation and idempotency identities` is complete and verified on branch `feature/T-ID-001-identities`.
+`T-OP-001 — Define financial operation model and state transitions` is complete and verified on branch `feature/T-OP-001-operation-model`.
  
-### Completed Work (T-ID-001):
-- Implemented `Uuid` utility in `lib/core/ids/uuid.dart` providing zero-dependency RFC 4122 version 4 cryptographically secure UUID generation (`Uuid.v4([Random? random])`) and validation (`isValid`, `isValidV4`, `isGeneralUuid`).
-- Implemented `OperationId` domain value object in `lib/core/ids/operation_id.dart` representing a stable local durable identity for logical financial actions per HC-IDEMPOTENCY.
-- Implemented `IdempotencyKey` domain value object in `lib/core/ids/idempotency_key.dart` representing a stable remote deduplication identity for delivery attempts per HC-IDEMPOTENCY and HC-EXACTLY-ONCE-EFFECT.
-- Differentiated `OperationId` and `IdempotencyKey` by type, preventing accidental cross-assignment and ensuring distinct hash codes and non-equality even with identical underlying strings.
-- Implemented deterministic key derivation via `IdempotencyKey.fromOperationId(operationId, {String? prefix})`.
-- Enforced domain invariants across both identities: non-empty string, no leading/trailing/internal whitespace, allowed character set (`[a-zA-Z0-9_\-\.:]`), and maximum length of 255 characters with descriptive `ArgumentError` exceptions.
-- Canonicalized RFC 4122 UUID representations to lowercase across both identity objects to guarantee casing consistency in hash sets, comparisons, and persistence.
-- Created barrel export in `lib/core/ids/ids.dart`.
-- Preserved strict architectural boundaries: untouched sync queues, UI screens, or fake backend.
-- Authored 52 unit tests across `test/core/ids/uuid_test.dart`, `test/core/ids/operation_id_test.dart`, and `test/core/ids/idempotency_key_test.dart` verifying all invariants, retry stability, reload recovery, type differentiation, and RFC 4122 compliance (total project tests increased from 81 to 133).
-- Updated `docs/REQUIREMENTS_TRACEABILITY.md` (`SYNC-006` marked DONE; `ASM-006`, `ASM-013`, `SND-010`, `NSV-012`, `SYNC-007` updated to IN_PROGRESS), `docs/TASKS.md` (T-ID-001 checked off), and `AI_USAGE.md` (recorded Prompt 8).
+### Completed Work (T-OP-001):
+- Modeled independent state dimensions per HC-STATE-SEPARATION:
+  - `ConnectivityStatus` (`online`, `offline`) in `lib/sync/domain/connectivity_status.dart`.
+  - `SyncStatus` (`idle`, `syncing`, `failed`) in `lib/sync/domain/sync_status.dart`.
+  - `OperationStatus` (`pending`, `processing`, `completed`, `failed`) in `lib/sync/domain/operation_status.dart`.
+- Implemented `OperationType` (`send`, `contribution`) in `lib/sync/domain/operation_type.dart`.
+- Implemented `OperationPayload` sealed hierarchy (`SendMoneyPayload`, `ContributionPayload`) in `lib/sync/domain/operation_payload.dart` backed strictly by integer kobo `Money` per HC-MONEY with JSON serialization.
+- Implemented `SyncError` in `lib/sync/domain/sync_error.dart` capturing error metadata and distinguishing recoverable from terminal failures.
+- Implemented `FinancialOperation` (aliased as `PendingOperation` per `docs/ARCHITECTURE.md` §8.3) in `lib/sync/domain/financial_operation.dart` with state transitions:
+  - `pending` -> `processing`: atomic claim for delivery.
+  - `processing` -> `completed`: successful remote settlement with reference.
+  - `processing` -> `pending`: recoverable sync error (keeps operation queued and retryable per HC-SYNC).
+  - `processing` -> `failed`: terminal failure.
+  - Explicitly prevented invalid transitions with `InvalidOperationTransitionException`.
+- Exported all models via barrel `lib/sync/domain/sync_domain.dart`.
+- Preserved strict architectural boundaries: untouched Drift implementation, UI screens, or connectivity package.
+- Authored 32 unit tests across `test/sync/domain/state_separation_test.dart`, `test/sync/domain/operation_payload_test.dart`, and `test/sync/domain/financial_operation_test.dart` verifying all transitions, guards, error classification, and state independence (total project tests increased from 133 to 165).
+- Updated `docs/REQUIREMENTS_TRACEABILITY.md` (`SYNC-014` marked DONE; `ASM-009`, `ASM-010`, `ASM-012` marked IN_PROGRESS), `docs/TASKS.md` (checked off T-OP-001), and `AI_USAGE.md` (recorded Prompt 9).
 - Ran and verified local checks:
-  - `flutter test test/core/ids/` (52/52 tests passed)
-  - `dart format --output=none --set-exit-if-changed .` (21 files formatted, 0 changed)
+  - `flutter test test/sync/` (33/33 tests passed)
+  - `dart format --output=none --set-exit-if-changed .` (32 files formatted, 0 changed)
   - `flutter analyze` (0 issues found)
-  - `flutter test` (133 tests passed, 0 failures)
+  - `flutter test` (165 tests passed, 0 failures)
 
 ### Next Task:
-`T-OP-001 — Define financial operation model and state transitions` as defined in `docs/TASKS.md`.
+`T-DOM-001 — Decide queued-spendability policy` (final task of Phase 1) as defined in `docs/TASKS.md`.

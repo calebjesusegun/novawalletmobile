@@ -71,10 +71,10 @@ These IDs represent the original assessment rather than invented feature require
 | ASM-006 | A Send uses idempotency so retry cannot double-process the transfer | Assessment §2.1 | `core/ids`, `sync`, `fake_backend`, send | unit + integration | VERIFIED | IN_PROGRESS |
 | ASM-007 | NovaSave supports goal creation with name, target amount and target date | Assessment §2.1 | `features/novasave` | widget/unit | VERIFIED | TODO |
 | ASM-008 | NovaSave supports contributions and progress as bar/percentage | Assessment §2.1 | `features/novasave` | widget/unit | VERIFIED | IN_PROGRESS |
-| ASM-009 | Send/Contribution while offline is queued locally and shown as Pending rather than lost | Assessment §2.1 | `sync`, feature presentation | repository + widget + integration | VERIFIED | TODO |
-| ASM-010 | Offline actions are not silently retried in an uncontrolled loop | Assessment §2.1 | `sync` | unit/integration | VERIFIED | TODO |
+| ASM-009 | Send/Contribution while offline is queued locally and shown as Pending rather than lost | Assessment §2.1 | `sync`, feature presentation | repository + widget + integration | VERIFIED | IN_PROGRESS |
+| ASM-010 | Offline actions are not silently retried in an uncontrolled loop | Assessment §2.1 | `sync` | unit/integration | VERIFIED | IN_PROGRESS |
 | ASM-011 | On reconnect, queued actions are replayed without duplicate financial effect | Assessment §2.1 | `sync`, `fake_backend` | integration | VERIFIED | TODO |
-| ASM-012 | A queued action survives an app restart while offline | Assessment §2.2 | Drift persistence / `sync` | integration | VERIFIED | TODO |
+| ASM-012 | A queued action survives an app restart while offline | Assessment §2.2 | Drift persistence / `sync` | integration | VERIFIED | IN_PROGRESS |
 | ASM-013 | A queued action is not sent twice after reconnect/restart | Assessment §2.2 | `sync`, `fake_backend` | integration | VERIFIED | IN_PROGRESS |
 | ASM-014 | Money calculations never use floating-point arithmetic | Assessment §2.2 | `core/money`, `features/novasave/domain` | unit/static review | VERIFIED | IN_PROGRESS |
 | ASM-015 | Key interactive elements expose proper Flutter `Semantics` | Assessment §2.2 | presentation/design system | widget/accessibility | VERIFIED | TODO |
@@ -208,7 +208,7 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 | SYNC-011 | App interruption after remote success but before local completion does not produce a second financial effect | ASM-013 | sync + fake backend | integration/failure injection | INFERRED implementation test of verified requirement | TODO |
 | SYNC-012 | Recoverable sync failure keeps operation durable and retryable | ASM-009, ASM-010 | sync | integration | VERIFIED by design | TODO |
 | SYNC-013 | Retry is event-triggered/bounded; no uncontrolled background retry loop | ASM-010 | sync | unit/integration | VERIFIED | TODO |
-| SYNC-014 | Connectivity status, sync status and operation status remain separate state dimensions | design + architecture | app/sync state | unit/review | INFERRED architecture | TODO |
+| SYNC-014 | Connectivity status, sync status and operation status remain separate state dimensions | design + architecture | app/sync state | unit/review | INFERRED architecture | DONE |
 
 ---
 
