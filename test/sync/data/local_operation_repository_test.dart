@@ -236,7 +236,6 @@ void main() {
         final completedOp = await repo.markCompleted(
           opId,
           remoteReference: 'REMOTE-REF-9988',
-          at: DateTime.utc(2026, 9, 21, 20, 0),
         );
         expect(completedOp.status, OperationStatus.completed);
         expect(completedOp.remoteReference, 'REMOTE-REF-9988');
