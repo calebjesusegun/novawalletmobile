@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:novawallet/core/ids/uuid.dart';
 import 'package:novawallet/core/money/money.dart';
 import 'package:novawallet/core/time/date_time_formatter.dart';
 import 'package:novawallet/design_system/components/buttons/app_button.dart';
 import 'package:novawallet/design_system/components/fields/app_text_field.dart';
+import 'package:novawallet/design_system/components/fields/currency_amount_input_formatter.dart';
 import 'package:novawallet/design_system/tokens/app_colors.dart';
 import 'package:novawallet/design_system/tokens/app_spacing.dart';
 import 'package:novawallet/design_system/tokens/app_typography.dart';
@@ -37,6 +37,8 @@ class _CreateGoalScreenState extends ConsumerState<CreateGoalScreen> {
   final _nameController = TextEditingController();
   final _amountController = TextEditingController();
   final _dateController = TextEditingController();
+  final _nameFocusNode = FocusNode();
+  final _amountFocusNode = FocusNode();
 
   DateTime? _selectedDate;
 
@@ -64,6 +66,8 @@ class _CreateGoalScreenState extends ConsumerState<CreateGoalScreen> {
     _nameController.dispose();
     _amountController.dispose();
     _dateController.dispose();
+    _nameFocusNode.dispose();
+    _amountFocusNode.dispose();
     super.dispose();
   }
 
@@ -76,7 +80,7 @@ class _CreateGoalScreenState extends ConsumerState<CreateGoalScreen> {
     final parts = sanitized.split('.');
     if (parts.length > 2) return null;
 
-    final nairaPart = int.tryParse(parts[0]);
+    final nairaPart = parts[0].isEmpty ? 0 : int.tryParse(parts[0]);
     if (nairaPart == null) return null;
 
     var koboPart = 0;
@@ -223,9 +227,13 @@ class _CreateGoalScreenState extends ConsumerState<CreateGoalScreen> {
                       label: 'Goal name',
                       hintText: 'For example, Emergency Fund',
                       autofocus: true,
+                      focusNode: _nameFocusNode,
                       controller: _nameController,
                       errorText: _nameError,
                       textInputAction: TextInputAction.next,
+                      onSubmitted: (_) {
+                        _amountFocusNode.requestFocus();
+                      },
                       onChanged: (_) {
                         if (_nameError != null) {
                           setState(() => _nameError = null);
@@ -237,16 +245,34 @@ class _CreateGoalScreenState extends ConsumerState<CreateGoalScreen> {
                     // Target amount field (UI-NSV-04, UI-NSV-05)
                     AppTextField(
                       label: 'Target amount',
-                      hintText: '₦0.00',
+                      hintText: '0.00',
+                      prefixIcon: ExcludeSemantics(
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            left: AppSpacing.space16,
+                            right: AppSpacing.space8,
+                          ),
+                          child: Text(
+                            '₦',
+                            style: AppTypography.bodyMedium16.copyWith(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      prefixIconConstraints: const BoxConstraints(
+                        minWidth: 0,
+                        minHeight: 0,
+                      ),
+                      focusNode: _amountFocusNode,
                       controller: _amountController,
                       errorText: _amountError,
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
                       textInputAction: TextInputAction.done,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp('^[0-9,.]*')),
-                      ],
+                      inputFormatters: const [CurrencyAmountInputFormatter()],
                       onChanged: (_) {
                         if (_amountError != null) {
                           setState(() => _amountError = null);
