@@ -63,18 +63,25 @@ Phase 7 (NovaSave Goal Creation) is COMPLETE:
     - Full screen reader semantics and 2.0x text scaling layout responsiveness (`HC-ACCESSIBILITY`).
   - 8 widget tests in `test/features/novasave/presentation/goal_details_screen_test.dart` (53 NovaSave tests, 478 total repo tests passing).
 
+Phase 8 (NovaSave Contribution) IN PROGRESS:
+- `T-NSC-001` (Implement contribution amount and validation) is COMPLETE on `feat/nsc-amount-validation`:
+  - `ContributeAmountController` implemented in `lib/features/novasave/presentation/controllers/contribute_amount_controller.dart` (`UI-NSV-09`, `UI-NSV-10`, `NSV-009`, `NSV-010`, `MNY-003`, `MNY-006`).
+  - `ContributeAmountScreen` implemented in `lib/features/novasave/presentation/screens/contribute_amount_screen.dart` with goal summary header, `AppAmountField`, live projected progress card (`40%`, `₦200,000 of ₦500,000`), spendable balance validation (`UI-NSV-10`), and sticky Continue button.
+  - `GoalDetailsScreen` wired to launch `ContributeAmountScreen` on tapping "Contribute".
+  - 7 unit tests in `contribute_amount_controller_test.dart` and 6 widget tests in `contribute_amount_screen_test.dart` (66 NovaSave tests, 491 total repo tests passing).
+
 ---
 
 ## 8. Current Execution Task
  
 Current Task:
 ```text
-T-NSV-003 (Implement goal details and progress) COMPLETE on feat/nsv-goal-details-progress
+T-NSC-001 (Implement contribution amount and validation) COMPLETE on feat/nsc-amount-validation
 ```
 
 Next Task:
 ```text
-T-NSC-001 — Implement contribution amount and validation (Phase 8 — NovaSave Contribution)
+T-NSC-002 — Implement contribution confirmation and operation creation (Phase 8 — NovaSave Contribution)
 ```
 
 ---
@@ -105,8 +112,8 @@ Do not claim success without actually running the relevant commands.
 
 ### 13. Next Action
  
-`T-NSV-003` is fully completed on `feat/nsv-goal-details-progress`. All 478 tests pass, analyzer clean, formatting checked.
+`T-NSC-001` is fully completed on `feat/nsc-amount-validation`. All 491 tests pass, analyzer clean, formatting checked.
  
 ### Next Steps:
-1. Merge `feat/nsv-goal-details-progress` into `main`.
-2. Proceed to `T-NSC-001 — Implement contribution amount and validation`.
+1. Merge `feat/nsc-amount-validation` into `main` and delete feature branch per `GIT_WORKFLOW.md`.
+2. Proceed to `T-NSC-002 — Implement contribution confirmation and operation creation`.

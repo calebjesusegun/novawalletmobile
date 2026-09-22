@@ -1732,7 +1732,7 @@ flutter analyze
 
 # Phase 8 — NovaSave Contribution
 
-## [ ] T-NSC-001 — Implement contribution amount and validation
+## [x] T-NSC-001 — Implement contribution amount and validation
 
 **Risk:** A  
 **Size:** M

@@ -14,6 +14,7 @@ import 'package:novawallet/design_system/tokens/app_spacing.dart';
 import 'package:novawallet/design_system/tokens/app_typography.dart';
 import 'package:novawallet/features/novasave/data/novasave_providers.dart';
 import 'package:novawallet/features/novasave/domain/savings_goal.dart';
+import 'package:novawallet/features/novasave/presentation/screens/contribute_amount_screen.dart';
 import 'package:novawallet/sync/data/sync_providers.dart';
 import 'package:novawallet/sync/domain/operation_payload.dart';
 import 'package:novawallet/sync/domain/operation_type.dart';
@@ -298,7 +299,15 @@ class GoalDetailsScreen extends ConsumerWidget {
                 key: const Key('goal_details_contribute_button'),
                 label: 'Contribute',
                 semanticLabel: 'Contribute to ${goal.name}',
-                onPressed: onContribute ?? () {},
+                onPressed:
+                    onContribute ??
+                    () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => ContributeAmountScreen(goal: goal),
+                        ),
+                      );
+                    },
               ),
             ),
           ],

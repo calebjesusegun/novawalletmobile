@@ -173,8 +173,8 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 | NSV-006 | Require future target date | design-derived | UI-NSV-05 | `features/novasave` (`CreateGoalScreen`, `TargetDatePickerSheet`) | unit/widget | VERIFIED by design | COMPLETED |
 | NSV-007 | Provide target-date picker | design-derived | UI-NSV-06 | `features/novasave` (`TargetDatePickerSheet`) | widget/visual | VERIFIED by design | COMPLETED |
 | NSV-008 | Show goal details and remaining amount | ASM-008 | UI-NSV-08 | `features/novasave` (`GoalDetailsScreen`, `domain`) | widget/unit | VERIFIED by design | COMPLETED |
-| NSV-009 | Show contribution amount entry and projected progress | ASM-008 | UI-NSV-09 | NovaSave (`domain`) | widget/unit | VERIFIED | IN_PROGRESS |
-| NSV-010 | Reject contribution above wallet balance | design-derived | UI-NSV-10 | NovaSave domain | unit/widget | VERIFIED by design | TODO |
+| NSV-009 | Show contribution amount entry and projected progress | ASM-008 | UI-NSV-09 | `features/novasave` (`ContributeAmountScreen`, `domain`) | widget/unit | VERIFIED | COMPLETED |
+| NSV-010 | Reject contribution above wallet balance | design-derived | UI-NSV-10 | `features/novasave` (`ContributeAmountController`, `MNY-006`) | unit/widget | VERIFIED by design | COMPLETED |
 | NSV-011 | Show contribution confirmation | flow/design | UI-NSV-11 | NovaSave | widget | VERIFIED by design | TODO |
 | NSV-012 | Create one stable operation identity/idempotency key for one logical contribution | ASM-011, ASM-013 | UI-NSV-11/16 | NovaSave + IDs + sync | unit/integration | INFERRED implementation required by duplicate-prevention requirement | IN_PROGRESS |
 | NSV-013 | Online contribution enters Processing | flow/design | UI-NSV-12 | NovaSave | widget/integration | VERIFIED by design | TODO |
