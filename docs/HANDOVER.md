@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Offline Bank Copy Revamp, Duplicate Banner Removal & Navigation Crash Fix COMPLETE  
-**Primary next task:** Manual validation & review of branch `fix/offline-copy-and-navigation-crash`  
-**Current branch:** `fix/offline-copy-and-navigation-crash`  
-**Latest commit on main:** `79b4c6b`  
+**Status:** Phase 9 (Cross-Feature Consistency & Resilience) COMPLETE  
+**Primary next task:** `T-TST-003 — Add required app-level offline queue → restart → reconnect integration test` (Phase 11 — Mandatory Assessment Testing)  
+**Current branch:** `feat/phase-9-cross-feature-consistency`  
+**Latest commit on main:** `34c0cba` (PR #24)  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -51,29 +51,27 @@ Phase 6 (Send Money) is COMPLETE:
 Phase 7 (NovaSave Goal Creation) is COMPLETE:
 - `T-NSV-001` (Implement goal list and empty state) is COMPLETE (`UI-NSV-01`, `UI-NSV-02`, `UI-NSV-03`).
 - `T-NSV-002` (Implement create-goal form, validation and date picker) is COMPLETE (`UI-NSV-04`, `UI-NSV-05`, `UI-NSV-06`, `UI-NSV-07`).
-- `T-NSV-003` (Implement goal details and progress) is COMPLETE on `feat/nsv-goal-details-progress`:
-  - `GoalDetailsScreen` implemented in `lib/features/novasave/presentation/screens/goal_details_screen.dart` (`UI-NSV-08`, `UI-NSV-18`):
-    - Reactive stream subscription to goals via `savingsGoalsStreamProvider`.
-    - Exact integer-kobo calculations for saved amount, target amount, remaining amount ("Still to save"), and percentage (`HC-MONEY`, `MNY-003`, `NSV-008`).
-    - Standard West Africa Time (WAT, UTC+1) formatted target date via `DateTimeFormatter.formatDate()`.
-    - Linear progress bar with exact basis-point progress fraction (`toProgressFraction()`).
-    - Offline awareness with `AppSystemNotification.offline()` (`UI-NSV-18`).
-    - Pending contribution detection from `activeOperationsStreamProvider` (`ContributionPayload`) displaying pending banner without altering confirmed progress (`UI-NSV-18`, `HC-MONEY`).
-    - Sticky "Contribute" button with callback hook ready for Phase 8.
-    - Full screen reader semantics and 2.0x text scaling layout responsiveness (`HC-ACCESSIBILITY`).
-  - 8 widget tests in `test/features/novasave/presentation/goal_details_screen_test.dart` (53 NovaSave tests, 478 total repo tests passing).
+- `T-NSV-003` (Implement goal details and progress) is COMPLETE on `feat/nsv-goal-details-progress` (`UI-NSV-08`, `UI-NSV-18`).
 
-Phase 8 (NovaSave Contribution) COMPLETE:
+Phase 8 (NovaSave Contribution) is COMPLETE:
 - `T-NSC-001` (Implement contribution amount and validation) is COMPLETE and merged (`50b3a34`).
 - `T-NSC-002` (Implement contribution confirmation and operation creation) is COMPLETE and merged (`98672f4`).
 - `T-NSC-003` (Implement online contribution processing, success and failure) is COMPLETE and merged (`0581cfa`).
-- `T-NSC-004` (Implement pending, reconnect and sync-failure Contribution states) is COMPLETE on `feat/nsc-pending-reconnect`:
-  - Verified pending contribution result (`UI-NSV-17`).
-  - Verified goal details pending amount representation separate from confirmed progress (`UI-NSV-18`).
-  - Verified restart survival of pending contribution (`NSV-019`).
-  - Verified reconnect processing (`UI-NSV-19`) and reconnect success (`UI-NSV-20`).
-  - Verified sync failure and retry (`UI-NSV-21`, `NSV-022`, `NSV-023`).
-  - 10 widget tests in `test/features/novasave/presentation/contribution_result_screen_test.dart` (88 NovaSave tests, 513 total repo tests passing).
+- `T-NSC-004` (Implement pending, reconnect and sync-failure Contribution states) is COMPLETE and merged (`1f06637`).
+
+Phase 9 (Cross-Feature Consistency & Resilience) is COMPLETE:
+- `T-XF-001` (Reconcile confirmed wallet and transaction state after operations) is COMPLETE:
+  - Verified completed Send Money updates confirmed wallet balance once and creates one transaction ledger entry.
+  - Verified completed Contribution updates goal savings amount and debits wallet balance once.
+  - Verified atomic database transaction guarantees during projection settlement.
+  - Verified multiple queued outgoing operations reserve spendable balance correctly.
+  - Verified idempotent replay protection against duplicate projections.
+  - 4 cross-feature tests in `test/cross_feature/cross_feature_reconciliation_test.dart`.
+- `T-XF-002` (Normalize pending/retry/status presentation across features) is COMPLETE:
+  - Verified unified status semantics (`AppOperationStatus`: `completed`, `pending`, `processing`, `failed`) across `AppStatusBadge` and `AppResultIndicator`.
+  - Verified retry actions across Send Money, NovaSave Contribution, and Wallet Detail Sheet invoke centralized `SyncCoordinator` with stable operation identities.
+  - Verified offline system banners co-exist without suppressing or overriding operation status badges.
+  - 5 cross-feature tests in `test/cross_feature/cross_feature_presentation_test.dart`.
 
 ---
 
@@ -81,13 +79,12 @@ Phase 8 (NovaSave Contribution) COMPLETE:
  
 Current Task:
 ```text
-T-NSC-004 (Implement pending, reconnect and sync-failure Contribution states) COMPLETE on feat/nsc-pending-reconnect
-Phase 8 (NovaSave Contribution) COMPLETE
+Phase 9 (Cross-Feature Consistency & Resilience) COMPLETE on feat/phase-9-cross-feature-consistency
 ```
 
 Next Task:
 ```text
-T-XF-001 — Reconcile confirmed wallet and transaction state after operations (Phase 9 — Cross-Feature Consistency)
+T-TST-003 — Add required app-level offline queue → restart → reconnect integration test (Phase 11 — Mandatory Assessment Testing)
 ```
 
 ---

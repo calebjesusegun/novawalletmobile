@@ -1951,7 +1951,7 @@ flutter analyze
 
 # Phase 9 — Cross-Feature Consistency
 
-## [ ] T-XF-001 — Reconcile confirmed wallet and transaction state after operations
+## [x] T-XF-001 — Reconcile confirmed wallet and transaction state after operations
 
 **Risk:** A  
 **Size:** M
@@ -1997,7 +1997,7 @@ flutter analyze
 
 ---
 
-## [ ] T-XF-002 — Normalize pending/retry/status presentation across features
+## [x] T-XF-002 — Normalize pending/retry/status presentation across features
 
 **Risk:** B  
 **Size:** S
