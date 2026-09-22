@@ -139,26 +139,36 @@ class AppSystemNotification extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, size: 20, color: foregroundColor),
+            ExcludeSemantics(
+              child: Icon(icon, size: 20, color: foregroundColor),
+            ),
             AppSpacing.gapHorizontal12,
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (title != null && title!.isNotEmpty) ...[
-                    Text(
-                      title!,
-                      style: AppTypography.labelBold14.copyWith(
-                        color: foregroundColor,
-                      ),
-                    ),
-                    AppSpacing.gapVertical4,
-                  ],
-                  Text(
-                    message,
-                    style: AppTypography.bodyRegular14.copyWith(
-                      color: foregroundColor,
+                  ExcludeSemantics(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (title != null && title!.isNotEmpty) ...[
+                          Text(
+                            title!,
+                            style: AppTypography.labelBold14.copyWith(
+                              color: foregroundColor,
+                            ),
+                          ),
+                          AppSpacing.gapVertical4,
+                        ],
+                        Text(
+                          message,
+                          style: AppTypography.bodyRegular14.copyWith(
+                            color: foregroundColor,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   if (actionLabel != null && onActionPressed != null) ...[

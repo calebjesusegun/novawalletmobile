@@ -125,6 +125,7 @@ class AppButton extends StatelessWidget {
     return Semantics(
       button: true,
       enabled: isEnabled,
+      onTap: isEnabled ? onPressed : null,
       label: effectiveSemanticLabel,
       excludeSemantics: true,
       child: buttonWidget,

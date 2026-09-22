@@ -76,7 +76,16 @@ class GoalsListScreen extends ConsumerWidget {
       body: Column(
         children: [
           // Offline System Banner (UI-NSV-02)
-          if (isOffline) AppSystemNotification.offline(),
+          if (isOffline)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.space16,
+                AppSpacing.space16,
+                AppSpacing.space16,
+                0,
+              ),
+              child: AppSystemNotification.offline(),
+            ),
 
           // Main content area
           Expanded(

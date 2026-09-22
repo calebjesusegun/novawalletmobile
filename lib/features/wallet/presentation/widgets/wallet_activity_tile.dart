@@ -75,8 +75,11 @@ class WalletActivityTile extends StatelessWidget {
     final semanticLabel =
         '${item.title}, ${item.subtitle}, $amountText, status ${item.status.name}';
 
+    final isLargeText = MediaQuery.textScalerOf(context).scale(1) > 1.3;
+
     return Semantics(
       label: semanticLabel,
+      excludeSemantics: true,
       button: onTap != null,
       child: InkWell(
         onTap: onTap,
@@ -86,64 +89,125 @@ class WalletActivityTile extends StatelessWidget {
             horizontal: AppSpacing.space16,
             vertical: AppSpacing.space12,
           ),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: iconBg,
-                  borderRadius: AppRadii.pillBorderRadius,
-                ),
-                child: Center(child: AppIcon(icon, size: 20, color: iconColor)),
-              ),
-              AppSpacing.gapHorizontal12,
-              Expanded(
-                child: Column(
+          child: isLargeText
+              ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      item.title,
-                      style: AppTypography.bodyMedium14.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: iconBg,
+                            borderRadius: AppRadii.pillBorderRadius,
+                          ),
+                          child: Center(
+                            child: AppIcon(icon, size: 20, color: iconColor),
+                          ),
+                        ),
+                        AppSpacing.gapHorizontal12,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                item.title,
+                                style: AppTypography.bodyMedium14.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              AppSpacing.gapVertical4,
+                              Text(
+                                '${_formatTimestamp(item.timestamp)} • ${item.subtitle}',
+                                style: AppTypography.bodyMedium12.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    AppSpacing.gapVertical4,
-                    Text(
-                      '${_formatTimestamp(item.timestamp)} • ${item.subtitle}',
-                      style: AppTypography.bodyMedium12.copyWith(
-                        color: AppColors.textSecondary,
+                    AppSpacing.gapVertical8,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          amountText,
+                          style: AppTypography.bodyMedium14.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: amountColor,
+                          ),
+                        ),
+                        if (item.status != TransactionStatus.completed)
+                          AppStatusBadge(status: _mapStatus(item.status)),
+                      ],
+                    ),
+                  ],
+                )
+              : Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: iconBg,
+                        borderRadius: AppRadii.pillBorderRadius,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      child: Center(
+                        child: AppIcon(icon, size: 20, color: iconColor),
+                      ),
+                    ),
+                    AppSpacing.gapHorizontal12,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            item.title,
+                            style: AppTypography.bodyMedium14.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          AppSpacing.gapVertical4,
+                          Text(
+                            '${_formatTimestamp(item.timestamp)} • ${item.subtitle}',
+                            style: AppTypography.bodyMedium12.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    AppSpacing.gapHorizontal12,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          amountText,
+                          style: AppTypography.bodyMedium14.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: amountColor,
+                          ),
+                        ),
+                        if (item.status != TransactionStatus.completed) ...[
+                          AppSpacing.gapVertical4,
+                          AppStatusBadge(status: _mapStatus(item.status)),
+                        ],
+                      ],
                     ),
                   ],
                 ),
-              ),
-              AppSpacing.gapHorizontal12,
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    amountText,
-                    style: AppTypography.bodyMedium14.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: amountColor,
-                    ),
-                  ),
-                  if (item.status != TransactionStatus.completed) ...[
-                    AppSpacing.gapVertical4,
-                    AppStatusBadge(status: _mapStatus(item.status)),
-                  ],
-                ],
-              ),
-            ],
-          ),
         ),
       ),
     );

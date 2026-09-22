@@ -62,6 +62,7 @@ class AppStatusBadge extends StatelessWidget {
 
     return Semantics(
       label: 'Status: $label',
+      excludeSemantics: true,
       child: Container(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.space8,

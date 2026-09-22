@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:novawallet/app/navigation/app_destination.dart';
 import 'package:novawallet/app/navigation/app_navigation_provider.dart';
 import 'package:novawallet/core/connectivity/connectivity.dart';
+import 'package:novawallet/design_system/components/empty_states/app_empty_state.dart';
 import 'package:novawallet/design_system/components/notifications/app_system_notification.dart';
 import 'package:novawallet/design_system/tokens/app_colors.dart';
 import 'package:novawallet/design_system/tokens/app_spacing.dart';
@@ -10,9 +11,9 @@ import 'package:novawallet/design_system/tokens/app_typography.dart';
 import 'package:novawallet/features/wallet/data/wallet_providers.dart';
 import 'package:novawallet/features/wallet/domain/wallet_projection.dart';
 import 'package:novawallet/features/wallet/presentation/controllers/wallet_controller.dart';
+import 'package:novawallet/features/wallet/presentation/widgets/wallet_activity_tile.dart';
 import 'package:novawallet/features/wallet/presentation/widgets/wallet_balance_card.dart';
 import 'package:novawallet/features/wallet/presentation/widgets/wallet_loading_skeleton.dart';
-import 'package:novawallet/features/wallet/presentation/widgets/wallet_recent_activity_section.dart';
 import 'package:novawallet/features/wallet/presentation/widgets/wallet_transaction_detail_sheet.dart';
 import 'package:novawallet/sync/application/sync_coordinator_provider.dart';
 import 'package:novawallet/sync/application/sync_result.dart';
@@ -146,47 +147,103 @@ class _WalletContent extends ConsumerWidget {
       onRefresh: onRefresh,
       color: AppColors.primaryAction,
       backgroundColor: AppColors.surface,
-      child: ListView(
+      child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.space16,
-          vertical: AppSpacing.space16,
-        ),
-        children: [
-          if (banner != null) ...[banner, AppSpacing.gapVertical16],
-          WalletBalanceCard(
-            balance: projection.confirmedBalance,
-            lastUpdatedAt: projection.lastUpdatedAt,
-            isOffline: isOffline,
-            isRefreshing: isRefreshing,
-            onSendMoneyTap: () {
-              ref
-                  .read(appNavigationProvider.notifier)
-                  .selectDestination(AppDestination.send);
-            },
-            onNovaSaveTap: () {
-              ref
-                  .read(appNavigationProvider.notifier)
-                  .selectDestination(AppDestination.novaSave);
-            },
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.space16,
+              AppSpacing.space16,
+              AppSpacing.space16,
+              0,
+            ),
+            sliver: SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (banner != null) ...[banner, AppSpacing.gapVertical16],
+                  WalletBalanceCard(
+                    balance: projection.confirmedBalance,
+                    lastUpdatedAt: projection.lastUpdatedAt,
+                    isOffline: isOffline,
+                    isRefreshing: isRefreshing,
+                    onSendMoneyTap: () {
+                      ref
+                          .read(appNavigationProvider.notifier)
+                          .selectDestination(AppDestination.send);
+                    },
+                    onNovaSaveTap: () {
+                      ref
+                          .read(appNavigationProvider.notifier)
+                          .selectDestination(AppDestination.novaSave);
+                    },
+                  ),
+                  AppSpacing.gapVertical24,
+                  if (projection.activities.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.space8),
+                      child: Text(
+                        'Recent Activity',
+                        style: AppTypography.titleMedium16.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
-          AppSpacing.gapVertical24,
-          WalletRecentActivitySection(
-            activities: projection.activities,
-            onItemTap: (item) {
-              WalletTransactionDetailSheet.show(
-                context: context,
-                item: item,
-                onRetry: item.hasSyncError
-                    ? () {
-                        ref
-                            .read(syncCoordinatorProvider)
-                            .synchronize(trigger: SyncTrigger.userRetry);
-                      }
-                    : null,
-              );
-            },
-          ),
+          if (projection.activities.isEmpty)
+            SliverPadding(
+              padding: const EdgeInsets.all(AppSpacing.space16),
+              sliver: SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppSpacing.space24,
+                  ),
+                  child: AppEmptyState.walletTransactions(),
+                ),
+              ),
+            )
+          else
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.space16,
+              ),
+              sliver: SliverList.separated(
+                itemCount: projection.activities.length,
+                separatorBuilder: (_, _) => const Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: AppColors.borderSubtle,
+                  indent: AppSpacing.space16,
+                  endIndent: AppSpacing.space16,
+                ),
+                itemBuilder: (context, index) {
+                  final item = projection.activities[index];
+                  return WalletActivityTile(
+                    item: item,
+                    onTap: () {
+                      WalletTransactionDetailSheet.show(
+                        context: context,
+                        item: item,
+                        onRetry: item.hasSyncError
+                            ? () {
+                                ref
+                                    .read(syncCoordinatorProvider)
+                                    .synchronize(
+                                      trigger: SyncTrigger.userRetry,
+                                    );
+                              }
+                            : null,
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.space24)),
         ],
       ),
     );

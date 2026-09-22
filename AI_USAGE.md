@@ -1636,6 +1636,35 @@ Added automated widget test `default navigation flow to result screen and tappin
 
 ---
 
+### Mistake 4 — Rigid horizontal flex rows overflowing under 2.0x font scaling
+
+**Tool:** Antigravity  
+**Stage:** Phase 10 — Accessibility, Performance & Visual Reconciliation (T-A11Y-001)
+
+**What happened**
+
+When generating the UI components for `WalletBalanceCard`, `WalletActivityTile`, and `GoalCard`, the implementation placed action buttons (`Send Money` and `NovaSave`) and metric pairs into fixed horizontal `Row` configurations without checking `MediaQuery.textScalerOf(context)`. At standard 1.0x font scale, the items fit cleanly. However, under the assessment's mandatory 2.0x accessibility font scale requirement (`ASM-016`, `A11Y-003`), the 28pt bold button labels and transaction amounts exceeded the available 326–358px card widths, throwing `RenderFlex overflowed by 21–164 pixels on the right`.
+
+**Why it happened**
+
+The components were styled using approved horizontal design exports (`UI-WAL-01`, `UI-NSV-01`) without accounting for how extreme accessibility text scaling doubles the physical glyph widths of buttons and counterparty labels, exceeding single-row horizontal space.
+
+**How it was caught**
+
+Automated testing in the new `accessibility_font_scaling_test.dart` suite, which exercised all 11 primary screens under `TextScaler.linear(2.0)` at a standard 390x844 viewport.
+
+**Correction**
+
+1. In `WalletBalanceCard`, added an adaptive check `final isLargeText = MediaQuery.textScalerOf(context).scale(1) > 1.3;`. When large text is enabled, the two action buttons stack vertically as full-width cards rather than being squeezed into 150px columns.
+2. In `WalletActivityTile`, added an adaptive layout for `isLargeText`: title and subtitle sit beside the 40px icon on row 1, and the formatted money amount and status badge drop to a clean second row with `mainAxisAlignment: MainAxisAlignment.spaceBetween`.
+3. In `GoalCard`, adapted the top row (goal name + percentage) and bottom row (saved amount + target date) to vertical column pairs when `isLargeText` is true.
+
+**Regression protection**
+
+Created `test/accessibility/accessibility_font_scaling_test.dart` asserting zero `FlutterError` exceptions and zero `RenderFlex` overflows across all 11 primary application screens under `TextScaler.linear(2.0)`.
+
+---
+
 ## Review Guidelines
 
 When using AI on NovaWallet:

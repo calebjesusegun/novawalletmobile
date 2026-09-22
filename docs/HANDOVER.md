@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 9 (Cross-Feature Consistency & Resilience) COMPLETE  
-**Primary next task:** `T-TST-003 — Add required app-level offline queue → restart → reconnect integration test` (Phase 11 — Mandatory Assessment Testing)  
-**Current branch:** `feat/phase-9-cross-feature-consistency`  
-**Latest commit on main:** `34c0cba` (PR #24)  
+**Status:** Phase 10 (Accessibility, Performance & Visual Reconciliation) COMPLETE  
+**Primary next task:** Phase 11 — Mandatory Assessment Testing (`T-TST-001`, `T-TST-002`, `T-TST-003`)  
+**Current branch:** `feat/phase-10-a11y-perf-visual`  
+**Latest commit on main:** `40860eb` (PR #25)  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -51,54 +51,54 @@ Phase 6 (Send Money) is COMPLETE:
 Phase 7 (NovaSave Goal Creation) is COMPLETE:
 - `T-NSV-001` (Implement goal list and empty state) is COMPLETE (`UI-NSV-01`, `UI-NSV-02`, `UI-NSV-03`).
 - `T-NSV-002` (Implement create-goal form, validation and date picker) is COMPLETE (`UI-NSV-04`, `UI-NSV-05`, `UI-NSV-06`, `UI-NSV-07`).
-- `T-NSV-003` (Implement goal details and progress) is COMPLETE on `feat/nsv-goal-details-progress` (`UI-NSV-08`, `UI-NSV-18`).
+- `T-NSV-003` (Implement goal details and progress) is COMPLETE (`UI-NSV-08`, `UI-NSV-18`).
 
 Phase 8 (NovaSave Contribution) is COMPLETE:
-- `T-NSC-001` (Implement contribution amount and validation) is COMPLETE and merged (`50b3a34`).
-- `T-NSC-002` (Implement contribution confirmation and operation creation) is COMPLETE and merged (`98672f4`).
-- `T-NSC-003` (Implement online contribution processing, success and failure) is COMPLETE and merged (`0581cfa`).
-- `T-NSC-004` (Implement pending, reconnect and sync-failure Contribution states) is COMPLETE and merged (`1f06637`).
+- `T-NSC-001` through `T-NSC-004` complete and merged into `main`.
 
-Phase 9 (Cross-Feature Consistency & Resilience) is COMPLETE:
-- `T-XF-001` (Reconcile confirmed wallet and transaction state after operations) is COMPLETE:
-  - Verified completed Send Money updates confirmed wallet balance once and creates one transaction ledger entry.
-  - Verified completed Contribution updates goal savings amount and debits wallet balance once.
-  - Verified atomic database transaction guarantees during projection settlement.
-  - Verified multiple queued outgoing operations reserve spendable balance correctly.
-  - Verified idempotent replay protection against duplicate projections.
-  - 4 cross-feature tests in `test/cross_feature/cross_feature_reconciliation_test.dart`.
-- `T-XF-002` (Normalize pending/retry/status presentation across features) is COMPLETE:
-  - Verified unified status semantics (`AppOperationStatus`: `completed`, `pending`, `processing`, `failed`) across `AppStatusBadge` and `AppResultIndicator`.
-  - Verified retry actions across Send Money, NovaSave Contribution, and Wallet Detail Sheet invoke centralized `SyncCoordinator` with stable operation identities.
-  - Verified offline system banners co-exist without suppressing or overriding operation status badges.
-  - 5 cross-feature tests in `test/cross_feature/cross_feature_presentation_test.dart`.
+Phase 9 (Cross-Feature Consistency & Resilience) is COMPLETE and merged into `main` (`40860eb`, PR #25).
+
+Phase 10 (Accessibility, Performance & Visual Reconciliation) is COMPLETE:
+- `T-A11Y-001` (Accessibility and font-scale pass):
+  - Added comprehensive `Semantics` on `AppButton`, `AppTextField`, `AppAmountField`, `AppStatusBadge`, `AppResultIndicator`, `AppSystemNotification`, `WalletBalanceCard`, `WalletActivityTile`, and `GoalCard`.
+  - Created `test/accessibility/accessibility_semantics_test.dart` asserting complete non-color status announcements, accurate currency formatting, and clean node semantics.
+  - Created `test/accessibility/accessibility_font_scaling_test.dart` covering all 11 primary screens under `TextScaler.linear(2.0)` at standard 390x844 viewport: `WalletHomeScreen`, `RecipientEntryScreen`, `AmountEntryScreen`, `TransferConfirmationScreen`, `TransferResultScreen`, `GoalsListScreen`, `CreateGoalScreen`, `GoalDetailsScreen`, `ContributeAmountScreen`, `ContributionConfirmationScreen`, `ContributionResultScreen`.
+  - Implemented responsive adaptive layouts for `WalletBalanceCard`, `WalletActivityTile`, and `GoalCard` under font scales > 1.3x to prevent `RenderFlex` horizontal overflows.
+- `T-PERF-001` (Wallet list and low-end usability pass):
+  - Refactored `_WalletContent` from eager `ListView(children: ...)` to `CustomScrollView` with `SliverList.separated` for lazy transaction virtualization.
+  - Created `test/features/wallet/presentation/wallet_lazy_loading_test.dart` verifying 1,000 transactions are lazily constructed without eager rendering ($<15$ tiles built initially; item 999 not built until scrolled).
+- `T-VIS-001` (Visual reconciliation):
+  - Aligned Send Money AppBar typography and alignment with Wallet and NovaSave (`centerTitle: false`, `backgroundColor: AppColors.surface`, `AppTypography.titleBold18`).
+  - Fixed NovaSave offline banner edge-to-edge padding in `goals_list_screen.dart` and `goal_details_screen.dart` with `AppSpacing.space16` horizontal margins.
+  - Added `autofocus` support and full-card tap-to-focus on `AppAmountField` and text entry screens.
 
 ---
 
-## 8. Current Execution Task
+## 2. Current Execution Task
  
 Current Task:
 ```text
-Phase 9 (Cross-Feature Consistency & Resilience) COMPLETE on feat/phase-9-cross-feature-consistency
+Phase 10 (Accessibility, Performance & Visual Reconciliation) COMPLETE on feat/phase-10-a11y-perf-visual
 ```
 
 Next Task:
 ```text
-T-TST-003 — Add required app-level offline queue → restart → reconnect integration test (Phase 11 — Mandatory Assessment Testing)
+Phase 11 — Required Test Completion & Failure Matrix (T-TST-001, T-TST-002, T-TST-003)
 ```
 
 ---
 
-## 9. Scope Control
+## 3. Scope Control
 
 - Enforce integer-kobo money representation per `HC-MONEY`.
 - Enforce exact-once financial effects per `HC-EXACTLY-ONCE-EFFECT` and `HC-IDEMPOTENCY`.
 - Enforce `HC-STATE-SEPARATION` (connectivity, sync status, and operation status remain separate dimensions).
 - Centralize all design tokens and do not introduce hardcoded values in feature widgets.
+- Respect accessibility (`Semantics`, 2.0x font scaling) and performance (lazy list virtualization).
 
 ---
 
-## 10. Required Verification
+## 4. Required Verification
 
 Every branch/task must satisfy:
 
@@ -109,14 +109,13 @@ flutter analyze
 flutter test
 ```
 
-Do not claim success without actually running the relevant commands.
+Current test suite status: **542 / 542 tests passing**, analyzer clean, 0 formatting errors.
 
 ---
 
-### 13. Next Action
- 
-`T-NSC-001` is fully completed on `feat/nsc-amount-validation`. All 491 tests pass, analyzer clean, formatting checked.
- 
-### Next Steps:
-1. Merge `feat/nsc-amount-validation` into `main` and delete feature branch per `GIT_WORKFLOW.md`.
-2. Proceed to `T-NSC-002 — Implement contribution confirmation and operation creation`.
+## 5. Next Steps
+
+1. Commit and push `feat/phase-10-a11y-perf-visual`.
+2. Open Pull Request to merge `feat/phase-10-a11y-perf-visual` into `main`.
+3. Merge PR into `main`.
+4. Create branch for Phase 11 (`feat/phase-11-required-tests`) to implement `T-TST-001`, `T-TST-002`, `T-TST-003`.

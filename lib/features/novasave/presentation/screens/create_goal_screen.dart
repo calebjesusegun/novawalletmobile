@@ -222,6 +222,7 @@ class _CreateGoalScreenState extends ConsumerState<CreateGoalScreen> {
                     AppTextField(
                       label: 'Goal name',
                       hintText: 'For example, Emergency Fund',
+                      autofocus: true,
                       controller: _nameController,
                       errorText: _nameError,
                       textInputAction: TextInputAction.next,

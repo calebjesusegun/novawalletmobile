@@ -2046,7 +2046,7 @@ flutter analyze
 
 # Phase 10 — Accessibility, Performance & Visual Reconciliation
 
-## [ ] T-A11Y-001 — Accessibility and font-scale pass
+## [x] T-A11Y-001 — Accessibility and font-scale pass
 
 **Risk:** B  
 **Size:** M
@@ -2094,7 +2094,7 @@ Also perform manual/emulator checks at increased text scale.
 
 ---
 
-## [ ] T-PERF-001 — Wallet list and low-end usability pass
+## [x] T-PERF-001 — Wallet list and low-end usability pass
 
 **Risk:** B  
 **Size:** S
@@ -2136,7 +2136,7 @@ flutter analyze
 
 ---
 
-## [ ] T-VIS-001 — Final design reconciliation
+## [x] T-VIS-001 — Final design reconciliation
 
 **Risk:** B  
 **Size:** M
