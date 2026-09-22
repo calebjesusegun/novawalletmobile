@@ -5,7 +5,7 @@ import 'package:novawallet/app/navigation/app_navigation_provider.dart';
 import 'package:novawallet/design_system/components/empty_states/app_empty_state.dart';
 import 'package:novawallet/design_system/theme/app_theme.dart';
 import 'package:novawallet/design_system/tokens/app_colors.dart';
-import 'package:novawallet/features/send_money/presentation/screens/recipient_entry_screen.dart';
+import 'package:novawallet/features/send_money/presentation/screens/send_money_flow_screen.dart';
 import 'package:novawallet/features/wallet/presentation/screens/wallet_home_screen.dart';
 
 /// The root application widget for NovaWallet.
@@ -64,7 +64,7 @@ class SendMoneyShellTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const RecipientEntryScreen();
+    return const SendMoneyFlowScreen();
   }
 }
 

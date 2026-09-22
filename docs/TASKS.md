@@ -1354,7 +1354,7 @@ flutter analyze
 
 ---
 
-## [ ] T-SND-002 — Implement amount entry and balance validation
+## [x] T-SND-002 — Implement amount entry and balance validation
 
 **Risk:** A  
 **Size:** M

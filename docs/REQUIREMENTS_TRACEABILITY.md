@@ -142,10 +142,10 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 | SND-002 | Empty-recipient validation | design-derived | UI-SND-02 | send domain/presentation | unit/widget (`test/features/send_money/presentation/recipient_entry_screen_test.dart`) | VERIFIED by design | IMPLEMENTED |
 | SND-003 | Invalid-account validation | design-derived | UI-SND-03 | send domain/presentation | unit/widget (`test/features/send_money/presentation/recipient_entry_screen_test.dart`) | VERIFIED by design | IMPLEMENTED |
 | SND-004 | Resolve supported fake recipient and display recipient name | design-derived | UI-SND-04 | fake recipient source/send | unit/widget (`test/features/send_money/data/fake_recipient_directory_test.dart`) | VERIFIED by design | IMPLEMENTED |
-| SND-005 | Amount entry | ASM-005 | UI-SND-05, UI-SND-06 | send | widget | VERIFIED | TODO |
-| SND-006 | Reject zero/non-positive amount | design-derived | UI-SND-08 | send domain | unit/widget | VERIFIED by design | TODO |
-| SND-007 | Reject amount above available/spendable balance | design-derived | UI-SND-07 | send domain | unit/widget | VERIFIED by design | TODO |
-| SND-008 | Show offline amount state with last-updated balance | ASM-009 | UI-SND-09 | send + connectivity | widget | VERIFIED by design | TODO |
+| SND-005 | Amount entry | ASM-005 | UI-SND-05, UI-SND-06 | send presentation (`AmountEntryScreen`) | widget (`test/features/send_money/presentation/amount_entry_screen_test.dart`) | VERIFIED | IMPLEMENTED |
+| SND-006 | Reject zero/non-positive amount | design-derived | UI-SND-08 | send presentation/controller | unit/widget (`test/features/send_money/presentation/amount_entry_controller_test.dart`) | VERIFIED by design | IMPLEMENTED |
+| SND-007 | Reject amount above available/spendable balance | design-derived | UI-SND-07 | send presentation/controller | unit/widget (`test/features/send_money/presentation/amount_entry_controller_test.dart`) | VERIFIED by design | IMPLEMENTED |
+| SND-008 | Show offline amount state with last-updated balance | ASM-009 | UI-SND-09 | send + connectivity | widget (`test/features/send_money/presentation/amount_entry_screen_test.dart`) | VERIFIED by design | IMPLEMENTED |
 | SND-009 | Show transfer confirmation | ASM-005 | UI-SND-10 | send | widget | VERIFIED | TODO |
 | SND-010 | Create one stable operation identity/idempotency key for one logical transfer | ASM-006, ASM-013 | UI-SND-10/14 | send + IDs + sync | unit/integration | INFERRED implementation required by verified idempotency requirement | IN_PROGRESS |
 | SND-011 | Online transfer enters Processing | flow/design | UI-SND-11 | send | widget/integration | VERIFIED by design | TODO |
