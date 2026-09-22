@@ -231,13 +231,15 @@ class _ContributeAmountScreenState
                                   Navigator.of(context).pop();
                                   Navigator.of(context).pushReplacement(
                                     MaterialPageRoute<void>(
-                                      builder: (_) => ContributionResultScreen(
-                                        operation: operation,
-                                        goal: widget.goal,
-                                        wasOffline: state.isOffline,
-                                        onDone: () =>
-                                            Navigator.of(context).pop(),
-                                      ),
+                                      builder: (resultContext) =>
+                                          ContributionResultScreen(
+                                            operation: operation,
+                                            goal: widget.goal,
+                                            wasOffline: state.isOffline,
+                                            onDone: () =>
+                                                Navigator.of(resultContext)
+                                                    .pop(),
+                                          ),
                                     ),
                                   );
                                 },

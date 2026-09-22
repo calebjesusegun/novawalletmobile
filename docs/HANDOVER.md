@@ -1,8 +1,8 @@
 # NovaWallet Handover
 
-**Status:** Phase 7 (NovaSave Goal Creation) COMPLETE — Phase 8 (NovaSave Contribution) Ready to Begin  
-**Primary next task:** `T-NSC-001 — Implement contribution amount and validation` (Phase 8 — NovaSave Contribution)  
-**Current branch:** `feat/nsv-goal-details-progress`  
+**Status:** Offline Bank Copy Revamp, Duplicate Banner Removal & Navigation Crash Fix COMPLETE  
+**Primary next task:** Manual validation & review of branch `fix/offline-copy-and-navigation-crash`  
+**Current branch:** `fix/offline-copy-and-navigation-crash`  
 **Latest commit on main:** `79b4c6b`  
 **Planning baseline commit:** `2bb6f8b`
 

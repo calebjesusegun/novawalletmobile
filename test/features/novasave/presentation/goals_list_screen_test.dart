@@ -185,7 +185,7 @@ void main() {
           expect(find.byType(AppSystemNotification), findsOneWidget);
           expect(
             find.text(
-              "You're offline. Changes are saved on this phone and will sync when you're back online.",
+              "You're offline. Requests are queued securely and will process when you're back online.",
             ),
             findsOneWidget,
           );

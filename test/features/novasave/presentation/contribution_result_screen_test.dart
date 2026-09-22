@@ -362,13 +362,12 @@ void main() {
           find.byKey(const Key('contribution_result_pending_offline_view')),
           findsOneWidget,
         );
-        expect(find.text("You're offline"), findsOneWidget);
         expect(find.text('Contribution Pending'), findsOneWidget);
         expect(find.text('For: Car insurance'), findsOneWidget);
         expect(find.byType(AppStepProgress), findsOneWidget);
         expect(
           find.text(
-            'Saved on this phone. We will add it automatically when you are online. You do not need to add it again.',
+            'Queued securely. We will add it automatically when you are online. You do not need to add it again.',
           ),
           findsOneWidget,
         );

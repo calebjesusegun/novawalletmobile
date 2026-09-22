@@ -79,6 +79,16 @@ class ContributionResultScreen extends ConsumerWidget {
     await syncCoordinator.retryOperation(op.id);
   }
 
+  void _handleDone(BuildContext context) {
+    try {
+      onDone();
+    } catch (_) {
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final liveOpAsync = ref.watch(operationByIdStreamProvider(operation.id));
@@ -160,10 +170,6 @@ class ContributionResultScreen extends ConsumerWidget {
             child: IntrinsicHeight(
               child: Column(
                 children: [
-                  AppSystemNotification.offline(
-                    title: "You're offline",
-                    message: "Some actions will be saved and processed when you're back online.",
-                  ),
                   const Spacer(),
                   const AppResultIndicator(
                     status: AppOperationStatus.pending,
@@ -205,7 +211,7 @@ class ContributionResultScreen extends ConsumerWidget {
                   AppStepProgress.offlinePending(),
                   AppSpacing.gapVertical24,
                   const AppSystemNotification(
-                    message: 'Saved on this phone. We will add it automatically when you are online. You do not need to add it again.',
+                    message: 'Queued securely. We will add it automatically when you are online. You do not need to add it again.',
                     type: SystemNotificationType.info,
                   ),
                   const Spacer(),
@@ -213,7 +219,7 @@ class ContributionResultScreen extends ConsumerWidget {
                   AppButton(
                     key: const Key('contribution_pending_back_button'),
                     label: 'Back to goal',
-                    onPressed: onDone,
+                    onPressed: () => _handleDone(context),
                   ),
                 ],
               ),
@@ -381,7 +387,7 @@ class ContributionResultScreen extends ConsumerWidget {
                   AppButton(
                     key: const Key('contribution_reconnect_done_button'),
                     label: 'Done',
-                    onPressed: onDone,
+                    onPressed: () => _handleDone(context),
                   ),
                 ],
               ),
@@ -460,7 +466,7 @@ class ContributionResultScreen extends ConsumerWidget {
                     key: const Key('contribution_sync_failure_back_button'),
                     label: 'Back to goal',
                     variant: AppButtonVariant.outline,
-                    onPressed: onDone,
+                    onPressed: () => _handleDone(context),
                   ),
                 ],
               ),
@@ -647,7 +653,7 @@ class ContributionResultScreen extends ConsumerWidget {
                   AppButton(
                     key: const Key('contribution_success_done_button'),
                     label: 'Done',
-                    onPressed: onDone,
+                    onPressed: () => _handleDone(context),
                   ),
                 ],
               ),
@@ -731,7 +737,7 @@ class ContributionResultScreen extends ConsumerWidget {
                     key: const Key('contribution_failure_back_button'),
                     label: 'Back to goal',
                     variant: AppButtonVariant.outline,
-                    onPressed: onDone,
+                    onPressed: () => _handleDone(context),
                   ),
                 ],
               ),

@@ -1571,6 +1571,71 @@ Added automated widget test `supports 2.0x text scaling without layout overflow 
 
 ---
 
+### AI-RISK-009 — Deactivated BuildContext captured in pushReplacement callback causing Null check operator crash
+
+**Tool:** Antigravity / Agentic implementation  
+**Stage:** Phase 4 — NovaSave Contribution Flow Navigation
+
+**Risky output / assumption**
+
+In `ContributeAmountScreen` (`lib/features/novasave/presentation/screens/contribute_amount_screen.dart`), the navigation callback for `onContributionSubmitted` was generated as:
+```dart
+onContributionSubmitted: (operation) {
+  Navigator.of(context).pop();
+  Navigator.of(context).pushReplacement(
+    MaterialPageRoute<void>(
+      builder: (_) => ContributionResultScreen(
+        operation: operation,
+        goal: widget.goal,
+        wasOffline: state.isOffline,
+        onDone: () => Navigator.of(context).pop(),
+      ),
+    ),
+  );
+}
+```
+
+**Why this was risky**
+
+`pushReplacement` disposes the originating `ContributeAmountScreen`, deactivating its `BuildContext`. However, the closure passed to `onDone` retained a reference to that disposed `context`. In Flutter, calling `Navigator.of(context)` on a deactivated element results in `findAncestorStateOfType<NavigatorState>()` returning `null`, and Flutter's implementation asserts `return navigator!;`, which throws a runtime crash:
+`_TypeError (Null check operator used on a null value)`.
+When the user completed an offline contribution and tapped "Back to goal", the app crashed instead of returning to the goal details.
+
+**How it was caught**
+
+Observed during device/simulator manual testing when testing offline contributions, reproduced with Flutter's error logging, and verified via an end-to-end navigation widget test.
+
+**Correction**
+
+1. Updated the route builder to capture the active result route's context:
+```dart
+builder: (resultContext) => ContributionResultScreen(
+  operation: operation,
+  goal: widget.goal,
+  wasOffline: state.isOffline,
+  onDone: () => Navigator.of(resultContext).pop(),
+)
+```
+2. Added defensive handling inside `ContributionResultScreen`:
+```dart
+void _handleDone(BuildContext context) {
+  try {
+    onDone();
+  } catch (_) {
+    if (context.mounted) {
+      Navigator.of(context).pop();
+    }
+  }
+}
+```
+3. Replaced device-centric phrasing ("Saved to this phone") with standard banking terminology ("Queued securely") and removed duplicate offline warning banners.
+
+**Regression protection**
+
+Added automated widget test `default navigation flow to result screen and tapping Back to goal does not throw null check error` in `test/features/novasave/presentation/contribute_amount_screen_test.dart`.
+
+---
+
 ## Review Guidelines
 
 When using AI on NovaWallet:

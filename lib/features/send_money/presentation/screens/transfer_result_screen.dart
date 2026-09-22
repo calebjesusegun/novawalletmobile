@@ -156,10 +156,6 @@ class TransferResultScreen extends ConsumerWidget {
             child: IntrinsicHeight(
               child: Column(
                 children: [
-                  AppSystemNotification.offline(
-                    title: "You're offline",
-                    message: "Some actions will be saved and processed when you're back online.",
-                  ),
                   const Spacer(),
                   const AppResultIndicator(
                     status: AppOperationStatus.pending,
@@ -201,7 +197,7 @@ class TransferResultScreen extends ConsumerWidget {
                   AppStepProgress.offlinePending(),
                   AppSpacing.gapVertical24,
                   const AppSystemNotification(
-                    message: 'Saved on this phone. We will send it automatically when you are online. You do not need to send it again.',
+                    message: 'Queued securely. We will send it automatically when you are online. You do not need to send it again.',
                     type: SystemNotificationType.info,
                   ),
                   const Spacer(),

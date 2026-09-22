@@ -244,7 +244,7 @@ void main() {
         );
         expect(
           find.text(
-            "You're offline. Transfer will be saved securely and sent when connected.",
+            "You're offline. Transfer will be queued securely and sent when connected.",
           ),
           findsOneWidget,
         );

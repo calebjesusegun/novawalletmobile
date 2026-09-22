@@ -37,7 +37,7 @@ class AppSystemNotification extends StatelessWidget {
   /// Factory for offline state notification.
   factory AppSystemNotification.offline({
     Key? key,
-    String message = "You're offline. Changes are saved on this phone and will sync when you're back online.",
+    String message = "You're offline. Requests are queued securely and will process when you're back online.",
     String? title,
   }) {
     return AppSystemNotification(
@@ -65,7 +65,7 @@ class AppSystemNotification extends StatelessWidget {
   /// Factory for sync failure notification.
   factory AppSystemNotification.syncFailure({
     Key? key,
-    String message = "Couldn't sync pending actions. Your money and operations are safely stored on this phone.",
+    String message = "Couldn't sync pending actions. Your funds and requests are queued securely.",
     String? title,
     String? actionLabel = 'Retry',
     VoidCallback? onActionPressed,
@@ -80,11 +80,10 @@ class AppSystemNotification extends StatelessWidget {
     );
   }
 
-  /// Factory for saved-on-phone notification.
+  /// Factory for saved-on-phone / queued-securely notification.
   factory AppSystemNotification.savedOnPhone({
     Key? key,
-    String message =
-        'Saved safely on this phone. Will be submitted once connected.',
+    String message = 'Queued securely. Will be submitted once connected.',
     String? title,
   }) {
     return AppSystemNotification(

@@ -247,21 +247,20 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        // Offline banner
+        // No duplicate offline banner
         expect(
           find.byKey(const Key('confirmation_offline_banner')),
-          findsOneWidget,
+          findsNothing,
         );
-        expect(find.text("You're offline"), findsOneWidget);
 
-        // Offline notice card
+        // Offline notice card with banking terminology
         expect(
           find.byKey(const Key('confirmation_offline_notice')),
           findsOneWidget,
         );
         expect(
           find.text(
-            'You are offline. We will save this contribution and add it when you are back online.',
+            'You are offline. This contribution will be queued securely and processed once you are back online.',
           ),
           findsOneWidget,
         );

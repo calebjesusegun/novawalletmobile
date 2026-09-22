@@ -144,7 +144,7 @@ class GoalDetailsScreen extends ConsumerWidget {
             if (isOffline)
               AppSystemNotification.offline(
                 title: "You're offline",
-                message: "Some actions will be saved and processed when you're back online.",
+                message: "Requests will be queued securely and processed when you're back online.",
               ),
 
             // Main Content Area

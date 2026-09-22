@@ -210,10 +210,10 @@ void main() {
           findsOneWidget,
         );
         expect(find.text('FirstBank • 1122334455'), findsOneWidget);
-        expect(find.text('Saved on this phone'), findsOneWidget);
+        expect(find.text('Queued securely'), findsOneWidget);
         expect(
           find.text(
-            'Saved on this device. This transfer will be sent automatically when you\'re back online.',
+            'Queued securely. This transfer will be sent automatically when you\'re back online.',
           ),
           findsOneWidget,
         );
@@ -325,7 +325,7 @@ void main() {
           findsOneWidget,
         );
         expect(find.text('REF-SALARY-2026'), findsOneWidget);
-        expect(find.text('Saved on this phone'), findsNothing);
+        expect(find.text('Queued securely'), findsNothing);
         expect(find.byType(AppStatusBadge), findsOneWidget);
       },
     );

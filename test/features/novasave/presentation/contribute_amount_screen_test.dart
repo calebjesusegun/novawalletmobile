@@ -1,14 +1,89 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:novawallet/core/connectivity/connectivity.dart';
+import 'package:novawallet/core/ids/idempotency_key.dart';
+import 'package:novawallet/core/ids/operation_id.dart';
 import 'package:novawallet/core/money/money.dart';
 import 'package:novawallet/design_system/components/buttons/app_button.dart';
 import 'package:novawallet/design_system/components/fields/app_amount_field.dart';
 import 'package:novawallet/design_system/components/progress/app_progress_bar.dart';
 import 'package:novawallet/features/novasave/domain/savings_goal.dart';
 import 'package:novawallet/features/novasave/presentation/screens/contribute_amount_screen.dart';
+import 'package:novawallet/features/novasave/presentation/screens/contribution_result_screen.dart';
 import 'package:novawallet/features/wallet/data/wallet_providers.dart';
 import 'package:novawallet/features/wallet/domain/wallet_projection.dart';
+import 'package:novawallet/sync/application/sync_coordinator.dart';
+import 'package:novawallet/sync/application/sync_coordinator_provider.dart';
+import 'package:novawallet/sync/application/sync_result.dart';
+import 'package:novawallet/sync/data/sync_providers.dart';
+import 'package:novawallet/sync/domain/financial_operation.dart';
+import 'package:novawallet/sync/domain/operation_payload.dart';
+import 'package:novawallet/sync/domain/operation_repository.dart';
+
+class _MockOperationRepo implements OperationRepository {
+  final List<FinancialOperation> operations = [];
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+
+  @override
+  Future<FinancialOperation> enqueue(FinancialOperation operation) async {
+    operations.add(operation);
+    return operation;
+  }
+
+  @override
+  Future<FinancialOperation> enqueueContribution({
+    required OperationId id,
+    required IdempotencyKey idempotencyKey,
+    required ContributionPayload payload,
+    DateTime? createdAt,
+  }) async {
+    final op = FinancialOperation.contribution(
+      id: id,
+      idempotencyKey: idempotencyKey,
+      payload: payload,
+      createdAt: createdAt ?? DateTime.now().toUtc(),
+    );
+    operations.add(op);
+    return op;
+  }
+
+  @override
+  Future<bool> claim(OperationId id, {DateTime? at}) async => true;
+
+  @override
+  Future<List<FinancialOperation>> getPendingOperations() async => operations;
+
+  @override
+  Future<int> recoverInterrupted() async => 0;
+
+  @override
+  Future<void> update(FinancialOperation operation) async {}
+
+  @override
+  Stream<List<FinancialOperation>> watchActiveOperations() =>
+      Stream.value(operations);
+
+  @override
+  Stream<FinancialOperation?> watchOperationById(OperationId id) =>
+      Stream.value(null);
+
+  @override
+  Stream<List<FinancialOperation>> watchPendingOperations() =>
+      Stream.value(operations);
+}
+
+class _MockSyncCoordinator implements SyncCoordinator {
+  @override
+  Future<SyncRunResult> synchronize({
+    SyncTrigger trigger = SyncTrigger.manual,
+  }) async => SyncRunResult.empty(trigger);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 void main() {
   final sampleGoal = SavingsGoal(
@@ -24,6 +99,7 @@ void main() {
     Money spendableBalance = const Money.fromKobo(12545000), // ₦125,450.00
     VoidCallback? onBack,
     void Function(Money)? onContinue,
+    ConnectivityStatus connectivity = ConnectivityStatus.online,
     double textScaleFactor = 1.0,
   }) {
     final effectiveGoal = goal ?? sampleGoal;
@@ -38,6 +114,9 @@ void main() {
 
     return ProviderScope(
       overrides: [
+        connectivityStatusProvider.overrideWithValue(connectivity),
+        operationRepositoryProvider.overrideWithValue(_MockOperationRepo()),
+        syncCoordinatorProvider.overrideWithValue(_MockSyncCoordinator()),
         walletProjectionProvider.overrideWithValue(AsyncValue.data(projection)),
       ],
       child: MaterialApp(
@@ -197,6 +276,43 @@ void main() {
         expect(find.text('Emergency Fund'), findsOneWidget);
         expect(find.text('₦200,000 of ₦500,000'), findsOneWidget);
         expect(find.text('Continue'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'default navigation flow to result screen and tapping Back to goal does not throw null check error',
+      (tester) async {
+        await tester.pumpWidget(
+          buildTestApp(connectivity: ConnectivityStatus.offline),
+        );
+        await tester.pumpAndSettle();
+
+        final field = find.byType(TextField);
+        await tester.enterText(field, '50000');
+        await tester.pumpAndSettle();
+
+        final continueButton = find.byKey(
+          const Key('contribute_continue_button'),
+        );
+        await tester.tap(continueButton);
+        await tester.pumpAndSettle();
+
+        // Now on Confirmation screen
+        expect(find.text('Confirm contribution'), findsOneWidget);
+        final confirmBtn = find.byKey(const Key('confirm_contribution_button'));
+        await tester.tap(confirmBtn);
+        await tester.pumpAndSettle();
+
+        // Now on Result screen with offline pending view
+        expect(find.byType(ContributionResultScreen), findsOneWidget);
+        final backToGoalBtn = find.byKey(
+          const Key('contribution_pending_back_button'),
+        );
+        expect(backToGoalBtn, findsOneWidget);
+        await tester.tap(backToGoalBtn);
+        await tester.pumpAndSettle();
+
+        expect(tester.takeException(), isNull);
       },
     );
   });
