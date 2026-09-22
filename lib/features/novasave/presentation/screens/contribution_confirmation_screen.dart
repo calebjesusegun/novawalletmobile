@@ -69,16 +69,6 @@ class ContributionConfirmationScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Offline System Banner (UI-NSV-16)
-              if (state.isOffline) ...[
-                AppSystemNotification.offline(
-                  key: const Key('confirmation_offline_banner'),
-                  title: "You're offline",
-                  message: "Some actions will be saved and processed when you're back online.",
-                ),
-                AppSpacing.gapVertical16,
-              ],
-
               // Error notification if submission failed
               if (state.errorMessage != null) ...[
                 AppSystemNotification(
@@ -163,7 +153,7 @@ class ContributionConfirmationScreen extends ConsumerWidget {
                 AppSpacing.gapVertical20,
                 AppSystemNotification.savedOnPhone(
                   key: const Key('confirmation_offline_notice'),
-                  message: 'You are offline. We will save this contribution and add it when you are back online.',
+                  message: 'You are offline. This contribution will be queued securely and processed once you are back online.',
                 ),
               ],
 

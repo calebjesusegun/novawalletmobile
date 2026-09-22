@@ -71,7 +71,7 @@ class TransferConfirmationScreen extends ConsumerWidget {
               if (state.isOffline) ...[
                 AppSystemNotification.offline(
                   key: const Key('confirmation_offline_banner'),
-                  message: "You're offline. Transfer will be saved securely and sent when connected.",
+                  message: "You're offline. Transfer will be queued securely and sent when connected.",
                 ),
                 AppSpacing.gapVertical16,
               ],

@@ -154,7 +154,7 @@ class WalletTransactionDetailSheet extends StatelessWidget {
                         Text(
                           isProcessing
                               ? 'Syncing to Bank...'
-                              : 'Saved on this phone',
+                              : 'Queued securely',
                           style: AppTypography.bodyBold12.copyWith(
                             color: AppColors.textPrimary,
                           ),
@@ -163,7 +163,7 @@ class WalletTransactionDetailSheet extends StatelessWidget {
                         Text(
                           isProcessing
                               ? 'Your transfer is currently being submitted.'
-                              : 'Saved on this device. This transfer will be sent automatically when you\'re back online.',
+                              : 'Queued securely. This transfer will be sent automatically when you\'re back online.',
                           style: AppTypography.bodyRegular12.copyWith(
                             color: AppColors.textSecondary,
                           ),
@@ -238,7 +238,7 @@ class WalletTransactionDetailSheet extends StatelessWidget {
                 ],
                 const Divider(height: 20, color: AppColors.borderSubtle),
                 _buildRow(
-                  label: isPending ? 'Saved At' : 'Date',
+                  label: isPending ? 'Queued At' : 'Date',
                   value: _formatDateTime(item.timestamp),
                 ),
                 if (item.reference != null && item.reference!.isNotEmpty) ...[

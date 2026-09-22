@@ -154,7 +154,7 @@ class _AmountEntryScreenState extends ConsumerState<AmountEntryScreen> {
                     if (state.isOffline) ...[
                       AppSystemNotification.offline(
                         message:
-                            "You're offline. Showing balance from ${_formatTimestamp(state.lastUpdatedAt)}. Transfers will be saved on this phone.",
+                            "You're offline. Showing balance from ${_formatTimestamp(state.lastUpdatedAt)}. Transfers will be queued securely.",
                       ),
                       AppSpacing.gapVertical16,
                     ],

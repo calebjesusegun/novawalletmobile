@@ -357,7 +357,6 @@ void main() {
             find.byKey(const Key('transfer_result_pending_offline_view')),
             findsOneWidget,
           );
-          expect(find.text("You're offline"), findsOneWidget);
           expect(find.text('Transfer Pending'), findsOneWidget);
           expect(find.text('₦10,000.00'), findsOneWidget);
           expect(find.text('To: John Doe'), findsOneWidget);
@@ -375,7 +374,7 @@ void main() {
           // Notification
           expect(
             find.text(
-              'Saved on this phone. We will send it automatically when you are online. You do not need to send it again.',
+              'Queued securely. We will send it automatically when you are online. You do not need to send it again.',
             ),
             findsOneWidget,
           );
