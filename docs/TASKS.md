@@ -1890,7 +1890,7 @@ flutter analyze
 
 ---
 
-## [ ] T-NSC-004 — Implement pending, reconnect and sync-failure Contribution states
+## [x] T-NSC-004 — Implement pending, reconnect and sync-failure Contribution states
 
 **Risk:** A  
 **Size:** M

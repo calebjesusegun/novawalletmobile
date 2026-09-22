@@ -182,11 +182,11 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 | NSV-015 | Immediate online contribution failure leaves wallet unchanged and offers retry | flow/design | UI-NSV-15 | `features/novasave` (`ContributionResultScreen`) | widget/integration | VERIFIED by design | COMPLETED |
 | NSV-016 | Offline confirmation explains contribution will be saved | ASM-009 | UI-NSV-16 | `features/novasave` (`ContributionConfirmationScreen`) | widget | VERIFIED by design | COMPLETED |
 | NSV-017 | Offline Contribution is durably persisted before UI reports it saved | ASM-009, ASM-012 | UI-NSV-17 | `features/novasave` (`ContributionConfirmationController`, `OperationRepository`) | unit/widget/integration | VERIFIED | COMPLETED |
-| NSV-018 | Pending contribution remains visible while confirmed goal progress is unchanged | ASM-009 | UI-NSV-18 | NovaSave + sync projection | widget/integration | VERIFIED by design | TODO |
+| NSV-018 | Pending contribution remains visible while confirmed goal progress is unchanged | ASM-009 | UI-NSV-18 | `features/novasave` (`GoalDetailsScreen`, `ContributionResultScreen`) | widget/integration | VERIFIED by design | COMPLETED |
 | NSV-019 | Pending contribution survives restart | ASM-012 | UI-NSV-17/18 + Flow 6 | sync/persistence | integration | VERIFIED | DONE |
-| NSV-020 | Reconnect transitions pending contribution into processing | ASM-011 | UI-NSV-19 | sync | integration/widget | VERIFIED by design | IN_PROGRESS |
+| NSV-020 | Reconnect transitions pending contribution into processing | ASM-011 | UI-NSV-19 | `features/novasave` (`ContributionResultScreen`), sync | integration/widget | VERIFIED by design | COMPLETED |
 | NSV-021 | Reconnect success updates goal once | ASM-011, ASM-013 | UI-NSV-20 | sync/fake backend/NovaSave | integration | VERIFIED | DONE |
-| NSV-022 | Sync failure retains contribution safely and offers retry | ASM-009, ASM-010 | UI-NSV-21 | sync/NovaSave | integration/widget | VERIFIED by design | IN_PROGRESS |
+| NSV-022 | Sync failure retains contribution safely and offers retry | ASM-009, ASM-010 | UI-NSV-21 | `features/novasave` (`ContributionResultScreen`), sync | integration/widget | VERIFIED by design | COMPLETED |
 | NSV-023 | Manual retry reuses the same logical contribution/idempotency key | ASM-013 | UI-NSV-21 | sync/fake backend | unit/integration | INFERRED implementation required by duplicate-prevention requirement | DONE |
 
 ---

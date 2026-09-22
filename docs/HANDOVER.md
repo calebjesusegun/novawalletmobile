@@ -63,13 +63,17 @@ Phase 7 (NovaSave Goal Creation) is COMPLETE:
     - Full screen reader semantics and 2.0x text scaling layout responsiveness (`HC-ACCESSIBILITY`).
   - 8 widget tests in `test/features/novasave/presentation/goal_details_screen_test.dart` (53 NovaSave tests, 478 total repo tests passing).
 
-Phase 8 (NovaSave Contribution) IN PROGRESS:
+Phase 8 (NovaSave Contribution) COMPLETE:
 - `T-NSC-001` (Implement contribution amount and validation) is COMPLETE and merged (`50b3a34`).
 - `T-NSC-002` (Implement contribution confirmation and operation creation) is COMPLETE and merged (`98672f4`).
-- `T-NSC-003` (Implement online contribution processing, success and failure) is COMPLETE on `feat/nsc-processing-result`:
-  - `ContributionResultScreen` implemented in `lib/features/novasave/presentation/screens/contribution_result_screen.dart` (`UI-NSV-12`, `UI-NSV-13`, `UI-NSV-15`, `UI-NSV-17`, `UI-NSV-19`, `UI-NSV-20`, `UI-NSV-21`, `NSV-013`, `NSV-014`, `NSV-015`, `MNY-005`).
-  - Seamless navigation wired from `ContributeAmountScreen` -> `ContributionConfirmationScreen` -> `ContributionResultScreen` -> `GoalDetailsScreen`.
-  - 8 widget tests in `test/features/novasave/presentation/contribution_result_screen_test.dart` (86 NovaSave tests, 511 total repo tests passing).
+- `T-NSC-003` (Implement online contribution processing, success and failure) is COMPLETE and merged (`0581cfa`).
+- `T-NSC-004` (Implement pending, reconnect and sync-failure Contribution states) is COMPLETE on `feat/nsc-pending-reconnect`:
+  - Verified pending contribution result (`UI-NSV-17`).
+  - Verified goal details pending amount representation separate from confirmed progress (`UI-NSV-18`).
+  - Verified restart survival of pending contribution (`NSV-019`).
+  - Verified reconnect processing (`UI-NSV-19`) and reconnect success (`UI-NSV-20`).
+  - Verified sync failure and retry (`UI-NSV-21`, `NSV-022`, `NSV-023`).
+  - 10 widget tests in `test/features/novasave/presentation/contribution_result_screen_test.dart` (88 NovaSave tests, 513 total repo tests passing).
 
 ---
 
@@ -77,12 +81,13 @@ Phase 8 (NovaSave Contribution) IN PROGRESS:
  
 Current Task:
 ```text
-T-NSC-003 (Implement online contribution processing, success and failure) COMPLETE on feat/nsc-processing-result
+T-NSC-004 (Implement pending, reconnect and sync-failure Contribution states) COMPLETE on feat/nsc-pending-reconnect
+Phase 8 (NovaSave Contribution) COMPLETE
 ```
 
 Next Task:
 ```text
-T-NSC-004 — Implement pending, reconnect and sync-failure Contribution states (Phase 8 — NovaSave Contribution)
+T-XF-001 — Reconcile confirmed wallet and transaction state after operations (Phase 9 — Cross-Feature Consistency)
 ```
 
 ---

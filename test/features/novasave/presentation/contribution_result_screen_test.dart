@@ -380,6 +380,85 @@ void main() {
     );
 
     testWidgets(
+      'UI-NSV-19: Reconnect processing view displays back online banner, Adding text, and disabled button',
+      (tester) async {
+        final op = createTestOperation(status: OperationStatus.processing);
+
+        await tester.pumpWidget(
+          buildTestScreen(
+            operation: op,
+            connectivity: ConnectivityStatus.online,
+            wasOffline: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          find.byKey(
+            const Key('contribution_result_reconnect_processing_view'),
+          ),
+          findsOneWidget,
+        );
+        expect(find.text('Back online'), findsOneWidget);
+        expect(find.text('Adding ₦5,000.00'), findsOneWidget);
+        expect(
+          find.text('Adding to Car insurance after you came back online.'),
+          findsOneWidget,
+        );
+        expect(find.byType(AppStepProgress), findsOneWidget);
+        expect(find.text('Adding...'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'UI-NSV-20: Reconnect success view displays reconnect success progression and Done button',
+      (tester) async {
+        final op = createTestOperation(
+          status: OperationStatus.completed,
+          remoteReference: 'REMOTE-RECONNECT-456',
+          completedAt: DateTime.utc(2026, 9, 22, 10, 0, 8),
+        );
+
+        bool doneTapped = false;
+
+        await tester.pumpWidget(
+          buildTestScreen(
+            operation: op,
+            connectivity: ConnectivityStatus.online,
+            wasOffline: true,
+            onDone: () => doneTapped = true,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          find.byKey(const Key('contribution_result_reconnect_success_view')),
+          findsOneWidget,
+        );
+        expect(find.text('Contribution successful'), findsOneWidget);
+        expect(find.text('₦5,000.00'), findsOneWidget);
+        expect(
+          find.text('Added to Car insurance after you came back online.'),
+          findsOneWidget,
+        );
+        expect(find.byType(AppStepProgress), findsOneWidget);
+        expect(find.text('Goal'), findsOneWidget);
+        expect(find.text('Car insurance'), findsOneWidget);
+        expect(find.text('Progress'), findsOneWidget);
+        expect(find.text('25%'), findsOneWidget);
+        expect(find.text('Reference'), findsOneWidget);
+        expect(find.text('REMOTE-RECONNECT-456'), findsOneWidget);
+
+        final doneBtn = find.byKey(
+          const Key('contribution_reconnect_done_button'),
+        );
+        expect(doneBtn, findsOneWidget);
+        await tester.tap(doneBtn);
+        expect(doneTapped, isTrue);
+      },
+    );
+
+    testWidgets(
       'UI-NSV-21: Recoverable sync failure view displays retryable banner and action',
       (tester) async {
         final syncCoordinator = FakeSyncCoordinatorForRetry();
