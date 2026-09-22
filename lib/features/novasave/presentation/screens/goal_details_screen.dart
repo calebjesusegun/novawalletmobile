@@ -142,9 +142,17 @@ class GoalDetailsScreen extends ConsumerWidget {
           children: [
             // Offline Notification Banner (UI-NSV-18)
             if (isOffline)
-              AppSystemNotification.offline(
-                title: "You're offline",
-                message: "Requests will be queued securely and processed when you're back online.",
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.space16,
+                  AppSpacing.space16,
+                  AppSpacing.space16,
+                  0,
+                ),
+                child: AppSystemNotification.offline(
+                  title: "You're offline",
+                  message: "Requests will be queued securely and processed when you're back online.",
+                ),
               ),
 
             // Main Content Area

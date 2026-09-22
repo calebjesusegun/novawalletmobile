@@ -50,6 +50,7 @@ class AppResultIndicator extends StatelessWidget {
 
     return Semantics(
       label: semanticLabel ?? defaultLabel,
+      excludeSemantics: true,
       child: Container(
         width: size,
         height: size,

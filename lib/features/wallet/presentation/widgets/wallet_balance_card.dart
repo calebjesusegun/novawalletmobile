@@ -49,6 +49,8 @@ class WalletBalanceCard extends StatelessWidget {
         ? 'Available balance: ${balance.format()}, ${_formatLastUpdated(lastUpdatedAt!)}'
         : 'Available balance: ${balance.format()}';
 
+    final isLargeText = MediaQuery.textScalerOf(context).scale(1) > 1.3;
+
     return AppCard(
       padding: AppSpacing.insetsAll20,
       backgroundColor: AppColors.surface,
@@ -59,10 +61,12 @@ class WalletBalanceCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Available Balance',
-                style: AppTypography.bodyMedium14.copyWith(
-                  color: AppColors.textSecondary,
+              Expanded(
+                child: Text(
+                  'Available Balance',
+                  style: AppTypography.bodyMedium14.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ),
               if (isRefreshing)
@@ -81,6 +85,7 @@ class WalletBalanceCard extends StatelessWidget {
           AppSpacing.gapVertical8,
           Semantics(
             label: semanticLabel,
+            excludeSemantics: true,
             child: Text(
               balance.format(),
               style: AppTypography.headlineBold32.copyWith(
@@ -99,27 +104,43 @@ class WalletBalanceCard extends StatelessWidget {
             ),
           ],
           AppSpacing.gapVertical20,
-          Row(
-            children: [
-              Expanded(
-                child: AppButton(
-                  label: 'Send Money',
-                  icon: AppIcons.arrowUpRight,
-                  variant: AppButtonVariant.primary,
-                  onPressed: onSendMoneyTap,
+          if (isLargeText) ...[
+            AppButton(
+              label: 'Send Money',
+              icon: AppIcons.arrowUpRight,
+              variant: AppButtonVariant.primary,
+              onPressed: onSendMoneyTap,
+            ),
+            AppSpacing.gapVertical8,
+            AppButton(
+              label: 'NovaSave',
+              icon: AppIcons.piggyBank,
+              variant: AppButtonVariant.secondary,
+              onPressed: onNovaSaveTap,
+            ),
+          ] else ...[
+            Row(
+              children: [
+                Expanded(
+                  child: AppButton(
+                    label: 'Send Money',
+                    icon: AppIcons.arrowUpRight,
+                    variant: AppButtonVariant.primary,
+                    onPressed: onSendMoneyTap,
+                  ),
                 ),
-              ),
-              AppSpacing.gapHorizontal12,
-              Expanded(
-                child: AppButton(
-                  label: 'NovaSave',
-                  icon: AppIcons.piggyBank,
-                  variant: AppButtonVariant.secondary,
-                  onPressed: onNovaSaveTap,
+                AppSpacing.gapHorizontal12,
+                Expanded(
+                  child: AppButton(
+                    label: 'NovaSave',
+                    icon: AppIcons.piggyBank,
+                    variant: AppButtonVariant.secondary,
+                    onPressed: onNovaSaveTap,
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ],
       ),
     );

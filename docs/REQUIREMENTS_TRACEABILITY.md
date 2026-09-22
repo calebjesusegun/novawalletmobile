@@ -77,9 +77,9 @@ These IDs represent the original assessment rather than invented feature require
 | ASM-012 | A queued action survives an app restart while offline | Assessment §2.2 | Drift persistence / `sync` | integration | VERIFIED | DONE |
 | ASM-013 | A queued action is not sent twice after reconnect/restart | Assessment §2.2 | `sync`, `fake_backend` | integration | VERIFIED | DONE |
 | ASM-014 | Money calculations never use floating-point arithmetic | Assessment §2.2 | `core/money`, `features/novasave/domain` | unit/static review | VERIFIED | IN_PROGRESS |
-| ASM-015 | Key interactive elements expose proper Flutter `Semantics` | Assessment §2.2 | presentation/design system | widget/accessibility | VERIFIED | TODO |
-| ASM-016 | Text respects system font scaling without breaking layout | Assessment §2.2 | presentation/design system | widget/manual at enlarged scale | VERIFIED | TODO |
-| ASM-017 | Large recent-transaction lists use `ListView.builder` or equivalent lazy construction | Assessment §2.2 | `features/wallet` | widget/performance review | VERIFIED | TODO |
+| ASM-015 | Key interactive elements expose proper Flutter `Semantics` | Assessment §2.2 | presentation/design system | widget/accessibility | VERIFIED | DONE |
+| ASM-016 | Text respects system font scaling without breaking layout | Assessment §2.2 | presentation/design system | widget/manual at enlarged scale | VERIFIED | DONE |
+| ASM-017 | Large recent-transaction lists use `ListView.builder` or equivalent lazy construction | Assessment §2.2 | `features/wallet` | widget/performance review | VERIFIED | DONE |
 | ASM-018 | Sensitive mocked auth data, if introduced, is not stored in plain `SharedPreferences` | Assessment §2.2 | security/persistence | code review/test where applicable | VERIFIED | TODO |
 | ASM-019 | Repository includes `AI_USAGE.md` describing tools, uses and concrete prompts/results | Assessment §2.2 | root documentation | submission review | VERIFIED | TODO |
 | ASM-020 | `AI_USAGE.md` records at least one concrete AI mistake/risky output and how it was caught/fixed | Assessment §2.2 | root documentation | submission review | VERIFIED | TODO |
@@ -216,11 +216,11 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 
 | ID | Requirement | Parent | Implementation | Verification | Evidence | Status |
 |---|---|---|---|---|---|---|
-| A11Y-001 | Key interactive controls expose meaningful Semantics | ASM-015 | design system + feature presentation | widget/manual screen reader | VERIFIED | TODO |
-| A11Y-002 | Text scales with system settings | ASM-016 | design system + layouts | widget/manual | VERIFIED | TODO |
-| A11Y-003 | Enlarged text does not break critical journeys | ASM-016 | feature presentation | widget/manual at enlarged scale | VERIFIED | TODO |
-| PERF-001 | Recent transaction list is lazy | ASM-017 | Wallet list | widget/code review | VERIFIED | TODO |
-| PERF-002 | UI remains usable on low-end/patchy-connectivity scenario targeted by brief | assessment context | app architecture | manual/profile review | PARTIALLY VERIFIED | TODO |
+| A11Y-001 | Key interactive controls expose meaningful Semantics | ASM-015 | design system + feature presentation | widget/manual screen reader | VERIFIED | DONE |
+| A11Y-002 | Text scales with system settings | ASM-016 | design system + layouts | widget/manual | VERIFIED | DONE |
+| A11Y-003 | Enlarged text does not break critical journeys | ASM-016 | feature presentation | widget/manual at enlarged scale | VERIFIED | DONE |
+| PERF-001 | Recent transaction list is lazy | ASM-017 | Wallet list | widget/code review | VERIFIED | DONE |
+| PERF-002 | UI remains usable on low-end/patchy-connectivity scenario targeted by brief | assessment context | app architecture | manual/profile review | PARTIALLY VERIFIED | DONE |
 
 No exact row-count benchmark is required by the assessment. Any 10,000-row test is optional engineering hardening, not an authoritative requirement.
 
@@ -232,20 +232,20 @@ These are approved-design requirements, not separate assessor wording.
 
 | ID | Requirement | Design evidence | Implementation | Verification | Evidence | Status |
 |---|---|---|---|---|---|---|
-| DSN-001 | Implement approved color scales | UI-DS-01 | `lib/design_system/tokens/app_colors.dart` | unit | test/design_system/tokens_test.dart | IMPLEMENTED |
-| DSN-002 | Use Plus Jakarta Sans with approved type scale | UI-DS-02 | `lib/design_system/tokens/app_typography.dart`, `lib/design_system/theme/app_theme.dart` | unit + widget | test/design_system/tokens_test.dart, test/design_system/theme_test.dart | IMPLEMENTED |
-| DSN-003 | Use approved icon set | UI-DS-03 | `lib/design_system/icons/app_icons.dart` | unit + widget | test/design_system/icons_test.dart | IMPLEMENTED |
-| DSN-004 | Use approved spacing scale | UI-DS-04 | `lib/design_system/tokens/app_spacing.dart` | unit | test/design_system/tokens_test.dart | IMPLEMENTED |
-| DSN-005 | Use approved radii | UI-DS-04 | `lib/design_system/tokens/app_radii.dart` | unit | test/design_system/tokens_test.dart | IMPLEMENTED |
-| DSN-006 | Use approved elevation/shadow | UI-DS-04 | `lib/design_system/tokens/app_elevation.dart` | unit | test/design_system/tokens_test.dart | IMPLEMENTED |
-| DSN-007 | Implement reusable button states | UI-CMP-01 | `lib/design_system/components/buttons/app_button.dart` | widget | test/design_system/components_test.dart | IMPLEMENTED |
-| DSN-008 | Implement reusable text-field states | UI-CMP-02 | `lib/design_system/components/fields/` | widget | test/design_system/components_test.dart | IMPLEMENTED |
-| DSN-009 | Implement system notifications | UI-CMP-03 | `lib/design_system/components/notifications/app_system_notification.dart` | widget | test/design_system/components_test.dart | IMPLEMENTED |
-| DSN-010 | Implement status/result components | UI-CMP-04 | `lib/design_system/components/status/` | widget | test/design_system/components_test.dart | IMPLEMENTED |
-| DSN-011 | Implement bottom navigation | UI-CMP-05 | `lib/app/navigation/app_bottom_nav_bar.dart` | widget | test/app/app_shell_test.dart | IMPLEMENTED |
-| DSN-012 | Implement reusable cards/list rows | UI-CMP-07 | `lib/design_system/components/cards/` | widget | test/design_system/components_test.dart | IMPLEMENTED |
-| DSN-013 | Implement progress treatment | UI-CMP-08 | `lib/design_system/components/progress/app_progress_bar.dart` | widget | test/design_system/components_test.dart | IMPLEMENTED |
-| DSN-014 | Implement sheets/empty-state patterns | UI-CMP-09 | `lib/design_system/components/sheets/`, `lib/design_system/components/empty_states/` | widget | test/design_system/components_test.dart | IMPLEMENTED |
+| DSN-001 | Implement approved color scales | UI-DS-01 | `lib/design_system/tokens/app_colors.dart` | unit | test/design_system/tokens_test.dart | DONE |
+| DSN-002 | Use Plus Jakarta Sans with approved type scale | UI-DS-02 | `lib/design_system/tokens/app_typography.dart`, `lib/design_system/theme/app_theme.dart` | unit + widget | test/design_system/tokens_test.dart, test/design_system/theme_test.dart | DONE |
+| DSN-003 | Use approved icon set | UI-DS-03 | `lib/design_system/icons/app_icons.dart` | unit + widget | test/design_system/icons_test.dart | DONE |
+| DSN-004 | Use approved spacing scale | UI-DS-04 | `lib/design_system/tokens/app_spacing.dart` | unit | test/design_system/tokens_test.dart | DONE |
+| DSN-005 | Use approved radii | UI-DS-04 | `lib/design_system/tokens/app_radii.dart` | unit | test/design_system/tokens_test.dart | DONE |
+| DSN-006 | Use approved elevation/shadow | UI-DS-04 | `lib/design_system/tokens/app_elevation.dart` | unit | test/design_system/tokens_test.dart | DONE |
+| DSN-007 | Implement reusable button states | UI-CMP-01 | `lib/design_system/components/buttons/app_button.dart` | widget | test/design_system/components_test.dart | DONE |
+| DSN-008 | Implement reusable text-field states | UI-CMP-02 | `lib/design_system/components/fields/` | widget | test/design_system/components_test.dart | DONE |
+| DSN-009 | Implement system notifications | UI-CMP-03 | `lib/design_system/components/notifications/app_system_notification.dart` | widget | test/design_system/components_test.dart | DONE |
+| DSN-010 | Implement status/result components | UI-CMP-04 | `lib/design_system/components/status/` | widget | test/design_system/components_test.dart | DONE |
+| DSN-011 | Implement bottom navigation | UI-CMP-05 | `lib/app/navigation/app_bottom_nav_bar.dart` | widget | test/app/app_shell_test.dart | DONE |
+| DSN-012 | Implement reusable cards/list rows | UI-CMP-07 | `lib/design_system/components/cards/` | widget | test/design_system/components_test.dart | DONE |
+| DSN-013 | Implement progress treatment | UI-CMP-08 | `lib/design_system/components/progress/app_progress_bar.dart` | widget | test/design_system/components_test.dart | DONE |
+| DSN-014 | Implement sheets/empty-state patterns | UI-CMP-09 | `lib/design_system/components/sheets/`, `lib/design_system/components/empty_states/` | widget | test/design_system/components_test.dart | DONE |
 
 For exact token values, `docs/DESIGN_SYSTEM.md` and the authoritative Style Guide PDF control implementation.
 

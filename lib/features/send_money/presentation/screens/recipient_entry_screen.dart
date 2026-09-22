@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:novawallet/app/navigation/app_destination.dart';
+import 'package:novawallet/app/navigation/app_navigation_provider.dart';
 import 'package:novawallet/design_system/components/buttons/app_button.dart';
 import 'package:novawallet/design_system/components/fields/app_text_field.dart';
 import 'package:novawallet/design_system/tokens/app_colors.dart';
@@ -69,13 +71,23 @@ class _RecipientEntryScreenState extends ConsumerState<RecipientEntryScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(recipientEntryControllerProvider);
+    final currentDestination = ref.watch(appNavigationProvider);
+    final isCurrentTab = currentDestination == AppDestination.send;
+
+    ref.listen<AppDestination>(appNavigationProvider, (prev, next) {
+      if (next == AppDestination.send && state.resolvedRecipient == null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _focusNode.requestFocus();
+        });
+      }
+    });
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Send Money'),
-        centerTitle: true,
-        backgroundColor: AppColors.background,
+        title: const Text('Send Money', style: AppTypography.titleBold18),
+        centerTitle: false,
+        backgroundColor: AppColors.surface,
         elevation: 0,
       ),
       body: SafeArea(
@@ -105,6 +117,7 @@ class _RecipientEntryScreenState extends ConsumerState<RecipientEntryScreen> {
                     AppTextField(
                       controller: _accountController,
                       focusNode: _focusNode,
+                      autofocus: isCurrentTab,
                       label: 'Recipient account number',
                       hintText: 'Enter 10-digit account number',
                       errorText: state.errorMessage,

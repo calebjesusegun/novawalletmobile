@@ -72,12 +72,12 @@ class _AmountEntryScreenState extends ConsumerState<AmountEntryScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Send Money'),
-        centerTitle: true,
-        backgroundColor: AppColors.background,
+        title: const Text('Send Money', style: AppTypography.titleBold18),
+        centerTitle: false,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(AppIcons.arrowLeft),
+          icon: const Icon(AppIcons.arrowLeft, color: AppColors.textPrimary),
           onPressed: widget.onBack ?? () => Navigator.of(context).maybePop(),
           tooltip: 'Back',
         ),
@@ -179,6 +179,7 @@ class _AmountEntryScreenState extends ConsumerState<AmountEntryScreen> {
                     AppAmountField(
                       controller: _amountController,
                       focusNode: _focusNode,
+                      autofocus: true,
                       errorText: state.validationError,
                       onChanged: (value) {
                         ref

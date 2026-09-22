@@ -69,10 +69,13 @@ class GoalCard extends StatelessWidget {
       );
     }
 
+    final isLargeText = MediaQuery.textScalerOf(context).scale(1) > 1.3;
+
     return Semantics(
       container: true,
       button: onTap != null,
       label: semanticText.toString(),
+      excludeSemantics: true,
       onTapHint: onTap != null ? 'View goal details' : null,
       child: Material(
         color: AppColors.surface,
@@ -91,27 +94,43 @@ class GoalCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Top row: Goal name and percentage
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        goal.name,
-                        style: AppTypography.titleBold16,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                if (isLargeText) ...[
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(goal.name, style: AppTypography.titleBold16),
+                      AppSpacing.gapVertical4,
+                      Text(
+                        '${goal.percentage}%',
+                        style: AppTypography.titleBold16.copyWith(
+                          color: AppColors.primaryAction,
+                        ),
                       ),
-                    ),
-                    AppSpacing.gapHorizontal12,
-                    Text(
-                      '${goal.percentage}%',
-                      style: AppTypography.titleBold16.copyWith(
-                        color: AppColors.primaryAction,
+                    ],
+                  ),
+                ] else ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          goal.name,
+                          style: AppTypography.titleBold16,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                      AppSpacing.gapHorizontal12,
+                      Text(
+                        '${goal.percentage}%',
+                        style: AppTypography.titleBold16.copyWith(
+                          color: AppColors.primaryAction,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 AppSpacing.gapVertical12,
 
                 // Progress bar
@@ -125,26 +144,47 @@ class GoalCard extends StatelessWidget {
                 AppSpacing.gapVertical12,
 
                 // Bottom row: Saved of target amount and target date
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
+                if (isLargeText) ...[
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
                         '${goal.savedAmount.formatCompact()} of ${goal.targetAmount.formatCompact()}',
                         style: AppTypography.bodyMedium12.copyWith(
                           color: AppColors.textSecondary,
                         ),
                       ),
-                    ),
-                    AppSpacing.gapHorizontal8,
-                    Text(
-                      'Target: ${formatDate(goal.targetDate)}',
-                      style: AppTypography.bodyMedium12.copyWith(
-                        color: AppColors.textSecondary,
+                      AppSpacing.gapVertical4,
+                      Text(
+                        'Target: ${formatDate(goal.targetDate)}',
+                        style: AppTypography.bodyMedium12.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                ] else ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '${goal.savedAmount.formatCompact()} of ${goal.targetAmount.formatCompact()}',
+                          style: AppTypography.bodyMedium12.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                      AppSpacing.gapHorizontal8,
+                      Text(
+                        'Target: ${formatDate(goal.targetDate)}',
+                        style: AppTypography.bodyMedium12.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
 
                 // Offline pending contribution banner (UI-NSV-02)
                 if (hasPending) ...[

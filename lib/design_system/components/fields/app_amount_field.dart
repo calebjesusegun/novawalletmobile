@@ -17,6 +17,7 @@ class AppAmountField extends StatelessWidget {
     this.errorText,
     this.helperText,
     this.enabled = true,
+    this.autofocus = false,
     this.onChanged,
     this.focusNode,
     this.semanticLabel = 'Enter amount in Naira',
@@ -28,6 +29,7 @@ class AppAmountField extends StatelessWidget {
   final String? errorText;
   final String? helperText;
   final bool enabled;
+  final bool autofocus;
   final ValueChanged<String>? onChanged;
   final FocusNode? focusNode;
   final String semanticLabel;
@@ -44,64 +46,71 @@ class AppAmountField extends StatelessWidget {
           label: semanticLabel,
           textField: true,
           enabled: enabled,
-          child: Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.space16,
-              vertical: AppSpacing.space12,
-            ),
-            decoration: BoxDecoration(
-              color: enabled ? AppColors.white : AppColors.grey100,
-              borderRadius: AppRadii.mdBorderRadius,
-              border: Border.all(
-                color: hasError
-                    ? AppColors.error
-                    : (enabled ? AppColors.border : AppColors.borderSubtle),
-                width: hasError ? 1.5 : 1.0,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: enabled ? () => focusNode?.requestFocus() : null,
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.space16,
+                vertical: AppSpacing.space12,
               ),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  currencySymbol,
-                  style: AppTypography.headlineBold32.copyWith(
-                    color: enabled
-                        ? AppColors.textPrimary
-                        : AppColors.textTertiary,
-                  ),
+              decoration: BoxDecoration(
+                color: enabled ? AppColors.white : AppColors.grey100,
+                borderRadius: AppRadii.mdBorderRadius,
+                border: Border.all(
+                  color: hasError
+                      ? AppColors.error
+                      : (enabled ? AppColors.border : AppColors.borderSubtle),
+                  width: hasError ? 1.5 : 1.0,
                 ),
-                AppSpacing.gapHorizontal8,
-                Expanded(
-                  child: TextFormField(
-                    controller: controller,
-                    focusNode: focusNode,
-                    enabled: enabled,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(
-                        RegExp(r'^\d*\.?\d{0,2}'),
-                      ),
-                    ],
-                    onChanged: onChanged,
-                    style: AppTypography.headlineBold32.copyWith(
-                      color: enabled
-                          ? AppColors.textPrimary
-                          : AppColors.textTertiary,
-                    ),
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                      hintText: hintText,
-                      hintStyle: AppTypography.headlineBold32.copyWith(
-                        color: AppColors.textTertiary,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  ExcludeSemantics(
+                    child: Text(
+                      currencySymbol,
+                      style: AppTypography.headlineBold32.copyWith(
+                        color: enabled
+                            ? AppColors.textPrimary
+                            : AppColors.textTertiary,
                       ),
                     ),
                   ),
-                ),
-              ],
+                  AppSpacing.gapHorizontal8,
+                  Expanded(
+                    child: TextFormField(
+                      controller: controller,
+                      focusNode: focusNode,
+                      autofocus: autofocus,
+                      enabled: enabled,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d{0,2}'),
+                        ),
+                      ],
+                      onChanged: onChanged,
+                      style: AppTypography.headlineBold32.copyWith(
+                        color: enabled
+                            ? AppColors.textPrimary
+                            : AppColors.textTertiary,
+                      ),
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                        hintText: hintText,
+                        hintStyle: AppTypography.headlineBold32.copyWith(
+                          color: AppColors.textTertiary,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

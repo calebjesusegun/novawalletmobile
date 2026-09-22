@@ -142,6 +142,7 @@ class _ContributeAmountScreenState
                       key: const Key('contribute_amount_field'),
                       controller: _amountController,
                       focusNode: _focusNode,
+                      autofocus: true,
                       hintText: '0.00',
                       currencySymbol: '₦',
                       errorText: state.validationError,

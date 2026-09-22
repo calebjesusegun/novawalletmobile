@@ -45,7 +45,7 @@ class TransferConfirmationScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         leading: IconButton(
           key: const Key('confirmation_back_button'),
@@ -59,7 +59,7 @@ class TransferConfirmationScreen extends ConsumerWidget {
             color: AppColors.textPrimary,
           ),
         ),
-        centerTitle: true,
+        centerTitle: false,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
