@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 10 (Accessibility, Performance & Visual Reconciliation) COMPLETE  
-**Primary next task:** Phase 11 — Mandatory Assessment Testing (`T-TST-001`, `T-TST-002`, `T-TST-003`)  
-**Current branch:** `feat/phase-10-a11y-perf-visual`  
-**Latest commit on main:** `40860eb` (PR #25)  
+**Status:** Task `T-TST-001` (Send Money Widget Coverage) COMPLETE  
+**Primary next task:** Task `T-TST-002` — Complete required NovaSave contribution widget coverage  
+**Current branch:** `test/T-TST-001-send-money-widgets`  
+**Latest commit on main:** `e92e96f` (PR #27 — `CurrencyAmountInputFormatter`)  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -58,19 +58,21 @@ Phase 8 (NovaSave Contribution) is COMPLETE:
 
 Phase 9 (Cross-Feature Consistency & Resilience) is COMPLETE and merged into `main` (`40860eb`, PR #25).
 
-Phase 10 (Accessibility, Performance & Visual Reconciliation) is COMPLETE:
-- `T-A11Y-001` (Accessibility and font-scale pass):
-  - Added comprehensive `Semantics` on `AppButton`, `AppTextField`, `AppAmountField`, `AppStatusBadge`, `AppResultIndicator`, `AppSystemNotification`, `WalletBalanceCard`, `WalletActivityTile`, and `GoalCard`.
-  - Created `test/accessibility/accessibility_semantics_test.dart` asserting complete non-color status announcements, accurate currency formatting, and clean node semantics.
-  - Created `test/accessibility/accessibility_font_scaling_test.dart` covering all 11 primary screens under `TextScaler.linear(2.0)` at standard 390x844 viewport: `WalletHomeScreen`, `RecipientEntryScreen`, `AmountEntryScreen`, `TransferConfirmationScreen`, `TransferResultScreen`, `GoalsListScreen`, `CreateGoalScreen`, `GoalDetailsScreen`, `ContributeAmountScreen`, `ContributionConfirmationScreen`, `ContributionResultScreen`.
-  - Implemented responsive adaptive layouts for `WalletBalanceCard`, `WalletActivityTile`, and `GoalCard` under font scales > 1.3x to prevent `RenderFlex` horizontal overflows.
-- `T-PERF-001` (Wallet list and low-end usability pass):
-  - Refactored `_WalletContent` from eager `ListView(children: ...)` to `CustomScrollView` with `SliverList.separated` for lazy transaction virtualization.
-  - Created `test/features/wallet/presentation/wallet_lazy_loading_test.dart` verifying 1,000 transactions are lazily constructed without eager rendering ($<15$ tiles built initially; item 999 not built until scrolled).
-- `T-VIS-001` (Visual reconciliation):
-  - Aligned Send Money AppBar typography and alignment with Wallet and NovaSave (`centerTitle: false`, `backgroundColor: AppColors.surface`, `AppTypography.titleBold18`).
-  - Fixed NovaSave offline banner edge-to-edge padding in `goals_list_screen.dart` and `goal_details_screen.dart` with `AppSpacing.space16` horizontal margins.
-  - Added `autofocus` support and full-card tap-to-focus on `AppAmountField` and text entry screens.
+Phase 10 (Accessibility, Performance & Visual Reconciliation) is COMPLETE and merged into `main` (`d671f4e`, PR #26).
+
+Amount Currency Formatter:
+- Added `CurrencyAmountInputFormatter` and wired to `AppAmountField` (`e92e96f`, PR #27).
+
+Phase 11 (Mandatory Assessment Testing & Failure Matrix):
+- `T-TST-001` (Send Money widget journey coverage):
+  - Covered 5 complete journeys in `send_money_flow_test.dart`:
+    1. Navigation and back-navigation between Recipient and Amount screens.
+    2. Flow-level validation blocking for invalid recipient, zero amount, and balance exceeding available funds.
+    3. Full online journey to Success view, verifying tap on "Done" resets to `AppDestination.wallet`.
+    4. Full offline journey with offline notification banner, enqueue in pending status, Pending view, and tap on "Back to wallet" resets to `AppDestination.wallet`.
+    5. Online failure journey with Failed view, verifying tap on "Try Again" resets to retry.
+  - Implemented synchronous listen-forward `StreamController` in `MockFlowOperationRepository` to prevent stream delivery races during Riverpod `StreamProvider` binding.
+  - All 74 tests in `test/features/send_money/` pass.
 
 ---
 
@@ -78,12 +80,12 @@ Phase 10 (Accessibility, Performance & Visual Reconciliation) is COMPLETE:
  
 Current Task:
 ```text
-Phase 10 (Accessibility, Performance & Visual Reconciliation) COMPLETE on feat/phase-10-a11y-perf-visual
+T-TST-001 (Send Money Widget Coverage) COMPLETE on test/T-TST-001-send-money-widgets
 ```
 
 Next Task:
 ```text
-Phase 11 — Required Test Completion & Failure Matrix (T-TST-001, T-TST-002, T-TST-003)
+T-TST-002 — Complete required NovaSave contribution widget coverage on test/T-TST-002-novasave-contribution-widgets
 ```
 
 ---
@@ -109,13 +111,13 @@ flutter analyze
 flutter test
 ```
 
-Current test suite status: **542 / 542 tests passing**, analyzer clean, 0 formatting errors.
+Current test suite status: **554 / 554 tests passing**, analyzer clean, 0 formatting errors.
 
 ---
 
 ## 5. Next Steps
 
-1. Commit and push `feat/phase-10-a11y-perf-visual`.
-2. Open Pull Request to merge `feat/phase-10-a11y-perf-visual` into `main`.
-3. Merge PR into `main`.
-4. Create branch for Phase 11 (`feat/phase-11-required-tests`) to implement `T-TST-001`, `T-TST-002`, `T-TST-003`.
+1. Commit and push `test/T-TST-001-send-money-widgets`.
+2. Open Pull Request to merge `test/T-TST-001-send-money-widgets` into `main`.
+3. Merge PR into `main` via `gh pr merge --squash --delete-branch`.
+4. Switch to `main`, pull latest, and branch `test/T-TST-002-novasave-contribution-widgets` for `T-TST-002`.

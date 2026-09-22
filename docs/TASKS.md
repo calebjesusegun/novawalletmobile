@@ -2185,7 +2185,7 @@ Plus emulator/device visual review.
 
 # Phase 11 — Required Test Completion & Failure Matrix
 
-## [ ] T-TST-001 — Complete required Send Money widget coverage
+## [x] T-TST-001 — Complete required Send Money widget coverage
 
 **Risk:** B  
 **Size:** S

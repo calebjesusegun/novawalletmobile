@@ -1215,6 +1215,38 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 - Ran `dart format --output=none --set-exit-if-changed .`, `flutter analyze`, and `flutter test`.
 - Updated `docs/REQUIREMENTS_TRACEABILITY.md` (SND-015 through SND-020 marked DONE), `docs/TASKS.md` (T-SND-005 marked done), `AI_USAGE.md`, and `docs/HANDOVER.md`.
 
+### Prompt 35 — Complete required Send Money widget coverage (T-TST-001)
+
+**Tool:** Antigravity  
+**Stage:** Phase 11 — Testing (`test/T-TST-001-send-money-widgets`)
+
+**Prompt**
+
+> Implement T-TST-001 — Complete required Send Money widget coverage:
+> 1. Target test/features/send_money/presentation/send_money_flow_test.dart.
+> 2. Ensure comprehensive widget coverage for the entire Send Money journey: Recipient -> Amount -> Confirmation -> Processing / Pending -> Success / Failure / Retry.
+> 3. Verify step navigation, back-navigation, flow-level validation blocking (short/invalid recipient, zero amount, exceeding spendable balance).
+> 4. Test full online journey to Success view, verifying tap on "Done" resets to AppDestination.wallet.
+> 5. Test full offline journey to Pending view, verifying tap on "Back to wallet" resets to AppDestination.wallet.
+> 6. Test online failure journey to Failed view, verifying tap on "Try Again" resets to retry.
+> 7. Refactor MockFlowOperationRepository to use a synchronous StreamController and listen-forward pattern for deterministic event delivery.
+
+**Result**
+
+- Expanded `send_money_flow_test.dart` to 5 exhaustive end-to-end journey tests covering:
+  - Step navigation and back-navigation between Recipient and Amount screens.
+  - Validation blocking across the flow for invalid recipient account, zero amount, and balance exceeding available funds.
+  - Full online submission journey transitioning to Success view and navigating to wallet on "Done".
+  - Full offline submission journey displaying offline warning banner, enqueuing operation as pending, displaying Pending view, and navigating to wallet on "Back to wallet".
+  - Online failure journey displaying Failed view and resetting back to initial entry on "Try Again".
+- Implemented synchronous listen-forward `StreamController` in `MockFlowOperationRepository` to eliminate microtask race conditions in Riverpod `StreamProvider`.
+- All 74 tests in `test/features/send_money/` pass with clean analyzer and formatting.
+
+**Action taken**
+
+- Ran `dart format --output=none --set-exit-if-changed .`, `flutter analyze`, and `flutter test test/features/send_money/`.
+- Updated `docs/REQUIREMENTS_TRACEABILITY.md` (ASM-022, TST-004 marked DONE), `docs/TASKS.md` (T-TST-001 marked done), `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
 ---
 
 ## AI Mistakes / Risky Output
@@ -1662,6 +1694,35 @@ Automated testing in the new `accessibility_font_scaling_test.dart` suite, which
 **Regression protection**
 
 Created `test/accessibility/accessibility_font_scaling_test.dart` asserting zero `FlutterError` exceptions and zero `RenderFlex` overflows across all 11 primary application screens under `TextScaler.linear(2.0)`.
+
+---
+
+### Mistake 5 — Missing thousands grouping on user amount input in AppAmountField
+
+**Tool:** Antigravity  
+**Stage:** Phase 6 / Phase 11 — Money Entry & Amount Formatting Review
+
+**What happened**
+
+When implementing `AppAmountField`, the text field accepted raw digit keystrokes with only simple character filtering (`FilteringTextInputFormatter.allow(RegExp(r'[\d.]'))`). When a user typed `1500`, the field rendered `₦ 1500` instead of standard Nigerian banking format `₦ 1,500`.
+
+**Why it happened**
+
+The implementation assumed that monetary formatting was exclusively an output concern for presentation widgets (such as `Money.format()`) and did not implement a live input formatter that formats integer digit groups with commas while preserving the user's cursor selection across inserts and deletions.
+
+**How it was caught**
+
+The user tested the app on a physical device/simulator, captured a screenshot of `AmountEntryScreen` showing `₦ 1500`, and noted that amounts must be formatted with thousands separators as the user types.
+
+**Correction applied**
+
+1. Created `CurrencyAmountInputFormatter` (`lib/design_system/components/fields/currency_amount_input_formatter.dart`) implementing `TextInputFormatter`. It dynamically formats integer digits with commas (`1500` -> `1,500`), restricts decimal places to 2 digits, and accurately maintains cursor positioning during middle insertions and backspaces.
+2. Wired `CurrencyAmountInputFormatter` into `AppAmountField` (`lib/design_system/components/fields/app_amount_field.dart`).
+3. Authored comprehensive unit tests in `test/design_system/currency_amount_input_formatter_test.dart` verifying multi-digit inputs, comma insertions, decimal constraints, and cursor preservation.
+
+**Regression protection**
+
+Automated unit tests in `test/design_system/currency_amount_input_formatter_test.dart` assert that all numeric inputs are grouped with commas and cursor offsets are preserved without jumping.
 
 ---
 

@@ -84,7 +84,7 @@ These IDs represent the original assessment rather than invented feature require
 | ASM-019 | Repository includes `AI_USAGE.md` describing tools, uses and concrete prompts/results | Assessment §2.2 | root documentation | submission review | VERIFIED | TODO |
 | ASM-020 | `AI_USAGE.md` records at least one concrete AI mistake/risky output and how it was caught/fixed | Assessment §2.2 | root documentation | submission review | VERIFIED | TODO |
 | ASM-021 | Repository includes README covering architecture, state-management choice, offline/sync design, trade-offs, run/test instructions | Assessment §2.3 | `README.md` | submission review | VERIFIED | TODO |
-| ASM-022 | Widget tests cover Send Money | Assessment §2.3 | `test/features/send_money` | `flutter test` | VERIFIED | TODO |
+| ASM-022 | Widget tests cover Send Money | Assessment §2.3 | `test/features/send_money` | `flutter test` | VERIFIED | DONE |
 | ASM-023 | Widget tests cover NovaSave contribution | Assessment §2.3 | `test/features/novasave` | `flutter test` | VERIFIED | TODO |
 | ASM-024 | At least one integration test covers offline queue → sync | Assessment §2.3 | `integration_test/` | integration test | VERIFIED | TODO |
 | ASM-025 | App runs with a single command on a standard Flutter setup | Assessment §2.3 | repository/toolchain | clean-run verification | VERIFIED | IN_PROGRESS |
@@ -258,7 +258,7 @@ For exact token values, `docs/DESIGN_SYSTEM.md` and the authoritative Style Guid
 | TST-001 | Unit tests cover Money correctness | ASM-002, ASM-014 | `test/core/money` | `flutter test` | INFERRED test needed for hard constraint | DONE |
 | TST-002 | Unit/repository tests cover pending-operation persistence/state transitions | ASM-009, ASM-012 | `test/sync` | `flutter test` | INFERRED test needed for hard constraint | DONE |
 | TST-003 | Unit tests cover fake-remote idempotency | ASM-006, ASM-013 | `test/fake_backend` | `flutter test` | INFERRED test needed for hard constraint | DONE |
-| TST-004 | Required Send Money widget tests exist | ASM-022 | send tests | `flutter test` | VERIFIED | TODO |
+| TST-004 | Required Send Money widget tests exist | ASM-022 | `test/features/send_money/` | `flutter test` | VERIFIED | DONE |
 | TST-005 | Required NovaSave contribution widget tests exist | ASM-023 | NovaSave tests | `flutter test` | VERIFIED | TODO |
 | TST-006 | Integration test covers offline queue → restart/reconnect → exactly one effect | ASM-024 plus ASM-012/013 | `test/sync/kernel` & `integration_test` | integration run | VERIFIED + strengthened to catch duplicate regression | IN_PROGRESS |
 | TST-007 | Failure/retry path is tested for lost/uncertain response behavior | ASM-013 | sync/fake backend | integration | INFERRED high-value regression test | DONE |
