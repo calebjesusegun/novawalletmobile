@@ -32,10 +32,15 @@ import 'package:novawallet/sync/data/sync_providers.dart';
 import 'package:novawallet/sync/domain/financial_operation.dart';
 import 'package:novawallet/sync/domain/operation_payload.dart';
 import 'package:novawallet/sync/domain/operation_status.dart';
+import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:novawallet/sync/domain/operation_type.dart';
 import 'package:novawallet/sync/domain/sync_status.dart';
 
 void main() {
+  setUpAll(() {
+    driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+  });
+
   const testViewportSize = Size(390 * 3, 844 * 3);
   const testDevicePixelRatio = 3.0;
 
