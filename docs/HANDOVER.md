@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** T-SND-001 (Implement recipient entry, validation and fake resolution) COMPLETE on `feat/snd-recipient-entry` — Ready to merge into `main`  
-**Primary next task:** `T-SND-002 — Implement amount entry and balance validation` (Phase 6 — Send Money)  
-**Current branch:** `feat/snd-recipient-entry`  
-**Latest commit on main:** `be83371`  
+**Status:** T-SND-002 (Implement amount entry and balance validation) COMPLETE on `feat/snd-amount-entry` — Ready to merge into `main`  
+**Primary next task:** `T-SND-003 — Implement confirmation and operation creation` (Phase 6 — Send Money)  
+**Current branch:** `feat/snd-amount-entry`  
+**Latest commit on main:** `1bf0f7a`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -46,15 +46,14 @@ Phase 4 (Design System & App Shell) is COMPLETE and merged into `main` (`3e14dc7
 Phase 5 (Wallet) is COMPLETE and merged into `main` (`be83371`).
 
 Phase 6 (Send Money) In Progress:
-- `T-SND-001` (Implement recipient entry, validation and fake resolution) is COMPLETE on `feat/snd-recipient-entry`:
-  - `Recipient` domain entity and `RecipientDirectory` contract (`lib/features/send_money/domain/`).
-  - `FakeRecipientDirectory` (`lib/features/send_money/data/`) with `0123456789` -> `John Doe` fixture.
-  - `RecipientEntryController` & `RecipientEntryState` (`lib/features/send_money/presentation/controllers/`) managing typing, real-time validation, empty field detection, length validation, and auto-resolution.
-  - `ResolvedRecipientCard` (`lib/features/send_money/presentation/widgets/`) displaying resolved recipient details with check indicator and clear action.
-  - `RecipientEntryScreen` (`lib/features/send_money/presentation/screens/`) hosting `AppTextField` and disabled-by-default `AppButton('Continue')` that enables only when resolved.
-  - Connected `RecipientEntryScreen` into `SendMoneyShellTab` in `lib/app/app.dart`.
-  - Authored 28 unit and widget tests across `test/features/send_money/`.
-  - Full suite passes: 416/416 tests passing, 0 analyzer issues, clean formatting.
+- `T-SND-001` (Implement recipient entry, validation and fake resolution) is COMPLETE and merged into `main` (`1bf0f7a`).
+- `T-SND-002` (Implement amount entry and balance validation) is COMPLETE on `feat/snd-amount-entry`:
+  - `AmountEntryController` & `AmountEntryState` (`lib/features/send_money/presentation/controllers/`) enforcing integer kobo `Money` per `HC-MONEY` and `SpendableBalancePolicy`.
+  - Non-positive/zero amount rejection ("Amount must be greater than zero.") and spendable balance rejection ("Amount exceeds available balance.").
+  - `AmountEntryScreen` (`lib/features/send_money/presentation/screens/`) displaying recipient chip, offline banner with last-updated timestamp, spendable balance, dynamic balance-after preview, and accessible Continue button.
+  - `SendMoneyFlowScreen` (`lib/features/send_money/presentation/screens/send_money_flow_screen.dart`) coordinating navigation between recipient and amount steps.
+  - Authored 19 new tests across controller, screen, and flow tests (47 tests in `test/features/send_money/`).
+  - Full suite: 435/435 tests passing, 0 analyzer issues, clean formatting.
 
 ---
 
@@ -62,12 +61,12 @@ Phase 6 (Send Money) In Progress:
  
 Current Task:
 ```text
-T-SND-001 (Implement recipient entry, validation and fake resolution) COMPLETE on feat/snd-recipient-entry
+T-SND-002 (Implement amount entry and balance validation) COMPLETE on feat/snd-amount-entry
 ```
 
 Next Task:
 ```text
-T-SND-002 — Implement amount entry and balance validation (Phase 6 — Send Money)
+T-SND-003 — Implement confirmation and operation creation (Phase 6 — Send Money)
 ```
 
 ---
@@ -98,11 +97,11 @@ Do not claim success without actually running the relevant commands.
 
 ### 13. Next Action
  
-`T-WAL-004` is fully completed on `feat/wallet-loading-empty-detail`. All 388 tests pass, analyzer clean, formatting checked.
+`T-SND-002` is fully completed on `feat/snd-amount-entry`. All 435 tests pass, analyzer clean, formatting checked.
  
 ### Next Steps:
-1. Merge `feat/wallet-loading-empty-detail` into `main`.
-2. Proceed to Phase 6: `T-SND-001 — Implement recipient entry, validation and fake resolution`.
+1. Merge `feat/snd-amount-entry` into `main`.
+2. Proceed to `T-SND-003 — Implement confirmation and operation creation`.
 
 
 

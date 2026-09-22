@@ -1080,6 +1080,43 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
+### Prompt 31 — Implement amount entry and balance validation (T-SND-002)
+
+**Tool:** Antigravity  
+**Stage:** Phase 6 — Send Money (`feat/snd-amount-entry`)
+
+**Prompt**
+
+> Implement T-SND-002 — Implement amount entry and balance validation:
+> 1. Implement AmountEntryController and AmountEntryState in lib/features/send_money/presentation/controllers/ enforcing integer kobo Money per HC-MONEY and SpendableBalancePolicy.
+> 2. Validate non-positive/zero amounts ("Amount must be greater than zero.") and amounts exceeding spendable balance ("Amount exceeds available balance.").
+> 3. Implement AmountEntryScreen in lib/features/send_money/presentation/screens/ displaying recipient summary chip, offline banner with last-updated timestamp, spendable balance indicator, AppAmountField, dynamic balance-after preview, and accessible Continue button.
+> 4. Implement SendMoneyFlowScreen in lib/features/send_money/presentation/screens/send_money_flow_screen.dart coordinating navigation from recipient entry to amount entry.
+> 5. Update SendMoneyShellTab in lib/app/app.dart to render SendMoneyFlowScreen.
+> 6. Author controller unit tests, screen widget tests (including 2.0x font scaling and screen reader semantics), and navigation integration tests.
+
+**Result**
+
+- Created `AmountEntryController` responding reactively to `walletProjectionProvider` and `connectivityStatusProvider`, calculating spendable balance and balance after transfer strictly with `Money` integer kobo.
+- Implemented `AmountEntryScreen` with full UI-SND-05 through UI-SND-09 design compliance:
+  - Recipient summary chip with edit action.
+  - Offline status banner using `AppSystemNotification.offline` displaying formatted last-updated balance timestamp.
+  - Exact spendable balance indicator.
+  - `AppAmountField` with formatted input and error messaging.
+  - Balance-after transfer preview card updating live as user types.
+  - Responsive layout wrapping labels to prevent overflow at 2.0x text scaling.
+  - Semantics labels for screen reader accessibility.
+- Implemented `SendMoneyFlowScreen` managing flow state smoothly without breaking existing shell tests.
+- Authored 19 new tests across controller, screen, and flow tests (total Send Money suite: 47 tests).
+- All 435 tests across the repository pass with 0 analyzer issues.
+
+**Action taken**
+
+- Ran `dart format --output=none --set-exit-if-changed .`, `flutter analyze`, and `flutter test`.
+- Updated `docs/REQUIREMENTS_TRACEABILITY.md` (SND-005 to SND-008 marked IMPLEMENTED), `docs/TASKS.md` (T-SND-002 marked done), `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
+---
+
 ## AI Mistakes / Risky Output
 
 At least one real example must be included before submission.
