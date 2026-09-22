@@ -2303,7 +2303,7 @@ flutter test integration_test
 
 ---
 
-## [ ] T-TST-004 — Add high-value sync failure regression matrix
+## [x] T-TST-004 — Add high-value sync failure regression matrix
 
 **Risk:** A  
 **Size:** M
