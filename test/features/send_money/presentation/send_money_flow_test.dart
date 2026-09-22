@@ -254,6 +254,61 @@ void main() {
           expect(find.text('Sending ₦10,000.00'), findsOneWidget);
         },
       );
+
+      testWidgets(
+        'full offline journey: Recipient -> Amount -> Confirmation -> Submit enqueues pending operation and displays pending view (UI-SND-14, UI-SND-15 / SND-014–SND-016)',
+        (tester) async {
+          await tester.pumpWidget(
+            buildFlow(connectivity: ConnectivityStatus.offline),
+          );
+          await tester.pumpAndSettle();
+
+          // Step 1: Recipient entry while offline
+          await tester.enterText(find.byType(TextField), '0123456789');
+          await tester.pumpAndSettle();
+          await tester.tap(find.widgetWithText(AppButton, 'Continue'));
+          await tester.pumpAndSettle();
+
+          // Step 2: Amount entry while offline
+          expect(find.byType(AmountEntryScreen), findsOneWidget);
+          await tester.enterText(find.byType(TextField), '5000');
+          await tester.pumpAndSettle();
+          await tester.tap(find.widgetWithText(AppButton, 'Continue'));
+          await tester.pumpAndSettle();
+
+          // Step 3: Confirmation screen shows offline notification banner (UI-SND-14)
+          expect(find.byType(TransferConfirmationScreen), findsOneWidget);
+          expect(find.text('Confirm Transfer'), findsOneWidget);
+          expect(
+            find.text(
+              "You're offline. Transfer will be queued securely and sent when connected.",
+            ),
+            findsOneWidget,
+          );
+
+          // Tap confirm button while offline
+          await tester.tap(find.byKey(const Key('confirm_transfer_button')));
+          await tester.pumpAndSettle();
+
+          // Enqueued in pending status without remote attempt
+          expect(repo.operations.length, 1);
+          final op = repo.operations.first;
+          expect(op.status, OperationStatus.pending);
+          expect(op.payload.amount, const Money.fromKobo(500000)); // ₦5,000.00
+
+          // Transitioned to pending result view (UI-SND-15 / SND-016)
+          expect(
+            find.byKey(const Key('transfer_result_pending_offline_view')),
+            findsOneWidget,
+          );
+          expect(find.text('Transfer Pending'), findsOneWidget);
+          expect(find.text('₦5,000.00'), findsOneWidget);
+          expect(
+            find.text('Pending — will send when back online'),
+            findsOneWidget,
+          );
+        },
+      );
     },
   );
 }
