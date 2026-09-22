@@ -1722,7 +1722,37 @@ The user tested the app on a physical device/simulator, captured a screenshot of
 
 **Regression protection**
 
-Automated unit tests in `test/design_system/currency_amount_input_formatter_test.dart` assert that all numeric inputs are grouped with commas and cursor offsets are preserved without jumping.
+### Mistake 6 — Omission of initial client database seeding causing ₦0.00 initial balance and blocking test transactions
+
+**Tool:** Antigravity  
+**Stage:** Phase 11 — Testing & Verification (Initial Device Run)
+
+**What happened**
+
+When the application launched fresh on an emulator or physical device, the local SQLite database had zero rows in `walletCache`, `transactionsTable`, and `savingsGoalsTable`. The wallet home screen rendered a confirmed balance of `₦0.00`, with no sample transactions and no default savings goals. As a consequence, manual testing of Send Money and NovaSave contribution flows was completely blocked by client-side balance validation (`"Amount is more than your wallet balance. Enter ₦0.00 or less."`).
+
+**Why it happened**
+
+The fake remote backend ledger (`DriftRemoteLedger`) was initialized with a default balance of `12545000` kobo (`₦125,450.00`), but the local client tables were never seeded upon app initialization. In `main.dart`, the app launched immediately into `NovaWalletApp()` without invoking `walletRepository.refresh()` or running an initial database seeder. Consequently, `WalletDao.getWalletSnapshot()` returned `null`, and `WalletProjection.build()` defaulted to `Money.zero()`.
+
+**How it was caught**
+
+The user launched the app on a physical device/emulator and reported that the wallet balance was `₦0.00` on cold start, preventing money movement and feature testing.
+
+**Correction applied**
+
+1. Created `DatabaseSeeder` (`lib/core/persistence/database_seeder.dart`) which seeds canonical demonstration data matching the design baseline (`UI-WAL-01`, `UI-NSV-08`, `AD-01`):
+   - `WalletCache` singleton seeded with `₦125,450.00` (`12545000` kobo);
+   - `RemoteWalletStateTable` seeded in parallel to ensure server-client ledger alignment;
+   - Canonical `Emergency Fund` savings goal (`₦150,000.00` of `₦500,000.00`, 30% progress);
+   - Sample transaction history (`Ada Lovelace`, `Chidi Anagonye`).
+2. Added `seedInitialDataIfEmpty()` to `AppDatabase` and awaited it during `main()` startup in `lib/main.dart`.
+3. Designed the seeder to be strictly idempotent: it checks if rows already exist and leaves existing user data, balances, and newly created goals intact without overwriting.
+4. Authored unit tests in `test/core/persistence/database_seeder_test.dart` asserting proper initial population and idempotency across app restarts.
+
+**Regression protection**
+
+Automated unit tests in `test/core/persistence/database_seeder_test.dart` verify that fresh databases receive initial demo data and that subsequent seed runs preserve user state without resetting balances.
 
 ---
 
