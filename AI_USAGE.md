@@ -1117,6 +1117,42 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
+### Prompt 32 — Implement confirmation and operation creation (T-SND-003)
+
+**Tool:** Antigravity  
+**Stage:** Phase 6 — Send Money (`feat/snd-confirmation`)
+
+**Prompt**
+
+> Implement T-SND-003 — Implement confirmation and operation creation:
+> 1. Create TransferConfirmationArgs, TransferConfirmationState, and TransferConfirmationController in lib/features/send_money/presentation/controllers/.
+> 2. Enforce HC-IDEMPOTENCY (stable OperationId and IdempotencyKey per logical action) and HC-OFFLINE-DURABILITY (durably persist to OperationRepository before reporting saved).
+> 3. Implement atomic double-tap protection to prevent accidental duplicate submission or enqueue.
+> 4. Create TransferConfirmationScreen in lib/features/send_money/presentation/screens/ displaying recipient, account, amount, source ("Main Wallet"), and balance-after rows per UI-SND-10, with offline explanation notification per UI-SND-14.
+> 5. Wire TransferConfirmationScreen into SendMoneyFlowScreen.
+> 6. Author controller unit tests, confirmation widget tests (including 2.0x font scaling and screen reader semantics), and full 3-step navigation flow tests.
+
+**Result**
+
+- Created `TransferConfirmationController` with stable UUID v4 `OperationId` and prefixed `IdempotencyKey` generation.
+- Enqueued operations via `OperationRepository.enqueueSendMoney` with `SendMoneyPayload` and exact integer kobo `Money`.
+- Integrated double-tap protection via atomic `isSubmitting` flag in state.
+- Implemented `TransferConfirmationScreen` with:
+  - Online details card showing Recipient, Account, Amount, Source, and Balance-after rows (`UI-SND-10`).
+  - Offline explanation banner using `AppSystemNotification.offline` (`UI-SND-14`).
+  - Loading state and screen reader accessibility semantics.
+  - Zero overflow on 2.0x text scaling.
+- Connected confirmation screen in `SendMoneyFlowScreen` as the 3rd step of the send flow.
+- Authored 13 new unit and widget tests (total Send Money suite: 60 tests).
+- All 448 tests across the repository pass with 0 analyzer issues and clean formatting.
+
+**Action taken**
+
+- Ran `dart format --output=none --set-exit-if-changed .`, `flutter analyze`, and `flutter test`.
+- Updated `docs/REQUIREMENTS_TRACEABILITY.md` (SND-009, SND-010, SND-014, SND-015 marked IMPLEMENTED), `docs/TASKS.md` (T-SND-003 marked done), `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
+---
+
 ## AI Mistakes / Risky Output
 
 At least one real example must be included before submission.

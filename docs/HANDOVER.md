@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** T-SND-002 (Implement amount entry and balance validation) COMPLETE on `feat/snd-amount-entry` — Ready to merge into `main`  
-**Primary next task:** `T-SND-003 — Implement confirmation and operation creation` (Phase 6 — Send Money)  
-**Current branch:** `feat/snd-amount-entry`  
-**Latest commit on main:** `1bf0f7a`  
+**Status:** T-SND-003 (Implement confirmation and operation creation) COMPLETE on `feat/snd-confirmation` — Ready to merge into `main`  
+**Primary next task:** `T-SND-004 — Implement online processing, success and immediate failure` (Phase 6 — Send Money)  
+**Current branch:** `feat/snd-confirmation`  
+**Latest commit on main:** `ab1e769`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -47,13 +47,13 @@ Phase 5 (Wallet) is COMPLETE and merged into `main` (`be83371`).
 
 Phase 6 (Send Money) In Progress:
 - `T-SND-001` (Implement recipient entry, validation and fake resolution) is COMPLETE and merged into `main` (`1bf0f7a`).
-- `T-SND-002` (Implement amount entry and balance validation) is COMPLETE on `feat/snd-amount-entry`:
-  - `AmountEntryController` & `AmountEntryState` (`lib/features/send_money/presentation/controllers/`) enforcing integer kobo `Money` per `HC-MONEY` and `SpendableBalancePolicy`.
-  - Non-positive/zero amount rejection ("Amount must be greater than zero.") and spendable balance rejection ("Amount exceeds available balance.").
-  - `AmountEntryScreen` (`lib/features/send_money/presentation/screens/`) displaying recipient chip, offline banner with last-updated timestamp, spendable balance, dynamic balance-after preview, and accessible Continue button.
-  - `SendMoneyFlowScreen` (`lib/features/send_money/presentation/screens/send_money_flow_screen.dart`) coordinating navigation between recipient and amount steps.
-  - Authored 19 new tests across controller, screen, and flow tests (47 tests in `test/features/send_money/`).
-  - Full suite: 435/435 tests passing, 0 analyzer issues, clean formatting.
+- `T-SND-002` (Implement amount entry and balance validation) is COMPLETE and merged into `main` (`ab1e769`).
+- `T-SND-003` (Implement confirmation and operation creation) is COMPLETE on `feat/snd-confirmation`:
+  - `TransferConfirmationController` & `TransferConfirmationState` (`lib/features/send_money/presentation/controllers/`) enforcing stable identities (`HC-IDEMPOTENCY`), durable enqueue to `OperationRepository` (`HC-OFFLINE-DURABILITY`), and double-tap prevention.
+  - `TransferConfirmationScreen` (`lib/features/send_money/presentation/screens/`) displaying online details card (`UI-SND-10`), offline explanation banner (`UI-SND-14`), and accessible button with loading state.
+  - Connected `TransferConfirmationScreen` into `SendMoneyFlowScreen` as the 3rd step of the send flow.
+  - Authored 13 new unit and widget tests (60 Send Money tests, 448 repo tests passing).
+  - All tests passing, analyzer clean, formatting checked.
 
 ---
 
@@ -61,12 +61,12 @@ Phase 6 (Send Money) In Progress:
  
 Current Task:
 ```text
-T-SND-002 (Implement amount entry and balance validation) COMPLETE on feat/snd-amount-entry
+T-SND-003 (Implement confirmation and operation creation) COMPLETE on feat/snd-confirmation
 ```
 
 Next Task:
 ```text
-T-SND-003 — Implement confirmation and operation creation (Phase 6 — Send Money)
+T-SND-004 — Implement online processing, success and immediate failure (Phase 6 — Send Money)
 ```
 
 ---
@@ -97,11 +97,11 @@ Do not claim success without actually running the relevant commands.
 
 ### 13. Next Action
  
-`T-SND-002` is fully completed on `feat/snd-amount-entry`. All 435 tests pass, analyzer clean, formatting checked.
+`T-SND-003` is fully completed on `feat/snd-confirmation`. All 448 tests pass, analyzer clean, formatting checked.
  
 ### Next Steps:
-1. Merge `feat/snd-amount-entry` into `main`.
-2. Proceed to `T-SND-003 — Implement confirmation and operation creation`.
+1. Merge `feat/snd-confirmation` into `main`.
+2. Proceed to `T-SND-004 — Implement online processing, success and immediate failure`.
 
 
 

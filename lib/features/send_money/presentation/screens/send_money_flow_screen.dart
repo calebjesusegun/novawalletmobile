@@ -3,6 +3,8 @@ import 'package:novawallet/core/money/money.dart';
 import 'package:novawallet/features/send_money/domain/recipient.dart';
 import 'package:novawallet/features/send_money/presentation/screens/amount_entry_screen.dart';
 import 'package:novawallet/features/send_money/presentation/screens/recipient_entry_screen.dart';
+import 'package:novawallet/features/send_money/presentation/screens/transfer_confirmation_screen.dart';
+import 'package:novawallet/sync/domain/financial_operation.dart';
 
 /// Top-level coordinator for the Send Money flow.
 ///
@@ -17,6 +19,7 @@ class SendMoneyFlowScreen extends StatefulWidget {
 class _SendMoneyFlowScreenState extends State<SendMoneyFlowScreen> {
   Recipient? _selectedRecipient;
   Money? _enteredAmount;
+  FinancialOperation? _submittedOperation;
 
   void _onRecipientSelected(Recipient recipient) {
     setState(() {
@@ -28,6 +31,7 @@ class _SendMoneyFlowScreenState extends State<SendMoneyFlowScreen> {
     setState(() {
       _selectedRecipient = null;
       _enteredAmount = null;
+      _submittedOperation = null;
     });
   }
 
@@ -37,27 +41,41 @@ class _SendMoneyFlowScreenState extends State<SendMoneyFlowScreen> {
     });
   }
 
+  void _onBackToAmount() {
+    setState(() {
+      _enteredAmount = null;
+    });
+  }
+
+  void _onTransferSubmitted(FinancialOperation operation) {
+    setState(() {
+      _submittedOperation = operation;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_submittedOperation != null) {
+      // Step 4 will be implemented in T-SND-004 / T-SND-005
+      return Scaffold(
+        key: const Key('transfer_submitted_view'),
+        appBar: AppBar(title: const Text('Transfer Submitted')),
+        body: Center(
+          child: Text('Transfer ${_submittedOperation!.id.value} submitted'),
+        ),
+      );
+    }
+
     if (_selectedRecipient == null) {
       return RecipientEntryScreen(onContinue: _onRecipientSelected);
     }
 
     if (_enteredAmount != null) {
-      // T-SND-003 will replace this with full ConfirmationScreen
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Confirm Transfer'),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => setState(() => _enteredAmount = null),
-          ),
-        ),
-        body: Center(
-          child: Text(
-            'Confirm ${_enteredAmount!.format()} to ${_selectedRecipient!.name}',
-          ),
-        ),
+      return TransferConfirmationScreen(
+        recipient: _selectedRecipient!,
+        amount: _enteredAmount!,
+        onBack: _onBackToAmount,
+        onTransferSubmitted: _onTransferSubmitted,
       );
     }
 

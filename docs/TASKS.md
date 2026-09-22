@@ -1412,7 +1412,7 @@ flutter analyze
 
 ---
 
-## [ ] T-SND-003 — Implement confirmation and operation creation
+## [x] T-SND-003 — Implement confirmation and operation creation
 
 **Risk:** A  
 **Size:** M
