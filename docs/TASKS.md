@@ -1782,7 +1782,7 @@ flutter analyze
 
 ---
 
-## [ ] T-NSC-002 — Implement contribution confirmation and operation creation
+## [x] T-NSC-002 — Implement contribution confirmation and operation creation
 
 **Risk:** A  
 **Size:** M

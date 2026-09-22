@@ -64,11 +64,12 @@ Phase 7 (NovaSave Goal Creation) is COMPLETE:
   - 8 widget tests in `test/features/novasave/presentation/goal_details_screen_test.dart` (53 NovaSave tests, 478 total repo tests passing).
 
 Phase 8 (NovaSave Contribution) IN PROGRESS:
-- `T-NSC-001` (Implement contribution amount and validation) is COMPLETE on `feat/nsc-amount-validation`:
-  - `ContributeAmountController` implemented in `lib/features/novasave/presentation/controllers/contribute_amount_controller.dart` (`UI-NSV-09`, `UI-NSV-10`, `NSV-009`, `NSV-010`, `MNY-003`, `MNY-006`).
-  - `ContributeAmountScreen` implemented in `lib/features/novasave/presentation/screens/contribute_amount_screen.dart` with goal summary header, `AppAmountField`, live projected progress card (`40%`, `₦200,000 of ₦500,000`), spendable balance validation (`UI-NSV-10`), and sticky Continue button.
-  - `GoalDetailsScreen` wired to launch `ContributeAmountScreen` on tapping "Contribute".
-  - 7 unit tests in `contribute_amount_controller_test.dart` and 6 widget tests in `contribute_amount_screen_test.dart` (66 NovaSave tests, 491 total repo tests passing).
+- `T-NSC-001` (Implement contribution amount and validation) is COMPLETE and merged (`50b3a34`).
+- `T-NSC-002` (Implement contribution confirmation and operation creation) is COMPLETE on `feat/nsc-confirmation`:
+  - `ContributionConfirmationController` implemented in `lib/features/novasave/presentation/controllers/contribution_confirmation_controller.dart` (`NSV-011`, `NSV-012`, `NSV-016`, `NSV-017`, `ASM-011`, `ASM-013`, `HC-MONEY`, `HC-IDEMPOTENCY`, `HC-OFFLINE-DURABILITY`).
+  - `ContributionConfirmationScreen` implemented in `lib/features/novasave/presentation/screens/contribution_confirmation_screen.dart` (`UI-NSV-11`, `UI-NSV-16`) with prompt, amount, goal, key-value card, offline system banner & saved-on-phone notification, double-tap protected confirm button, and edit details button.
+  - `ContributeAmountScreen` wired to navigate to `ContributionConfirmationScreen` on Continue.
+  - 7 unit tests in `contribution_confirmation_controller_test.dart` and 5 widget tests in `contribution_confirmation_screen_test.dart` (78 NovaSave tests, 503 total repo tests passing).
 
 ---
 
@@ -76,12 +77,12 @@ Phase 8 (NovaSave Contribution) IN PROGRESS:
  
 Current Task:
 ```text
-T-NSC-001 (Implement contribution amount and validation) COMPLETE on feat/nsc-amount-validation
+T-NSC-002 (Implement contribution confirmation and operation creation) COMPLETE on feat/nsc-confirmation
 ```
 
 Next Task:
 ```text
-T-NSC-002 — Implement contribution confirmation and operation creation (Phase 8 — NovaSave Contribution)
+T-NSC-003 — Implement online contribution processing, success and failure (Phase 8 — NovaSave Contribution)
 ```
 
 ---

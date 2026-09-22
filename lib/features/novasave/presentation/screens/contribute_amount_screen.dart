@@ -10,6 +10,7 @@ import 'package:novawallet/design_system/tokens/app_spacing.dart';
 import 'package:novawallet/design_system/tokens/app_typography.dart';
 import 'package:novawallet/features/novasave/domain/savings_goal.dart';
 import 'package:novawallet/features/novasave/presentation/controllers/contribute_amount_controller.dart';
+import 'package:novawallet/features/novasave/presentation/screens/contribution_confirmation_screen.dart';
 
 /// Screen for entering contribution amount and previewing projected progress.
 ///
@@ -216,7 +217,22 @@ class _ContributeAmountScreenState
                 label: 'Continue',
                 onPressed: state.canContinue
                     ? () {
-                        widget.onContinue?.call(state.amount);
+                        if (widget.onContinue != null) {
+                          widget.onContinue!(state.amount);
+                        } else {
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => ContributionConfirmationScreen(
+                                goal: widget.goal,
+                                amount: state.amount,
+                                onBack: () => Navigator.of(context).pop(),
+                                onContributionSubmitted: (operation) {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ),
+                          );
+                        }
                       }
                     : null,
               ),

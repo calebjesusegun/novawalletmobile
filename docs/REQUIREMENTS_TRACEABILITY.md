@@ -175,13 +175,13 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 | NSV-008 | Show goal details and remaining amount | ASM-008 | UI-NSV-08 | `features/novasave` (`GoalDetailsScreen`, `domain`) | widget/unit | VERIFIED by design | COMPLETED |
 | NSV-009 | Show contribution amount entry and projected progress | ASM-008 | UI-NSV-09 | `features/novasave` (`ContributeAmountScreen`, `domain`) | widget/unit | VERIFIED | COMPLETED |
 | NSV-010 | Reject contribution above wallet balance | design-derived | UI-NSV-10 | `features/novasave` (`ContributeAmountController`, `MNY-006`) | unit/widget | VERIFIED by design | COMPLETED |
-| NSV-011 | Show contribution confirmation | flow/design | UI-NSV-11 | NovaSave | widget | VERIFIED by design | TODO |
-| NSV-012 | Create one stable operation identity/idempotency key for one logical contribution | ASM-011, ASM-013 | UI-NSV-11/16 | NovaSave + IDs + sync | unit/integration | INFERRED implementation required by duplicate-prevention requirement | IN_PROGRESS |
+| NSV-011 | Show contribution confirmation | flow/design | UI-NSV-11 | `features/novasave` (`ContributionConfirmationScreen`) | widget | VERIFIED by design | COMPLETED |
+| NSV-012 | Create one stable operation identity/idempotency key for one logical contribution | ASM-011, ASM-013 | UI-NSV-11/16 | `features/novasave` (`ContributionConfirmationController`) | unit/widget | INFERRED implementation required by duplicate-prevention requirement | COMPLETED |
 | NSV-013 | Online contribution enters Processing | flow/design | UI-NSV-12 | NovaSave | widget/integration | VERIFIED by design | TODO |
 | NSV-014 | Successful contribution updates amount/progress | ASM-008 | UI-NSV-13, UI-NSV-14 | NovaSave (`domain`) | unit/widget/integration | VERIFIED | IN_PROGRESS |
 | NSV-015 | Immediate online contribution failure leaves wallet unchanged and offers retry | flow/design | UI-NSV-15 | NovaSave | widget/integration | VERIFIED by design | TODO |
-| NSV-016 | Offline confirmation explains contribution will be saved | ASM-009 | UI-NSV-16 | NovaSave | widget | VERIFIED by design | TODO |
-| NSV-017 | Offline Contribution is durably persisted before UI reports it saved | ASM-009, ASM-012 | UI-NSV-17 | sync/persistence | repository + integration | VERIFIED | IN_PROGRESS |
+| NSV-016 | Offline confirmation explains contribution will be saved | ASM-009 | UI-NSV-16 | `features/novasave` (`ContributionConfirmationScreen`) | widget | VERIFIED by design | COMPLETED |
+| NSV-017 | Offline Contribution is durably persisted before UI reports it saved | ASM-009, ASM-012 | UI-NSV-17 | `features/novasave` (`ContributionConfirmationController`, `OperationRepository`) | unit/widget/integration | VERIFIED | COMPLETED |
 | NSV-018 | Pending contribution remains visible while confirmed goal progress is unchanged | ASM-009 | UI-NSV-18 | NovaSave + sync projection | widget/integration | VERIFIED by design | TODO |
 | NSV-019 | Pending contribution survives restart | ASM-012 | UI-NSV-17/18 + Flow 6 | sync/persistence | integration | VERIFIED | DONE |
 | NSV-020 | Reconnect transitions pending contribution into processing | ASM-011 | UI-NSV-19 | sync | integration/widget | VERIFIED by design | IN_PROGRESS |
