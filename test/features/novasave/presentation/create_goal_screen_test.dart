@@ -84,7 +84,8 @@ void main() {
       expect(find.text('Goal name'), findsOneWidget);
       expect(find.text('For example, Emergency Fund'), findsOneWidget);
       expect(find.text('Target amount'), findsOneWidget);
-      expect(find.text('₦0.00'), findsOneWidget);
+      expect(find.text('₦'), findsOneWidget);
+      expect(find.text('0.00'), findsOneWidget);
       expect(find.text('Target date'), findsOneWidget);
       expect(find.text('Select a date'), findsOneWidget);
 
@@ -246,6 +247,53 @@ void main() {
         expect(find.text('Goal name'), findsOneWidget);
         expect(find.text('Target amount'), findsOneWidget);
         expect(find.text('Target date'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'Target amount formats numbers with thousand commas dynamically',
+      (tester) async {
+        await tester.pumpWidget(buildTestApp());
+        await tester.pumpAndSettle();
+
+        final textFields = find.byType(AppTextField);
+        final amountField = textFields.at(1);
+
+        // Enter raw unformatted digits '13000000'
+        await tester.enterText(amountField, '13000000');
+        await tester.pumpAndSettle();
+
+        // Must display formatted string with commas
+        expect(find.text('13,000,000'), findsOneWidget);
+
+        // Enter decimal digits '13000000.50'
+        await tester.enterText(amountField, '13000000.50');
+        await tester.pumpAndSettle();
+
+        expect(find.text('13,000,000.50'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'Pressing next on goal name shifts focus to target amount field',
+      (tester) async {
+        await tester.pumpWidget(buildTestApp());
+        await tester.pumpAndSettle();
+
+        final textFields = find.byType(AppTextField);
+        await tester.enterText(textFields.at(0), 'Buy a Car');
+        await tester.testTextInput.receiveAction(TextInputAction.next);
+        await tester.pumpAndSettle();
+
+        // Target amount field should now have focus
+        final targetAmountEditable = find.descendant(
+          of: textFields.at(1),
+          matching: find.byType(EditableText),
+        );
+        final editableWidget = tester.widget<EditableText>(
+          targetAmountEditable,
+        );
+        expect(editableWidget.focusNode.hasFocus, isTrue);
       },
     );
   });

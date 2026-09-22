@@ -27,7 +27,11 @@ class AppTextField extends StatelessWidget {
     this.onTap,
     this.onChanged,
     this.onSubmitted,
+    this.prefix,
     this.prefixIcon,
+    this.prefixIconConstraints,
+    this.prefixText,
+    this.prefixStyle,
     this.suffixIcon,
     this.suffix,
     this.inputFormatters,
@@ -50,7 +54,11 @@ class AppTextField extends StatelessWidget {
   final VoidCallback? onTap;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
+  final Widget? prefix;
   final Widget? prefixIcon;
+  final BoxConstraints? prefixIconConstraints;
+  final String? prefixText;
+  final TextStyle? prefixStyle;
   final Widget? suffixIcon;
   final Widget? suffix;
   final List<TextInputFormatter>? inputFormatters;
@@ -101,7 +109,11 @@ class AppTextField extends StatelessWidget {
               ),
               filled: true,
               fillColor: enabled ? AppColors.white : AppColors.grey100,
+              prefix: prefix,
               prefixIcon: prefixIcon,
+              prefixIconConstraints: prefixIconConstraints,
+              prefixText: prefixText,
+              prefixStyle: prefixStyle,
               suffixIcon: suffixIcon,
               suffix: suffix,
               contentPadding: const EdgeInsets.symmetric(

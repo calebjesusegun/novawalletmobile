@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -36,6 +37,10 @@ import 'package:novawallet/sync/domain/operation_type.dart';
 import 'package:novawallet/sync/domain/sync_status.dart';
 
 void main() {
+  setUpAll(() {
+    driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+  });
+
   const testViewportSize = Size(390 * 3, 844 * 3);
   const testDevicePixelRatio = 3.0;
 
