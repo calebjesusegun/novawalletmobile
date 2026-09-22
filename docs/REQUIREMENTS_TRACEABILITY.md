@@ -167,11 +167,11 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 |---|---|---|---|---|---|---|---|
 | NSV-001 | Show populated goal list | ASM-007, ASM-008 | UI-NSV-01 | `features/novasave` (`GoalsListScreen`, `GoalCard`) | widget/unit | VERIFIED by design | COMPLETED |
 | NSV-002 | Show empty goal state | design-derived | UI-NSV-03 | `features/novasave` (`GoalsListScreen`, `AppEmptyState`) | widget | VERIFIED by design | COMPLETED |
-| NSV-003 | Create goal with name, target amount, target date | ASM-007 | UI-NSV-04, UI-NSV-07 | NovaSave | widget/integration/unit | VERIFIED | IN_PROGRESS |
-| NSV-004 | Require goal name | design-derived | UI-NSV-05 | NovaSave domain | unit/widget | VERIFIED by design | TODO |
-| NSV-005 | Require positive target amount | design-derived + money rules | UI-NSV-05 | NovaSave domain | unit/widget | VERIFIED by design | TODO |
-| NSV-006 | Require future target date | design-derived | UI-NSV-05 | NovaSave domain | unit/widget | VERIFIED by design | TODO |
-| NSV-007 | Provide target-date picker | design-derived | UI-NSV-06 | NovaSave presentation | widget/visual | VERIFIED by design | TODO |
+| NSV-003 | Create goal with name, target amount, target date | ASM-007 | UI-NSV-04, UI-NSV-07 | `features/novasave` (`CreateGoalScreen`, `GoalDetailsScreen`) | widget/integration/unit | VERIFIED by design | COMPLETED |
+| NSV-004 | Require goal name | design-derived | UI-NSV-05 | `features/novasave` (`CreateGoalScreen`) | unit/widget | VERIFIED by design | COMPLETED |
+| NSV-005 | Require positive target amount | design-derived + money rules | UI-NSV-05 | `features/novasave` (`CreateGoalScreen`, `HC-MONEY`) | unit/widget | VERIFIED by design | COMPLETED |
+| NSV-006 | Require future target date | design-derived | UI-NSV-05 | `features/novasave` (`CreateGoalScreen`, `TargetDatePickerSheet`) | unit/widget | VERIFIED by design | COMPLETED |
+| NSV-007 | Provide target-date picker | design-derived | UI-NSV-06 | `features/novasave` (`TargetDatePickerSheet`) | widget/visual | VERIFIED by design | COMPLETED |
 | NSV-008 | Show goal details and remaining amount | ASM-008 | UI-NSV-08 | NovaSave (`domain`) | widget/unit | VERIFIED by design | IN_PROGRESS |
 | NSV-009 | Show contribution amount entry and projected progress | ASM-008 | UI-NSV-09 | NovaSave (`domain`) | widget/unit | VERIFIED | IN_PROGRESS |
 | NSV-010 | Reject contribution above wallet balance | design-derived | UI-NSV-10 | NovaSave domain | unit/widget | VERIFIED by design | TODO |

@@ -10,6 +10,8 @@ import 'package:novawallet/design_system/tokens/app_spacing.dart';
 import 'package:novawallet/design_system/tokens/app_typography.dart';
 import 'package:novawallet/features/novasave/data/novasave_providers.dart';
 import 'package:novawallet/features/novasave/domain/savings_goal.dart';
+import 'package:novawallet/features/novasave/presentation/screens/create_goal_screen.dart';
+import 'package:novawallet/features/novasave/presentation/screens/goal_details_screen.dart';
 import 'package:novawallet/features/novasave/presentation/widgets/goal_card.dart';
 import 'package:novawallet/sync/data/sync_providers.dart';
 import 'package:novawallet/sync/domain/operation_payload.dart';
@@ -28,6 +30,20 @@ class GoalsListScreen extends ConsumerWidget {
 
   final VoidCallback? onCreateGoal;
   final ValueChanged<SavingsGoal>? onGoalTapped;
+
+  void _navigateToCreateGoal(BuildContext context) {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => const CreateGoalScreen()));
+  }
+
+  void _navigateToGoalDetails(BuildContext context, SavingsGoal goal) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => GoalDetailsScreen(goalId: goal.id, initialGoal: goal),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -71,7 +87,9 @@ class GoalsListScreen extends ConsumerWidget {
                     child: SingleChildScrollView(
                       child: AppEmptyState.novaSaveGoals(
                         key: const Key('novasave_empty_state'),
-                        onActionPressed: onCreateGoal,
+                        onActionPressed: onCreateGoal != null
+                            ? onCreateGoal!
+                            : () => _navigateToCreateGoal(context),
                       ),
                     ),
                   );
@@ -90,9 +108,8 @@ class GoalsListScreen extends ConsumerWidget {
                       ),
                       child: Text(
                         'Your savings goals',
-                        style: AppTypography.titleMedium16.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                        style: AppTypography.labelBold14.copyWith(
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ),
@@ -120,7 +137,7 @@ class GoalsListScreen extends ConsumerWidget {
                             pendingContributionAmount: pendingAmount,
                             onTap: onGoalTapped != null
                                 ? () => onGoalTapped!(goal)
-                                : null,
+                                : () => _navigateToGoalDetails(context, goal),
                           );
                         },
                       ),
@@ -172,7 +189,9 @@ class GoalsListScreen extends ConsumerWidget {
               child: AppButton(
                 key: const Key('create_goal_button'),
                 label: 'Create Goal',
-                onPressed: onCreateGoal,
+                onPressed: onCreateGoal != null
+                    ? onCreateGoal!
+                    : () => _navigateToCreateGoal(context),
                 isFullWidth: true,
               ),
             ),

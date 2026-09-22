@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:novawallet/core/time/date_time_formatter.dart';
 import 'package:novawallet/design_system/components/status/app_status_badge.dart';
 import 'package:novawallet/design_system/icons/app_icons.dart';
 import 'package:novawallet/design_system/tokens/app_colors.dart';
@@ -33,27 +34,8 @@ class WalletActivityTile extends StatelessWidget {
     }
   }
 
-  String _formatTimestamp(DateTime dt) {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    final month = months[dt.month - 1];
-    final hour = dt.hour == 0 ? 12 : (dt.hour > 12 ? dt.hour - 12 : dt.hour);
-    final minute = dt.minute.toString().padLeft(2, '0');
-    final amPm = dt.hour >= 12 ? 'PM' : 'AM';
-    return '$month ${dt.day}, $hour:$minute $amPm';
-  }
+  String _formatTimestamp(DateTime dt) =>
+      DateTimeFormatter.formatShortTimestamp(dt);
 
   @override
   Widget build(BuildContext context) {

@@ -1630,7 +1630,7 @@ flutter analyze
 
 ---
 
-## [ ] T-NSV-002 — Implement create-goal form, validation and date picker
+## [x] T-NSV-002 — Implement create-goal form, validation and date picker
 
 **Risk:** B  
 **Size:** M

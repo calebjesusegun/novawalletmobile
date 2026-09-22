@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 7 (NovaSave Goal Creation) IN PROGRESS — `T-NSV-001` (Implement goal list and empty state) COMPLETE and verified  
-**Primary next task:** `T-NSV-002 — Implement create-goal form, validation and date picker` (Phase 7 — NovaSave Goal Creation)  
-**Current branch:** `feat/nsv-goal-list-empty-state`  
-**Latest commit on main:** `dab85c1`  
+**Status:** Phase 7 (NovaSave Goal Creation) IN PROGRESS — `T-NSV-001` and `T-NSV-002` COMPLETE and verified  
+**Primary next task:** `T-NSV-003 — Implement goal details and progress` (Phase 7 — NovaSave Goal Creation)  
+**Current branch:** `feat/nsv-create-goal-form`  
+**Latest commit on main:** `b97b8e8`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -66,7 +66,13 @@ Phase 7 (NovaSave Goal Creation) in progress:
   - `GoalCard` implemented in `lib/features/novasave/presentation/widgets/goal_card.dart` (`UI-NSV-01`, `UI-NSV-02`).
   - `GoalsListScreen` implemented in `lib/features/novasave/presentation/screens/goals_list_screen.dart` (`UI-NSV-01`, `UI-NSV-02`, `UI-NSV-03`).
   - `NovaSaveShellTab` in `lib/app/app.dart` wired directly to `GoalsListScreen`.
-  - 5 widget tests in `test/features/novasave/presentation/goals_list_screen_test.dart` (464 total repo tests passing).
+- `T-NSV-002` (Implement create-goal form, validation and date picker) is COMPLETE on `feat/nsv-create-goal-form`:
+  - `DateTimeFormatter` created in `lib/core/time/date_time_formatter.dart` enforcing standard West Africa Time (WAT, UTC+1).
+  - `TargetDatePickerSheet` implemented in `lib/features/novasave/presentation/widgets/target_date_picker_sheet.dart` (`UI-NSV-06`, `NSV-006`, `NSV-007`).
+  - `CreateGoalScreen` implemented in `lib/features/novasave/presentation/screens/create_goal_screen.dart` (`UI-NSV-04`, `UI-NSV-05`, `UI-NSV-07`, `NSV-003`, `NSV-004`, `NSV-005`).
+  - `GoalDetailsScreen` base implemented in `lib/features/novasave/presentation/screens/goal_details_screen.dart` (`UI-NSV-08`, `NSV-008`).
+  - `GoalsListScreen` navigation wired to push `CreateGoalScreen` and `GoalDetailsScreen`.
+  - 6 widget tests in `test/features/novasave/presentation/create_goal_screen_test.dart` (470 total repo tests passing).
 
 ---
 
@@ -74,12 +80,12 @@ Phase 7 (NovaSave Goal Creation) in progress:
  
 Current Task:
 ```text
-T-NSV-001 (Implement goal list and empty state) COMPLETE on feat/nsv-goal-list-empty-state
+T-NSV-002 (Implement create-goal form, validation and date picker) COMPLETE on feat/nsv-create-goal-form
 ```
 
 Next Task:
 ```text
-T-NSV-002 — Implement create-goal form, validation and date picker (Phase 7 — NovaSave Goal Creation)
+T-NSV-003 — Implement goal details and progress (Phase 7 — NovaSave Goal Creation)
 ```
 
 ---

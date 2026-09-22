@@ -1497,30 +1497,32 @@ Add further entries when they happen.
 
 Use this format:
 
-### AI-RISK-XXX — Short title
+### AI-RISK-007 — Unconstrained calendar grid aspect ratio in TargetDatePickerSheet causing bottom-sheet viewport overflow
 
-**Tool:**  
-**Stage:**  
+**Tool:** Antigravity  
+**Stage:** Phase 7 — NovaSave Goal Creation (T-NSV-002)
 
 **Risky output / assumption**
 
-Describe the suggestion or generated implementation.
+When implementing `TargetDatePickerSheet` for `UI-NSV-06`, the `GridView.builder` calendar was configured with `childAspectRatio: 1.0` inside a non-scrollable `Column`. In desktop test runners with an 800px-wide viewport, each column cell expanded to ~114px width, forcing each row to be 114px high (over 570px for 5 rows). This pushed the "Confirm date" button offscreen at y=625.7px and threw a `RenderFlex overflowed by 74 pixels` exception.
 
 **Why this was risky**
 
-Explain the possible consequence.
+The bottom sheet would overflow on tablets, wide screens, or larger system font scales (`HC-ACCESSIBILITY`), preventing users from reaching the "Confirm date" button and completing goal creation.
 
 **How it was caught**
 
-Explain the review, test, design comparison or source material that exposed the issue.
+Automated widget tests in `test/features/novasave/presentation/create_goal_screen_test.dart` reported hit-test warnings (`Offset outside the bounds of root render tree`) and `RenderFlex overflowed`.
 
 **Correction**
 
-Describe what changed.
+1. Replaced `childAspectRatio: 1.0` with a fixed `mainAxisExtent: 38` so calendar day cells remain compactly sized regardless of device width.
+2. Wrapped the sheet content in a `SingleChildScrollView` inside `SafeArea` ensuring full responsiveness on small screens and 2.0x text scaling.
 
 **Regression protection**
 
-List the test, rule or review step added to prevent recurrence.
+- Added automated widget test `Target date picker opens, navigates, and selects future date (UI-NSV-06, NSV-007)` asserting that the sheet opens, cells are tapped within bounds, and "Confirm date" can be activated without layout overflow.
+- Added 2.0x font scaling accessibility test in `create_goal_screen_test.dart`.
 
 ---
 
