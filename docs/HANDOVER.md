@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 6 (Send Money) COMPLETE — `T-SND-005` (Implement pending, reconnect and sync-failure Send states) verified and ready to merge into `main`  
-**Primary next task:** `T-NSV-001 — Implement goal list and empty state` (Phase 7 — NovaSave Goal Creation)  
-**Current branch:** `feat/snd-offline-pending-reconnect`  
-**Latest commit on main:** `302a316`  
+**Status:** Phase 7 (NovaSave Goal Creation) IN PROGRESS — `T-NSV-001` (Implement goal list and empty state) COMPLETE and verified  
+**Primary next task:** `T-NSV-002 — Implement create-goal form, validation and date picker` (Phase 7 — NovaSave Goal Creation)  
+**Current branch:** `feat/nsv-goal-list-empty-state`  
+**Latest commit on main:** `dab85c1`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -60,18 +60,26 @@ Phase 6 (Send Money) is COMPLETE:
   - `SendMoneyFlowScreen` updated to track offline submission.
   - 11 widget tests in `transfer_result_screen_test.dart` (70 Send Money tests, 459 repo tests passing).
 
+Phase 7 (NovaSave Goal Creation) in progress:
+- `T-NSV-001` (Implement goal list and empty state) is COMPLETE on `feat/nsv-goal-list-empty-state`:
+  - `savingsGoalsStreamProvider` exposed in `lib/features/novasave/data/novasave_providers.dart`.
+  - `GoalCard` implemented in `lib/features/novasave/presentation/widgets/goal_card.dart` (`UI-NSV-01`, `UI-NSV-02`).
+  - `GoalsListScreen` implemented in `lib/features/novasave/presentation/screens/goals_list_screen.dart` (`UI-NSV-01`, `UI-NSV-02`, `UI-NSV-03`).
+  - `NovaSaveShellTab` in `lib/app/app.dart` wired directly to `GoalsListScreen`.
+  - 5 widget tests in `test/features/novasave/presentation/goals_list_screen_test.dart` (464 total repo tests passing).
+
 ---
 
 ## 8. Current Execution Task
  
 Current Task:
 ```text
-T-SND-005 (Implement pending, reconnect and sync-failure Send states) COMPLETE on feat/snd-offline-pending-reconnect
+T-NSV-001 (Implement goal list and empty state) COMPLETE on feat/nsv-goal-list-empty-state
 ```
 
 Next Task:
 ```text
-T-NSV-001 — Implement goal list and empty state (Phase 7 — NovaSave Goal Creation)
+T-NSV-002 — Implement create-goal form, validation and date picker (Phase 7 — NovaSave Goal Creation)
 ```
 
 ---

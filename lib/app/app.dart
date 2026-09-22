@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:novawallet/app/navigation/app_bottom_nav_bar.dart';
 import 'package:novawallet/app/navigation/app_navigation_provider.dart';
-import 'package:novawallet/design_system/components/empty_states/app_empty_state.dart';
 import 'package:novawallet/design_system/theme/app_theme.dart';
 import 'package:novawallet/design_system/tokens/app_colors.dart';
+import 'package:novawallet/features/novasave/presentation/screens/goals_list_screen.dart';
 import 'package:novawallet/features/send_money/presentation/screens/send_money_flow_screen.dart';
 import 'package:novawallet/features/wallet/presentation/screens/wallet_home_screen.dart';
 
@@ -68,15 +68,12 @@ class SendMoneyShellTab extends StatelessWidget {
   }
 }
 
-/// Placeholder shell tab for NovaSave (Phase 7 will implement full flow).
+/// Shell tab for NovaSave hosting the goals list flow (UI-NSV-01, UI-NSV-03).
 class NovaSaveShellTab extends StatelessWidget {
   const NovaSaveShellTab({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('NovaSave')),
-      body: AppEmptyState.novaSaveGoals(),
-    );
+    return const GoalsListScreen();
   }
 }

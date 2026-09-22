@@ -165,8 +165,8 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 
 | ID | Requirement / behavior | Parent | Design evidence | Implementation | Verification | Evidence | Status |
 |---|---|---|---|---|---|---|---|
-| NSV-001 | Show populated goal list | ASM-007, ASM-008 | UI-NSV-01 | `features/novasave` | widget/unit | VERIFIED by design | IN_PROGRESS |
-| NSV-002 | Show empty goal state | design-derived | UI-NSV-03 | NovaSave | widget | VERIFIED by design | TODO |
+| NSV-001 | Show populated goal list | ASM-007, ASM-008 | UI-NSV-01 | `features/novasave` (`GoalsListScreen`, `GoalCard`) | widget/unit | VERIFIED by design | COMPLETED |
+| NSV-002 | Show empty goal state | design-derived | UI-NSV-03 | `features/novasave` (`GoalsListScreen`, `AppEmptyState`) | widget | VERIFIED by design | COMPLETED |
 | NSV-003 | Create goal with name, target amount, target date | ASM-007 | UI-NSV-04, UI-NSV-07 | NovaSave | widget/integration/unit | VERIFIED | IN_PROGRESS |
 | NSV-004 | Require goal name | design-derived | UI-NSV-05 | NovaSave domain | unit/widget | VERIFIED by design | TODO |
 | NSV-005 | Require positive target amount | design-derived + money rules | UI-NSV-05 | NovaSave domain | unit/widget | VERIFIED by design | TODO |

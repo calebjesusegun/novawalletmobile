@@ -10,9 +10,11 @@ import 'package:novawallet/core/money/money.dart';
 import 'package:novawallet/core/persistence/app_database.dart';
 import 'package:novawallet/core/persistence/persistence_providers.dart';
 import 'package:novawallet/design_system/icons/app_icons.dart';
+import 'package:novawallet/features/novasave/data/novasave_providers.dart';
 import 'package:novawallet/features/wallet/data/wallet_providers.dart';
 import 'package:novawallet/features/wallet/domain/wallet_projection.dart';
 import 'package:novawallet/features/wallet/presentation/screens/wallet_home_screen.dart';
+import 'package:novawallet/sync/data/sync_providers.dart';
 
 void main() {
   setUpAll(() {
@@ -36,6 +38,12 @@ void main() {
         return ProviderScope(
           overrides: [
             appDatabaseProvider.overrideWithValue(db),
+            savingsGoalsStreamProvider.overrideWith(
+              (ref) => Stream.value(const []),
+            ),
+            activeOperationsStreamProvider.overrideWith(
+              (ref) => Stream.value(const []),
+            ),
             walletProjectionProvider.overrideWithValue(
               AsyncValue.data(
                 WalletProjection(
