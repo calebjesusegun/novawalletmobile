@@ -80,16 +80,16 @@ These IDs represent the original assessment rather than invented feature require
 | ASM-015 | Key interactive elements expose proper Flutter `Semantics` | Assessment §2.2 | presentation/design system | widget/accessibility | VERIFIED | DONE |
 | ASM-016 | Text respects system font scaling without breaking layout | Assessment §2.2 | presentation/design system | widget/manual at enlarged scale | VERIFIED | DONE |
 | ASM-017 | Large recent-transaction lists use `ListView.builder` or equivalent lazy construction | Assessment §2.2 | `features/wallet` | widget/performance review | VERIFIED | DONE |
-| ASM-018 | Sensitive mocked auth data, if introduced, is not stored in plain `SharedPreferences` | Assessment §2.2 | security/persistence | code review/test where applicable | VERIFIED | TODO |
-| ASM-019 | Repository includes `AI_USAGE.md` describing tools, uses and concrete prompts/results | Assessment §2.2 | root documentation | submission review | VERIFIED | TODO |
-| ASM-020 | `AI_USAGE.md` records at least one concrete AI mistake/risky output and how it was caught/fixed | Assessment §2.2 | root documentation | submission review | VERIFIED | TODO |
-| ASM-021 | Repository includes README covering architecture, state-management choice, offline/sync design, trade-offs, run/test instructions | Assessment §2.3 | `README.md` | submission review | VERIFIED | TODO |
+| ASM-018 | Sensitive mocked auth data, if introduced, is not stored in plain `SharedPreferences` | Assessment §2.2 | security/persistence | code review/test where applicable | VERIFIED (No mock auth required; zero insecure storage used) | DONE |
+| ASM-019 | Repository includes `AI_USAGE.md` describing tools, uses and concrete prompts/results | Assessment §2.2 | root documentation | submission review | VERIFIED | DONE |
+| ASM-020 | `AI_USAGE.md` records at least one concrete AI mistake/risky output and how it was caught/fixed | Assessment §2.2 | root documentation | submission review | VERIFIED (7 concrete mistakes logged with root causes and corrections) | DONE |
+| ASM-021 | Repository includes README covering architecture, state-management choice, offline/sync design, trade-offs, run/test instructions | Assessment §2.3 | `README.md` | submission review | VERIFIED | DONE |
 | ASM-022 | Widget tests cover Send Money | Assessment §2.3 | `test/features/send_money` | `flutter test` | VERIFIED | DONE |
 | ASM-023 | Widget tests cover NovaSave contribution | Assessment §2.3 | `test/features/novasave` | `flutter test` | VERIFIED | DONE |
 | ASM-024 | At least one integration test covers offline queue → sync | Assessment §2.3 | `integration_test/` | integration test | VERIFIED | DONE |
-| ASM-025 | App runs with a single command on a standard Flutter setup | Assessment §2.3 | repository/toolchain | clean-run verification | VERIFIED | IN_PROGRESS |
+| ASM-025 | App runs with a single command on a standard Flutter setup | Assessment §2.3 | repository/toolchain | clean-run verification | VERIFIED (`flutter run`) | DONE |
 | ASM-026 | README states targeted Flutter/Dart versions | Assessment §2.3 | `README.md`, toolchain | submission review | VERIFIED | DONE |
-| ASM-027 | Submission provides a Git repository link/access | Assessment §2.3 | repository delivery | submission review | VERIFIED | TODO |
+| ASM-027 | Submission provides a Git repository link/access | Assessment §2.3 | repository delivery | submission review | VERIFIED (`https://github.com/calebjesusegun/novawalletmobile`) | DONE |
 
 ### Assessment context that is not a build requirement
 
@@ -262,11 +262,11 @@ For exact token values, `docs/DESIGN_SYSTEM.md` and the authoritative Style Guid
 | TST-005 | Required NovaSave contribution widget tests exist | ASM-023 | NovaSave tests | `flutter test` | VERIFIED | DONE |
 | TST-006 | Integration test covers offline queue → restart/reconnect → exactly one effect | ASM-024 plus ASM-012/013 | `test/sync/kernel` & `integration_test` | integration run | VERIFIED + strengthened to catch duplicate regression | DONE |
 | TST-007 | Failure/retry path is tested for lost/uncertain response behavior | ASM-013 | sync/fake backend | integration | INFERRED high-value regression test | DONE |
-| DOC-001 | README is truthful about implemented state and required architecture/trade-offs/run/test info | ASM-021, ASM-026 | `README.md` | submission review | VERIFIED | TODO |
-| DOC-002 | AI usage log is maintained from implementation start | ASM-019, ASM-020 | `AI_USAGE.md` | submission review | VERIFIED | TODO |
+| DOC-001 | README is truthful about implemented state and required architecture/trade-offs/run/test info | ASM-021, ASM-026 | `README.md` | submission review | VERIFIED | DONE |
+| DOC-002 | AI usage log is maintained from implementation start | ASM-019, ASM-020 | `AI_USAGE.md` | submission review | VERIFIED (7 documented mistakes with root-cause analysis) | DONE |
 | DOC-003 | Flutter/Dart versions are pinned/recorded | ASM-026 | README/pubspec/toolchain | clean setup review | VERIFIED | DONE |
-| DOC-004 | App runs with one standard Flutter command after setup | ASM-025 | repository | clean-run verification | VERIFIED | IN_PROGRESS |
-| DOC-005 | Repository link/access is ready for submission | ASM-027 | remote repo | submission review | VERIFIED | TODO |
+| DOC-004 | App runs with one standard Flutter command after setup | ASM-025 | repository | clean-run verification | VERIFIED (`flutter run`) | DONE |
+| DOC-005 | Repository link/access is ready for submission | ASM-027 | remote repo | submission review | VERIFIED (`https://github.com/calebjesusegun/novawalletmobile`) | DONE |
 
 ---
 
