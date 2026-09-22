@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:novawallet/design_system/components/fields/currency_amount_input_formatter.dart';
 import 'package:novawallet/design_system/tokens/app_colors.dart';
 import 'package:novawallet/design_system/tokens/app_radii.dart';
 import 'package:novawallet/design_system/tokens/app_spacing.dart';
@@ -87,11 +87,7 @@ class AppAmountField extends StatelessWidget {
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(
-                          RegExp(r'^\d*\.?\d{0,2}'),
-                        ),
-                      ],
+                      inputFormatters: const [CurrencyAmountInputFormatter()],
                       onChanged: onChanged,
                       style: AppTypography.headlineBold32.copyWith(
                         color: enabled
