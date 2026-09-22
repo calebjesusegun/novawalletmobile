@@ -1756,6 +1756,32 @@ Automated unit tests in `test/core/persistence/database_seeder_test.dart` verify
 
 ---
 
+### Mistake 7: AI assumed recipient directory resolved to seed transaction counterparty instead of canonical directory fixture
+
+**What happened**
+
+During the implementation of the app-level offline-queue-restart-reconnect integration test (`test/app/app_offline_restart_sync_test.dart`), the test entered account number `0123456789` and expected recipient name `"Ada Lovelace"` to be resolved and displayed across the confirmation screen, pending result screen, and post-restart wallet activity list. When executed, the test failed with `Expected: at least one matching candidate. Actual: Found 0 widgets with text "Ada Lovelace"`.
+
+**Why it happened**
+
+The AI conflated the sample counterparty name from the newly added database seed history (`Ada Lovelace`) with the resolution result of the recipient account directory (`FakeRecipientDirectory`). Under `FakeRecipientDirectory` (and design requirement `UI-SND-04`), account `0123456789` resolves to `John Doe` (NovaBank), whereas `Ada Lovelace` was only a historical transaction party.
+
+**How it was caught**
+
+Executing the integration test via `flutter test test/app/app_offline_restart_sync_test.dart` failed immediately at the recipient entry step.
+
+**Correction applied**
+
+1. Corrected the expected resolved recipient to `John Doe` throughout the end-to-end integration test.
+2. Verified that the test verifies real resolution against the actual `FakeRecipientDirectory` rather than hardcoded mock overrides.
+3. Successfully passed the complete 11-step integration test on both Flutter desktop engine and Android emulator (`emulator-5554`).
+
+**Regression protection**
+
+The integration test in `integration_test/offline_queue_restart_sync_test.dart` and `test/app/app_offline_restart_sync_test.dart` exercises real widget interactions, text entry, directory resolution, and persistence across cold restart without mock bypassing.
+
+---
+
 ## Review Guidelines
 
 When using AI on NovaWallet:

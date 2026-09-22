@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Task `T-TST-002` (NovaSave Contribution Widget Coverage) COMPLETE  
-**Primary next task:** Task `T-TST-003` — Add required app-level offline queue → restart → reconnect integration test  
-**Current branch:** `test/T-TST-002-novasave-contribution-widgets`  
-**Latest commit on main:** `dd25fbc` (PR #28 — `T-TST-001` Send Money Widget Coverage)  
+**Status:** Task `T-TST-003` (App-Level Offline Queue → Restart → Reconnect Integration Test) COMPLETE  
+**Primary next task:** Task `T-TST-004` — Add high-value sync failure regression matrix  
+**Current branch:** `test/T-TST-003-offline-restart-sync`  
+**Latest commit on main:** `83f4a6c` (PR #29 — `T-TST-002` NovaSave Contribution Widgets & Seeder)  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -20,18 +20,23 @@ Phase 11 (Mandatory Assessment Testing & Failure Matrix):
 - `T-TST-001` (Send Money widget journey coverage):
   - Covered 5 complete journeys in `send_money_flow_test.dart` (PR #28 merged).
 - `T-TST-002` (NovaSave contribution widget journey coverage):
-  - Covered 5 complete journeys in `test/features/novasave/presentation/novasave_contribution_flow_test.dart`:
-    1. Step navigation, back-navigation, and validation blocking (empty, 0, exceeding spendable balance).
-    2. Full online journey: Goal Details → Amount → Confirm → Processing → Success → Done → Confirmed progress advances (₦150k → ₦200k / 40%).
-    3. Full offline journey: Goal Details → Amount → Confirm with offline notice → Enqueue Pending → Pending view → Back to goal → Confirmed progress strictly unchanged at ₦150,000.00 / 30% (HC-MONEY, design rule).
-    4. Online recoverable sync failure with retry option reusing stable idempotency key.
-    5. Terminal failure displaying non-deduction explanation and returning cleanly to goal on Back.
-  - All 94 tests in `test/features/novasave/` pass.
-
-Database Cold-Start & Demo Seeding:
-- Created `DatabaseSeeder` (`lib/core/persistence/database_seeder.dart`) to seed canonical demonstration data on fresh application launch (`₦125,450.00` wallet balance, canonical `Emergency Fund` goal of `₦150k / ₦500k`, and initial sample transactions).
-- Strictly idempotent: preserves existing user transactions and balances without overwriting on subsequent app launches.
-- Unit tested in `test/core/persistence/database_seeder_test.dart`.
+  - Covered 5 complete journeys in `test/features/novasave/presentation/novasave_contribution_flow_test.dart` (PR #29 merged).
+  - Database cold start demo seeding implemented via idempotent `DatabaseSeeder`.
+- `T-TST-003` (App-level offline queue → restart → reconnect integration test):
+  - Authored `test/app/app_offline_restart_sync_test.dart` and `integration_test/offline_queue_restart_sync_test.dart`.
+  - Exercises full 11-step journey:
+    1. Cold App Launch on persistent SQLite file while OFFLINE (seeded with `₦125,450.00`).
+    2. Recipient Entry & resolution (`0123456789` → `John Doe`, NovaBank).
+    3. Amount Entry (`₦10,000.00`).
+    4. Offline Transfer Confirmation with secure queuing notification.
+    5. Pending Result Screen (`UI-SND-09` / `NSV-017`).
+    6. Return to Wallet: Headline balance remains `₦125,450.00` (`HC-MONEY`), pending activity displayed.
+    7. Process kill simulation: Database closed, Riverpod container disposed.
+    8. Process restart on same SQLite file: Pending operation restored from disk (`HC-OFFLINE-DURABILITY`), remote untouched.
+    9. Network reconnection: Centralized `SyncCoordinator` claims and executes pending transfer.
+    10. Settlement: Pending queue cleared, remote balance debited to `₦115,450.00` exactly once (`HC-EXACTLY-ONCE-EFFECT`), local wallet balance updated.
+    11. Replay deduplication: Subsequent sync runs trigger 0 remote operations, remote balance preserved (`HC-IDEMPOTENCY`).
+  - Verified on Android emulator (`emulator-5554`) and Flutter test engine.
 
 ---
 
@@ -39,12 +44,12 @@ Database Cold-Start & Demo Seeding:
  
 Current Task:
 ```text
-T-TST-002 (NovaSave Contribution Widget Coverage) COMPLETE on test/T-TST-002-novasave-contribution-widgets
+T-TST-003 (App-Level Offline Queue → Restart → Reconnect Integration Test) COMPLETE on test/T-TST-003-offline-restart-sync
 ```
 
 Next Task:
 ```text
-T-TST-003 — Add required app-level offline queue → restart → reconnect integration test on test/T-TST-003-offline-restart-sync
+T-TST-004 — Add high-value sync failure regression matrix on test/T-TST-004-sync-failure-matrix
 ```
 
 ---
@@ -76,7 +81,7 @@ Current test suite status: **564 / 564 tests passing**, analyzer clean, 0 format
 
 ## 5. Next Steps
 
-1. Commit and push `test/T-TST-002-novasave-contribution-widgets`.
-2. Open Pull Request to merge `test/T-TST-002-novasave-contribution-widgets` into `main`.
+1. Commit and push `test/T-TST-003-offline-restart-sync`.
+2. Open Pull Request to merge `test/T-TST-003-offline-restart-sync` into `main`.
 3. Merge PR into `main` via `gh pr merge --squash --delete-branch`.
-4. Switch to `main`, pull latest, and branch `test/T-TST-003-offline-restart-sync` for `T-TST-003`.
+4. Switch to `main`, pull latest, and branch `test/T-TST-004-sync-failure-matrix` for `T-TST-004`.

@@ -2255,7 +2255,7 @@ flutter test test/features/novasave/
 
 ---
 
-## [ ] T-TST-003 — Add required app-level offline queue → restart → reconnect integration test
+## [x] T-TST-003 — Add required app-level offline queue → restart → reconnect integration test
 
 **Risk:** A  
 **Size:** M
