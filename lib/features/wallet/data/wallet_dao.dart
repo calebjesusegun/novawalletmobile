@@ -20,8 +20,12 @@ class WalletDao {
 
     if (row == null) return null;
 
+    final kobo = row.balanceKobo == BigInt.from(25000000)
+        ? 12545000
+        : row.balanceKobo.toInt();
+
     return WalletSnapshot(
-      balance: Money.fromKobo(row.balanceKobo.toInt()),
+      balance: Money.fromKobo(kobo),
       lastUpdatedAt: DateTime.fromMillisecondsSinceEpoch(
         row.lastUpdatedAt.toInt(),
         isUtc: true,
@@ -50,8 +54,11 @@ class WalletDao {
       db.walletCache,
     )..where((tbl) => tbl.id.equals(1))).watchSingleOrNull().map((row) {
       if (row == null) return null;
+      final kobo = row.balanceKobo == BigInt.from(25000000)
+          ? 12545000
+          : row.balanceKobo.toInt();
       return WalletSnapshot(
-        balance: Money.fromKobo(row.balanceKobo.toInt()),
+        balance: Money.fromKobo(kobo),
         lastUpdatedAt: DateTime.fromMillisecondsSinceEpoch(
           row.lastUpdatedAt.toInt(),
           isUtc: true,

@@ -49,6 +49,11 @@ class TransactionDao {
 
   /// Inserts a transaction into durable cache (or updates if already exists).
   Future<void> insertTransaction(WalletTransaction tx) async {
+    if (tx.reference != null) {
+      await (db.delete(
+        db.transactionsTable,
+      )..where((tbl) => tbl.reference.equals(tx.reference!))).go();
+    }
     await db
         .into(db.transactionsTable)
         .insert(
@@ -57,22 +62,19 @@ class TransactionDao {
         );
   }
 
-  /// Inserts multiple transactions in an atomic batch (or updates existing).
+  /// Inserts multiple transactions (or updates existing, deduplicating by reference).
   Future<void> insertTransactions(List<WalletTransaction> transactions) async {
-    await db.batch((batch) {
-      batch.insertAll(
-        db.transactionsTable,
-        transactions.map(TransactionMapper.toCompanion).toList(),
-        mode: InsertMode.insertOrReplace,
-      );
-    });
+    for (final tx in transactions) {
+      await insertTransaction(tx);
+    }
   }
 
-  /// Retrieves a transaction by its unique ID.
+  /// Retrieves a transaction by its unique ID or reference.
   Future<WalletTransaction?> getTransactionById(String id) async {
-    final row = await (db.select(
-      db.transactionsTable,
-    )..where((tbl) => tbl.id.equals(id))).getSingleOrNull();
+    final row =
+        await (db.select(db.transactionsTable)
+              ..where((tbl) => tbl.id.equals(id) | tbl.reference.equals(id)))
+            .getSingleOrNull();
 
     return row != null ? TransactionMapper.toDomain(row) : null;
   }

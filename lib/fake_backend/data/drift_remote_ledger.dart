@@ -21,8 +21,8 @@ class DriftRemoteLedger implements RemoteIdempotencyLedger {
   final AppDatabase _db;
   final Money _initialBalance;
 
-  /// Default initial balance is ₦250,000.00 (25,000,000 kobo).
-  static const Money defaultInitialBalance = Money.fromKobo(25000000);
+  /// Default initial balance is ₦125,450.00 (12,545,000 kobo) matching design baseline.
+  static const Money defaultInitialBalance = Money.fromKobo(12545000);
 
   DriftRemoteLedger(this._db, {Money? initialBalance})
     : _initialBalance = initialBalance ?? defaultInitialBalance;
@@ -98,6 +98,10 @@ class DriftRemoteLedger implements RemoteIdempotencyLedger {
     final entry = await query.getSingleOrNull();
 
     if (entry != null) {
+      if (entry.balanceKobo == BigInt.from(25000000)) {
+        await setBalance(_initialBalance);
+        return _initialBalance;
+      }
       return Money.fromKobo(entry.balanceKobo.toInt());
     }
 

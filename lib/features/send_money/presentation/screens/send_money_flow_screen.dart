@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:novawallet/app/navigation/app_destination.dart';
+import 'package:novawallet/app/navigation/app_navigation_provider.dart';
 import 'package:novawallet/core/connectivity/connectivity_providers.dart';
 import 'package:novawallet/core/connectivity/connectivity_status.dart';
 import 'package:novawallet/core/money/money.dart';
@@ -70,6 +72,9 @@ class _SendMoneyFlowScreenState extends ConsumerState<SendMoneyFlowScreen> {
       _submittedOperation = null;
       _submittedOffline = false;
     });
+    ref
+        .read(appNavigationProvider.notifier)
+        .selectDestination(AppDestination.wallet);
   }
 
   void _onFlowTryAgain() {

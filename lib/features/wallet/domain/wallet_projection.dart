@@ -90,8 +90,17 @@ class WalletProjection {
         .where((op) => op.status != OperationStatus.completed)
         .toList();
 
-    // Map confirmed transactions to activity items
-    final confirmedItems = confirmedTransactions
+    // Map confirmed transactions to activity items, deduplicating by stable reference or ID
+    final seenKeys = <String>{};
+    final uniqueConfirmed = <WalletTransaction>[];
+    for (final tx in confirmedTransactions) {
+      final key = tx.reference ?? tx.id;
+      if (seenKeys.add(key)) {
+        uniqueConfirmed.add(tx);
+      }
+    }
+
+    final confirmedItems = uniqueConfirmed
         .map(WalletActivityItem.fromTransaction)
         .toList();
 

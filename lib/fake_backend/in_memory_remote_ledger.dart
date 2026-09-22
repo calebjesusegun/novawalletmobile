@@ -17,8 +17,8 @@ class InMemoryRemoteLedger implements RemoteIdempotencyLedger {
   final Map<String, RemoteIdempotencyRecord> _records = {};
   final List<WalletTransaction> _transactions = [];
 
-  /// Default initial balance is ₦250,000.00 (25,000,000 kobo).
-  static const Money defaultInitialBalance = Money.fromKobo(25000000);
+  /// Default initial balance is ₦125,450.00 (12,545,000 kobo) matching design baseline.
+  static const Money defaultInitialBalance = Money.fromKobo(12545000);
 
   InMemoryRemoteLedger({Money? initialBalance})
     : _balance = initialBalance ?? defaultInitialBalance;
