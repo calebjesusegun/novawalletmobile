@@ -164,7 +164,7 @@ void main() {
       expect(find.text('₦'), findsOneWidget);
 
       await tester.enterText(find.byType(TextFormField), '5000.50');
-      expect(enteredAmount, equals('5000.50'));
+      expect(enteredAmount, equals('5,000.50'));
     });
   });
 
