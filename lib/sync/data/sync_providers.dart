@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:novawallet/core/ids/operation_id.dart';
 import 'package:novawallet/core/persistence/persistence.dart';
 import 'package:novawallet/sync/data/local_operation_repository.dart';
 import 'package:novawallet/sync/data/pending_operations_dao.dart';
@@ -31,3 +32,10 @@ final activeOperationsStreamProvider = StreamProvider<List<FinancialOperation>>(
     return repo.watchActiveOperations();
   },
 );
+
+/// Stream provider watching a specific operation by its [OperationId].
+final operationByIdStreamProvider =
+    StreamProvider.family<FinancialOperation?, OperationId>((ref, id) {
+      final repo = ref.watch(operationRepositoryProvider);
+      return repo.watchOperationById(id);
+    });

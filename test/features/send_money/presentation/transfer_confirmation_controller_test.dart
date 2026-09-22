@@ -122,6 +122,15 @@ class FakeOperationRepository implements OperationRepository {
   @override
   Stream<List<FinancialOperation>> watchPendingOperations() =>
       Stream.value(enqueuedOperations);
+
+  @override
+  Stream<FinancialOperation?> watchOperationById(OperationId id) =>
+      Stream.value(
+        enqueuedOperations.cast<FinancialOperation?>().firstWhere(
+          (op) => op?.id == id,
+          orElse: () => null,
+        ),
+      );
 }
 
 class FakeSyncCoordinator implements SyncCoordinator {

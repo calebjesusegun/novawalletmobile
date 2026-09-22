@@ -109,6 +109,15 @@ class MockOperationRepository implements OperationRepository {
   @override
   Stream<List<FinancialOperation>> watchPendingOperations() =>
       Stream.value(operations);
+
+  @override
+  Stream<FinancialOperation?> watchOperationById(OperationId id) =>
+      Stream.value(
+        operations.cast<FinancialOperation?>().firstWhere(
+          (op) => op?.id == id,
+          orElse: () => null,
+        ),
+      );
 }
 
 class MockSyncCoordinator implements SyncCoordinator {

@@ -113,6 +113,15 @@ class MockFlowOperationRepository implements OperationRepository {
   @override
   Stream<List<FinancialOperation>> watchPendingOperations() =>
       Stream.value(operations);
+
+  @override
+  Stream<FinancialOperation?> watchOperationById(OperationId id) =>
+      Stream.value(
+        operations.cast<FinancialOperation?>().firstWhere(
+          (op) => op?.id == id,
+          orElse: () => null,
+        ),
+      );
 }
 
 class MockFlowSyncCoordinator implements SyncCoordinator {
@@ -236,12 +245,13 @@ void main() {
           await tester.tap(find.byKey(const Key('confirm_transfer_button')));
           await tester.pumpAndSettle();
 
-          // Enqueued and transitioned to submitted view
+          // Enqueued and transitioned to processing view (UI-SND-11 / SND-011)
           expect(repo.operations.length, 1);
           expect(
-            find.byKey(const Key('transfer_submitted_view')),
+            find.byKey(const Key('transfer_result_processing_view')),
             findsOneWidget,
           );
+          expect(find.text('Sending ₦10,000.00'), findsOneWidget);
         },
       );
     },

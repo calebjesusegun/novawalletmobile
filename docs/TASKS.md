@@ -1469,7 +1469,7 @@ flutter analyze
 
 ---
 
-## [ ] T-SND-004 — Implement online processing, success and immediate failure
+## [x] T-SND-004 — Implement online processing, success and immediate failure
 
 **Risk:** B  
 **Size:** M

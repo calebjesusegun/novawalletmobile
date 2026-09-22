@@ -159,4 +159,8 @@ class LocalOperationRepository implements OperationRepository {
   @override
   Stream<List<FinancialOperation>> watchActiveOperations() =>
       _dao.watchActiveOperations();
+
+  @override
+  Stream<FinancialOperation?> watchOperationById(OperationId id) =>
+      _dao.watchOperationById(id);
 }

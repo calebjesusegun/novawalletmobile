@@ -86,4 +86,7 @@ abstract interface class OperationRepository {
 
   /// Watches all active operations for real-time spendable balance calculations.
   Stream<List<FinancialOperation>> watchActiveOperations();
+
+  /// Watches a specific operation by its [OperationId].
+  Stream<FinancialOperation?> watchOperationById(OperationId id);
 }

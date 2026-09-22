@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** T-SND-003 (Implement confirmation and operation creation) COMPLETE on `feat/snd-confirmation` — Ready to merge into `main`  
-**Primary next task:** `T-SND-004 — Implement online processing, success and immediate failure` (Phase 6 — Send Money)  
-**Current branch:** `feat/snd-confirmation`  
-**Latest commit on main:** `ab1e769`  
+**Status:** T-SND-004 (Implement online processing, success and immediate failure) COMPLETE on `feat/snd-online-processing-results` — Ready to merge into `main`  
+**Primary next task:** `T-SND-005 — Implement pending, reconnect and sync-failure Send states` (Phase 6 — Send Money)  
+**Current branch:** `feat/snd-online-processing-results`  
+**Latest commit on main:** `051cffe`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -48,12 +48,17 @@ Phase 5 (Wallet) is COMPLETE and merged into `main` (`be83371`).
 Phase 6 (Send Money) In Progress:
 - `T-SND-001` (Implement recipient entry, validation and fake resolution) is COMPLETE and merged into `main` (`1bf0f7a`).
 - `T-SND-002` (Implement amount entry and balance validation) is COMPLETE and merged into `main` (`ab1e769`).
-- `T-SND-003` (Implement confirmation and operation creation) is COMPLETE on `feat/snd-confirmation`:
-  - `TransferConfirmationController` & `TransferConfirmationState` (`lib/features/send_money/presentation/controllers/`) enforcing stable identities (`HC-IDEMPOTENCY`), durable enqueue to `OperationRepository` (`HC-OFFLINE-DURABILITY`), and double-tap prevention.
-  - `TransferConfirmationScreen` (`lib/features/send_money/presentation/screens/`) displaying online details card (`UI-SND-10`), offline explanation banner (`UI-SND-14`), and accessible button with loading state.
-  - Connected `TransferConfirmationScreen` into `SendMoneyFlowScreen` as the 3rd step of the send flow.
-  - Authored 13 new unit and widget tests (60 Send Money tests, 448 repo tests passing).
-  - All tests passing, analyzer clean, formatting checked.
+- `T-SND-003` (Implement confirmation and operation creation) is COMPLETE and merged into `main` (`051cffe`).
+- `T-SND-004` (Implement online processing, success and immediate failure) is COMPLETE on `feat/snd-online-processing-results`:
+  - `watchOperationById` added to DAOs, repositories, and Riverpod stream provider (`operationByIdStreamProvider`).
+  - `TransferResultScreen` (`lib/features/send_money/presentation/screens/transfer_result_screen.dart`) implementing:
+    - Processing state (`UI-SND-11` / `SND-011`): Circular progress indicator, "Sending ₦XX,XXX.00", auto-advancing without extra user tap.
+    - Success state (`UI-SND-12` / `SND-012`): Completed indicator, "Transfer successful", formatted amount, recipient name, details card with Reference, Date, and Completed status badge. "Done" button resets flow.
+    - Failure state (`UI-SND-13` / `SND-013`): Failed indicator, "Transfer not completed", "Nothing was taken from your wallet.", "Try again" and "Back to wallet" action buttons.
+    - Responsive layout with 2.0x text scaling and full accessibility semantics.
+  - Connected `TransferResultScreen` into `SendMoneyFlowScreen`.
+  - Authored 6 new unit and widget tests in `transfer_result_screen_test.dart` and updated `send_money_flow_test.dart` (65 Send Money tests, 454 repo tests passing).
+  - Verified `MNY-004`: Confirmed wallet balance is debited only after remote success, never during processing or failure.
 
 ---
 
@@ -61,12 +66,12 @@ Phase 6 (Send Money) In Progress:
  
 Current Task:
 ```text
-T-SND-003 (Implement confirmation and operation creation) COMPLETE on feat/snd-confirmation
+T-SND-004 (Implement online processing, success and immediate failure) COMPLETE on feat/snd-online-processing-results
 ```
 
 Next Task:
 ```text
-T-SND-004 — Implement online processing, success and immediate failure (Phase 6 — Send Money)
+T-SND-005 — Implement pending, reconnect and sync-failure Send states (Phase 6 — Send Money)
 ```
 
 ---
@@ -97,11 +102,11 @@ Do not claim success without actually running the relevant commands.
 
 ### 13. Next Action
  
-`T-SND-003` is fully completed on `feat/snd-confirmation`. All 448 tests pass, analyzer clean, formatting checked.
+`T-SND-004` is fully completed on `feat/snd-online-processing-results`. All 454 tests pass, analyzer clean, formatting checked.
  
 ### Next Steps:
-1. Merge `feat/snd-confirmation` into `main`.
-2. Proceed to `T-SND-004 — Implement online processing, success and immediate failure`.
+1. Merge `feat/snd-online-processing-results` into `main`.
+2. Proceed to `T-SND-005 — Implement pending, reconnect and sync-failure Send states`.
 
 
 
