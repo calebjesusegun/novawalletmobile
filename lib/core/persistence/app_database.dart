@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:novawallet/core/persistence/database_seeder.dart';
 import 'package:novawallet/core/persistence/local_tables.dart';
 import 'package:novawallet/fake_backend/data/remote_tables.dart';
 import 'package:novawallet/sync/data/pending_operations_table.dart';
@@ -62,4 +63,7 @@ class AppDatabase extends _$AppDatabase {
       return NativeDatabase.createInBackground(file);
     });
   }
+
+  /// Seeds initial demo data if local tables are completely empty.
+  Future<void> seedInitialDataIfEmpty() => DatabaseSeeder(this).seedIfEmpty();
 }

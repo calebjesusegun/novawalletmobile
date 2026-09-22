@@ -2220,7 +2220,7 @@ flutter test test/features/send_money/
 
 ---
 
-## [ ] T-TST-002 — Complete required NovaSave contribution widget coverage
+## [x] T-TST-002 — Complete required NovaSave contribution widget coverage
 
 **Risk:** B  
 **Size:** S
