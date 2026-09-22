@@ -138,10 +138,10 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 
 | ID | Requirement / behavior | Parent | Design evidence | Implementation | Verification | Evidence | Status |
 |---|---|---|---|---|---|---|---|
-| SND-001 | Recipient entry | ASM-005 | UI-SND-01 | `features/send_money` | widget | VERIFIED | TODO |
-| SND-002 | Empty-recipient validation | design-derived | UI-SND-02 | send domain/presentation | unit/widget | VERIFIED by design | TODO |
-| SND-003 | Invalid-account validation | design-derived | UI-SND-03 | send domain/presentation | unit/widget | VERIFIED by design | TODO |
-| SND-004 | Resolve supported fake recipient and display recipient name | design-derived | UI-SND-04 | fake recipient source/send | unit/widget | VERIFIED by design | TODO |
+| SND-001 | Recipient entry | ASM-005 | UI-SND-01 | `features/send_money` | widget (`test/features/send_money/presentation/recipient_entry_screen_test.dart`) | VERIFIED | IMPLEMENTED |
+| SND-002 | Empty-recipient validation | design-derived | UI-SND-02 | send domain/presentation | unit/widget (`test/features/send_money/presentation/recipient_entry_screen_test.dart`) | VERIFIED by design | IMPLEMENTED |
+| SND-003 | Invalid-account validation | design-derived | UI-SND-03 | send domain/presentation | unit/widget (`test/features/send_money/presentation/recipient_entry_screen_test.dart`) | VERIFIED by design | IMPLEMENTED |
+| SND-004 | Resolve supported fake recipient and display recipient name | design-derived | UI-SND-04 | fake recipient source/send | unit/widget (`test/features/send_money/data/fake_recipient_directory_test.dart`) | VERIFIED by design | IMPLEMENTED |
 | SND-005 | Amount entry | ASM-005 | UI-SND-05, UI-SND-06 | send | widget | VERIFIED | TODO |
 | SND-006 | Reject zero/non-positive amount | design-derived | UI-SND-08 | send domain | unit/widget | VERIFIED by design | TODO |
 | SND-007 | Reject amount above available/spendable balance | design-derived | UI-SND-07 | send domain | unit/widget | VERIFIED by design | TODO |

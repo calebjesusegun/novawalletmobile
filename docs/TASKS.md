@@ -1301,7 +1301,7 @@ flutter analyze
 
 # Phase 6 — Send Money
 
-## [ ] T-SND-001 — Implement recipient entry, validation and fake resolution
+## [x] T-SND-001 — Implement recipient entry, validation and fake resolution
 
 **Risk:** B  
 **Size:** M

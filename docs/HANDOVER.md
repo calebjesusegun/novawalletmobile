@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** T-WAL-004 (Wallet loading, empty, and pending-detail states) COMPLETE on `feat/wallet-loading-empty-detail` — Ready to merge into `main` (Phase 5 complete!)  
-**Primary next task:** `T-SND-001 — Implement recipient entry, validation and fake resolution` (Phase 6 — Send Money)  
-**Current branch:** `feat/wallet-loading-empty-detail`  
-**Latest commit on main:** `f10f074`  
+**Status:** T-SND-001 (Implement recipient entry, validation and fake resolution) COMPLETE on `feat/snd-recipient-entry` — Ready to merge into `main`  
+**Primary next task:** `T-SND-002 — Implement amount entry and balance validation` (Phase 6 — Send Money)  
+**Current branch:** `feat/snd-recipient-entry`  
+**Latest commit on main:** `be83371`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -26,10 +26,6 @@ Phase 1 (Money, Identity & Core Operation Model) is COMPLETE and Remediated:
 - `T-ID-001` (stable operation & idempotency identities) is complete and merged into `main` (`cbdb4a0`).
 - `T-OP-001` (financial operation model & state transitions) is complete and merged into `main` (`b5a3d6a`).
 - `T-DOM-001` (queued-spendability policy) is complete and merged into `main` (`55b9552`).
-- **Phase 1 Adversarial Reviews & Remediation PRs:**
-  - Remediation PR 1 (`fix/T-MNY-money-safety`, PR #9, merged `cdc940f`): Fixed `SpendableBalancePolicy` integer wrapping (fail-closed, `Money` accumulation, self-exclusion parameter), savings-progress ceiling (99% until goal reached), compact formatting, strict grammar.
-  - Remediation PR 2 (`fix/T-OP-operation-invariants`, PR #10, merged `2d0dc75`): Fixed `FinancialOperation` immutability (private constructor, eliminated public `copyWith`, added strict `.restore`), transition matrix enforcement (processing guards, 64-bit attempt check, UTC timestamp normalization), and RFC 9562 v1-8 UUID support.
-  - Remediation PR 3 (`docs/T-DOM-fix-contracts-and-polish`, PR #11, merged `939663d`): Added `PayloadFormatException` and `schemaVersion: 1` to `OperationPayload`, documented atomic balance update contract in `ARCHITECTURE.md` §16, added acceptance criterion to `T-XF-001` in `TASKS.md`, and marked `MNY-006` as `DECISION / INFERRED` in `REQUIREMENTS_TRACEABILITY.md`.
 
 Phase 2 (Persistence & Fake Remote) is COMPLETE:
 - `T-DB-001` (Configure Drift and pending-operation schema) is COMPLETE and merged (`128d4ed`).
@@ -44,27 +40,21 @@ Phase 3 (Connectivity, Queue & Synchronization) is COMPLETE and Hardened:
 - `T-SYNC-003` (Implement restart recovery) is COMPLETE and merged (`05635ff`, PR #19).
 - `T-SYNC-004` (Implement failure classification and retry policy) is COMPLETE and merged (`d4bbf27`, PR #20).
 - `T-SYNC-005` (Prove offline → restart → reconnect kernel) is COMPLETE and merged (`50d40a1`, PR #21).
-- **Remediation PR #22 (`fix/phase-3-money-safety`):** P0 atomic settlement inside `AppDatabase.transaction(...)` with idempotent projection guard; P1 atomic ledger reservation via `executeAtomicOperation`.
-- **Hardening (`fix/sync-concurrency-and-head-of-line`):**
-  - In-flight operation tracking (`_inFlightOperationIds`) and live-pass guard in `recoverInterrupted()` (eliminating re-entrancy race and preserving `SYNC-010`).
-  - Cold-launch-only crash recovery in `startup()` (`_hasStartedUp` guard).
-  - Head-of-line blocking elimination in `_executeSyncPass`: recoverable failures record error and continue to subsequent healthy operations.
-  - Accurate `retryOperation` status checking on failed claim and preserved coalesced trigger metadata.
 
 Phase 4 (Design System & App Shell) is COMPLETE and merged into `main` (`3e14dc7`).
 
-Phase 5 (Wallet) is COMPLETE:
-- `T-WAL-001` (Implement wallet data projection and repositories) is COMPLETE and merged into `main` (`162317e`).
-- `T-WAL-002` (Implement wallet home, lazy transactions and refresh) is COMPLETE and merged into `main` (`43dd69e`).
-- `T-WAL-003` (Implement wallet offline, pending, reconnect and sync failure states) is COMPLETE and merged into `main` (`f10f074`).
-- `T-WAL-004` (Implement wallet loading, empty, and pending-detail states) is COMPLETE on `feat/wallet-loading-empty-detail`:
-  - `WalletLoadingSkeleton` (`lib/features/wallet/presentation/widgets/wallet_loading_skeleton.dart`) matching `UI-WAL-08` / `WAL-010`.
-  - Empty activity state via `AppEmptyState.walletTransactions()` matching `UI-WAL-09` / `WAL-004`.
-  - `WalletTransactionDetailSheet` (`lib/features/wallet/presentation/widgets/wallet_transaction_detail_sheet.dart`) matching `UI-WAL-10` / `WAL-011` with saved-on-phone explanation, formatted metadata, failure reason, and retry action.
-  - Connected `onItemTap` in `WalletHomeScreen`.
-  - Fixed Drift multi-database warnings across test runner (`AI-RISK-008`).
-  - Authored 5 widget tests in `test/features/wallet/presentation/wallet_loading_empty_detail_test.dart`.
-  - All 388 unit and widget tests pass cleanly with 0 analyzer issues.
+Phase 5 (Wallet) is COMPLETE and merged into `main` (`be83371`).
+
+Phase 6 (Send Money) In Progress:
+- `T-SND-001` (Implement recipient entry, validation and fake resolution) is COMPLETE on `feat/snd-recipient-entry`:
+  - `Recipient` domain entity and `RecipientDirectory` contract (`lib/features/send_money/domain/`).
+  - `FakeRecipientDirectory` (`lib/features/send_money/data/`) with `0123456789` -> `John Doe` fixture.
+  - `RecipientEntryController` & `RecipientEntryState` (`lib/features/send_money/presentation/controllers/`) managing typing, real-time validation, empty field detection, length validation, and auto-resolution.
+  - `ResolvedRecipientCard` (`lib/features/send_money/presentation/widgets/`) displaying resolved recipient details with check indicator and clear action.
+  - `RecipientEntryScreen` (`lib/features/send_money/presentation/screens/`) hosting `AppTextField` and disabled-by-default `AppButton('Continue')` that enables only when resolved.
+  - Connected `RecipientEntryScreen` into `SendMoneyShellTab` in `lib/app/app.dart`.
+  - Authored 28 unit and widget tests across `test/features/send_money/`.
+  - Full suite passes: 416/416 tests passing, 0 analyzer issues, clean formatting.
 
 ---
 
@@ -72,12 +62,12 @@ Phase 5 (Wallet) is COMPLETE:
  
 Current Task:
 ```text
-T-WAL-004 (Wallet loading, empty, and pending-detail states) COMPLETE on feat/wallet-loading-empty-detail
+T-SND-001 (Implement recipient entry, validation and fake resolution) COMPLETE on feat/snd-recipient-entry
 ```
 
 Next Task:
 ```text
-T-SND-001 — Implement recipient entry, validation and fake resolution (Phase 6 — Send Money)
+T-SND-002 — Implement amount entry and balance validation (Phase 6 — Send Money)
 ```
 
 ---

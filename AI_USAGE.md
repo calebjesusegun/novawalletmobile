@@ -1047,6 +1047,39 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 
 ---
 
+### Prompt 30 — Implement recipient entry, validation and fake resolution (T-SND-001)
+
+**Tool:** Antigravity  
+**Stage:** Phase 6 — Send Money (`feat/snd-recipient-entry`)
+
+**Prompt**
+
+> Clean corrupted Gradle cache for javawriter dependency, then implement T-SND-001 — Implement recipient entry, validation and fake resolution:
+> 1. Create Recipient domain entity and RecipientDirectory interface in lib/features/send_money/domain/.
+> 2. Implement FakeRecipientDirectory in lib/features/send_money/data/ with John Doe (0123456789) fixture matching UI-SND-04.
+> 3. Implement RecipientEntryController and State in lib/features/send_money/presentation/controllers/ handling typing, validation, and auto-resolution.
+> 4. Implement ResolvedRecipientCard in lib/features/send_money/presentation/widgets/ and RecipientEntryScreen in lib/features/send_money/presentation/screens/.
+> 5. Connect RecipientEntryScreen to SendMoneyShellTab in lib/app/app.dart.
+> 6. Author unit tests for domain, data, and controller, plus widget tests verifying UI-SND-01 through UI-SND-04, clear recipient action, accessibility semantics, and 2.0x text scaling.
+
+**Result**
+
+- Cleaned corrupted Gradle cached artifact (`~/.gradle/caches/modules-2/files-2.1/com.squareup/javawriter/`).
+- Created `Recipient` and `RecipientDirectory` domain contracts.
+- Implemented `FakeRecipientDirectory` supporting 10-digit NUBAN validation and fixtures (`0123456789` -> `John Doe`, `0987654321` -> `Jane Smith`).
+- Created `RecipientEntryController` handling real-time typing, empty validation ("Enter who you are sending to."), invalid account rejection ("Enter a valid 10-digit account number" / "Recipient not found. Enter a valid account number"), and auto-resolution.
+- Built `ResolvedRecipientCard` with accessible semantics and `RecipientEntryScreen` hosting `AppTextField` and disabled-by-default `AppButton('Continue')` that enables only when resolved.
+- Integrated `RecipientEntryScreen` into `SendMoneyShellTab` in `lib/app/app.dart`.
+- Authored 28 unit and widget tests across `test/features/send_money/`.
+- All 416 tests across the entire repository pass with 0 analyzer issues.
+
+**Action taken**
+
+- Ran `dart format --output=none --set-exit-if-changed .`, `flutter analyze`, and `flutter test`.
+- Updated `docs/REQUIREMENTS_TRACEABILITY.md` (SND-001 through SND-004 marked IMPLEMENTED), `docs/TASKS.md` (T-SND-001 marked done), `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
+---
+
 ## AI Mistakes / Risky Output
 
 At least one real example must be included before submission.

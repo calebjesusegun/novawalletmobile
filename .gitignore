@@ -44,3 +44,6 @@ app.*.map.json
 # Internal documentation and assessment brief
 docs_internal/
 docs/internal/
+
+# Flutter DevTools
+devtools_options.yaml
