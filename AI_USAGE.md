@@ -1184,6 +1184,37 @@ Completed task `T-BASE-001`, verified all baseline checks, updated `docs/REQUIRE
 - Ran `dart format --output=none --set-exit-if-changed .`, `flutter analyze`, and `flutter test`.
 - Updated `docs/REQUIREMENTS_TRACEABILITY.md` (SND-011, SND-012, SND-013 marked IMPLEMENTED, MNY-004 marked DONE), `docs/TASKS.md` (T-SND-004 marked done), `AI_USAGE.md`, and `docs/HANDOVER.md`.
 
+### Prompt 34 — Implement pending, reconnect and sync-failure Send states (T-SND-005)
+
+**Tool:** Antigravity  
+**Stage:** Phase 6 — Send Money (`feat/snd-offline-pending-reconnect`)
+
+**Prompt**
+
+> Implement T-SND-005 — Implement pending, reconnect and sync-failure Send states:
+> 1. Implement shared step progress component `AppStepProgress` in `lib/design_system/components/progress/` supporting standard 3-step tracks (`Saved` -> `Sending` / `Not sent` -> `Successful`) and export in design system.
+> 2. Extend `TransferResultScreen` to support:
+>    - UI-SND-15 / SND-015: Offline Transfer Pending view (`Key('transfer_result_pending_offline_view')`) with 3-step track, offline info notification, Back to wallet and View status buttons.
+>    - UI-SND-16 / SND-017: Reconnect Processing view (`Key('transfer_result_reconnect_processing_view')`) with "You're back online" banner, active step progress, and disabled Sending button.
+>    - UI-SND-17 / SND-018: Reconnect Success view (`Key('transfer_result_reconnect_success_view')`) with "Sent after you came back online", 3-step progress, reference, and date.
+>    - UI-SND-18 / SND-019 / SND-020: Recoverable Sync Failure view (`Key('transfer_result_sync_failure_view')`) with warning banner, "Not sent" step, info notice, and "Try again now" retrying via `syncCoordinator.retryOperation(op.id)` with stable idempotency key.
+> 3. Update `SendMoneyFlowScreen` to track `_submittedOffline` and pass `wasOffline` into `TransferResultScreen`.
+> 4. Author widget tests covering all four offline/reconnect views, reactive auto-advancing, retry idempotency key stability, and 2.0x accessibility font scaling.
+
+**Result**
+
+- Created `AppStepProgress` (`lib/design_system/components/progress/app_step_progress.dart`) supporting `StepItem` with completed, active, pending, and failed states, accessible semantics, and responsive layout.
+- Extended `TransferResultScreen` (`lib/features/send_money/presentation/screens/transfer_result_screen.dart`) with comprehensive handling for `UI-SND-15`, `UI-SND-16`, `UI-SND-17`, and `UI-SND-18`.
+- Updated `SendMoneyFlowScreen` as a `ConsumerStatefulWidget` tracking `_submittedOffline` state.
+- Authored 11 comprehensive tests in `test/features/send_money/presentation/transfer_result_screen_test.dart`.
+- Encountered a test timing issue where asynchronous `StreamController.broadcast()` events queued on microtasks did not fire immediately during `tester.pump()`, resolved by using `StreamController.broadcast(sync: true)` for deterministic synchronous delivery to widget testers.
+- All 459 repository tests pass with 0 analyzer errors or warnings.
+
+**Action taken**
+
+- Ran `dart format --output=none --set-exit-if-changed .`, `flutter analyze`, and `flutter test`.
+- Updated `docs/REQUIREMENTS_TRACEABILITY.md` (SND-015 through SND-020 marked DONE), `docs/TASKS.md` (T-SND-005 marked done), `AI_USAGE.md`, and `docs/HANDOVER.md`.
+
 ---
 
 ## AI Mistakes / Risky Output

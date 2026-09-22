@@ -1521,7 +1521,7 @@ flutter analyze
 
 ---
 
-## [ ] T-SND-005 — Implement pending, reconnect and sync-failure Send states
+## [x] T-SND-005 — Implement pending, reconnect and sync-failure Send states
 
 **Risk:** A  
 **Size:** M

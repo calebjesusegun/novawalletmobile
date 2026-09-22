@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** T-SND-004 (Implement online processing, success and immediate failure) COMPLETE on `feat/snd-online-processing-results` — Ready to merge into `main`  
-**Primary next task:** `T-SND-005 — Implement pending, reconnect and sync-failure Send states` (Phase 6 — Send Money)  
-**Current branch:** `feat/snd-online-processing-results`  
-**Latest commit on main:** `051cffe`  
+**Status:** Phase 6 (Send Money) COMPLETE — `T-SND-005` (Implement pending, reconnect and sync-failure Send states) verified and ready to merge into `main`  
+**Primary next task:** `T-NSV-001 — Implement goal list and empty state` (Phase 7 — NovaSave Goal Creation)  
+**Current branch:** `feat/snd-offline-pending-reconnect`  
+**Latest commit on main:** `302a316`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -45,20 +45,20 @@ Phase 4 (Design System & App Shell) is COMPLETE and merged into `main` (`3e14dc7
 
 Phase 5 (Wallet) is COMPLETE and merged into `main` (`be83371`).
 
-Phase 6 (Send Money) In Progress:
+Phase 6 (Send Money) is COMPLETE:
 - `T-SND-001` (Implement recipient entry, validation and fake resolution) is COMPLETE and merged into `main` (`1bf0f7a`).
 - `T-SND-002` (Implement amount entry and balance validation) is COMPLETE and merged into `main` (`ab1e769`).
 - `T-SND-003` (Implement confirmation and operation creation) is COMPLETE and merged into `main` (`051cffe`).
-- `T-SND-004` (Implement online processing, success and immediate failure) is COMPLETE on `feat/snd-online-processing-results`:
-  - `watchOperationById` added to DAOs, repositories, and Riverpod stream provider (`operationByIdStreamProvider`).
-  - `TransferResultScreen` (`lib/features/send_money/presentation/screens/transfer_result_screen.dart`) implementing:
-    - Processing state (`UI-SND-11` / `SND-011`): Circular progress indicator, "Sending ₦XX,XXX.00", auto-advancing without extra user tap.
-    - Success state (`UI-SND-12` / `SND-012`): Completed indicator, "Transfer successful", formatted amount, recipient name, details card with Reference, Date, and Completed status badge. "Done" button resets flow.
-    - Failure state (`UI-SND-13` / `SND-013`): Failed indicator, "Transfer not completed", "Nothing was taken from your wallet.", "Try again" and "Back to wallet" action buttons.
-    - Responsive layout with 2.0x text scaling and full accessibility semantics.
-  - Connected `TransferResultScreen` into `SendMoneyFlowScreen`.
-  - Authored 6 new unit and widget tests in `transfer_result_screen_test.dart` and updated `send_money_flow_test.dart` (65 Send Money tests, 454 repo tests passing).
-  - Verified `MNY-004`: Confirmed wallet balance is debited only after remote success, never during processing or failure.
+- `T-SND-004` (Implement online processing, success and immediate failure) is COMPLETE and merged into `main` (`302a316`).
+- `T-SND-005` (Implement pending, reconnect and sync-failure Send states) is COMPLETE on `feat/snd-offline-pending-reconnect`:
+  - `AppStepProgress` component added to design system (`lib/design_system/components/progress/app_step_progress.dart`).
+  - `TransferResultScreen` extended to support:
+    - Offline Transfer Pending (`UI-SND-15` / `SND-015`, `SND-016`).
+    - Reconnect Processing (`UI-SND-16` / `SND-017`).
+    - Reconnect Success (`UI-SND-17` / `SND-018`).
+    - Recoverable Sync Failure with idempotent retry (`UI-SND-18` / `SND-019`, `SND-020`).
+  - `SendMoneyFlowScreen` updated to track offline submission.
+  - 11 widget tests in `transfer_result_screen_test.dart` (70 Send Money tests, 459 repo tests passing).
 
 ---
 
@@ -66,12 +66,12 @@ Phase 6 (Send Money) In Progress:
  
 Current Task:
 ```text
-T-SND-004 (Implement online processing, success and immediate failure) COMPLETE on feat/snd-online-processing-results
+T-SND-005 (Implement pending, reconnect and sync-failure Send states) COMPLETE on feat/snd-offline-pending-reconnect
 ```
 
 Next Task:
 ```text
-T-SND-005 — Implement pending, reconnect and sync-failure Send states (Phase 6 — Send Money)
+T-NSV-001 — Implement goal list and empty state (Phase 7 — NovaSave Goal Creation)
 ```
 
 ---
