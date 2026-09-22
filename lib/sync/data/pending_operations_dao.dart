@@ -180,10 +180,18 @@ class PendingOperationsDao {
           OperationStatus.pending.name,
           OperationStatus.processing.name,
         ]),
-      )
-      ..orderBy([(tbl) => OrderingTerm.asc(tbl.createdAt)]);
+      );
     return query.watch().map(
       (rows) => rows.map(PendingOperationMapper.toDomain).toList(),
+    );
+  }
+
+  /// Watches a specific operation by its [OperationId].
+  Stream<FinancialOperation?> watchOperationById(OperationId id) {
+    final query = db.select(db.pendingOperations)
+      ..where((tbl) => tbl.id.equals(id.value));
+    return query.watchSingleOrNull().map(
+      (row) => row != null ? PendingOperationMapper.toDomain(row) : null,
     );
   }
 }

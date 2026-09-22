@@ -4,11 +4,12 @@ import 'package:novawallet/features/send_money/domain/recipient.dart';
 import 'package:novawallet/features/send_money/presentation/screens/amount_entry_screen.dart';
 import 'package:novawallet/features/send_money/presentation/screens/recipient_entry_screen.dart';
 import 'package:novawallet/features/send_money/presentation/screens/transfer_confirmation_screen.dart';
+import 'package:novawallet/features/send_money/presentation/screens/transfer_result_screen.dart';
 import 'package:novawallet/sync/domain/financial_operation.dart';
 
 /// Top-level coordinator for the Send Money flow.
 ///
-/// Implements ASM-005 (Recipient -> Amount -> Confirm).
+/// Implements ASM-005 (Recipient -> Amount -> Confirm -> Processing/Result).
 class SendMoneyFlowScreen extends StatefulWidget {
   const SendMoneyFlowScreen({super.key});
 
@@ -53,16 +54,27 @@ class _SendMoneyFlowScreenState extends State<SendMoneyFlowScreen> {
     });
   }
 
+  void _onFlowDone() {
+    setState(() {
+      _selectedRecipient = null;
+      _enteredAmount = null;
+      _submittedOperation = null;
+    });
+  }
+
+  void _onFlowTryAgain() {
+    setState(() {
+      _submittedOperation = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_submittedOperation != null) {
-      // Step 4 will be implemented in T-SND-004 / T-SND-005
-      return Scaffold(
-        key: const Key('transfer_submitted_view'),
-        appBar: AppBar(title: const Text('Transfer Submitted')),
-        body: Center(
-          child: Text('Transfer ${_submittedOperation!.id.value} submitted'),
-        ),
+      return TransferResultScreen(
+        operation: _submittedOperation!,
+        onDone: _onFlowDone,
+        onTryAgain: _onFlowTryAgain,
       );
     }
 
