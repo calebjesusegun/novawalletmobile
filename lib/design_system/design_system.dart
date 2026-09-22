@@ -8,6 +8,7 @@ export 'components/fields/app_amount_field.dart';
 export 'components/fields/app_text_field.dart';
 export 'components/notifications/app_system_notification.dart';
 export 'components/progress/app_progress_bar.dart';
+export 'components/progress/app_step_progress.dart';
 export 'components/sheets/app_bottom_sheet.dart';
 export 'components/status/app_result_indicator.dart';
 export 'components/status/app_status_badge.dart';

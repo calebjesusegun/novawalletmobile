@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:novawallet/core/connectivity/connectivity_providers.dart';
+import 'package:novawallet/core/connectivity/connectivity_status.dart';
 import 'package:novawallet/core/money/money.dart';
 import 'package:novawallet/features/send_money/domain/recipient.dart';
 import 'package:novawallet/features/send_money/presentation/screens/amount_entry_screen.dart';
@@ -10,17 +13,19 @@ import 'package:novawallet/sync/domain/financial_operation.dart';
 /// Top-level coordinator for the Send Money flow.
 ///
 /// Implements ASM-005 (Recipient -> Amount -> Confirm -> Processing/Result).
-class SendMoneyFlowScreen extends StatefulWidget {
+class SendMoneyFlowScreen extends ConsumerStatefulWidget {
   const SendMoneyFlowScreen({super.key});
 
   @override
-  State<SendMoneyFlowScreen> createState() => _SendMoneyFlowScreenState();
+  ConsumerState<SendMoneyFlowScreen> createState() =>
+      _SendMoneyFlowScreenState();
 }
 
-class _SendMoneyFlowScreenState extends State<SendMoneyFlowScreen> {
+class _SendMoneyFlowScreenState extends ConsumerState<SendMoneyFlowScreen> {
   Recipient? _selectedRecipient;
   Money? _enteredAmount;
   FinancialOperation? _submittedOperation;
+  bool _submittedOffline = false;
 
   void _onRecipientSelected(Recipient recipient) {
     setState(() {
@@ -33,6 +38,7 @@ class _SendMoneyFlowScreenState extends State<SendMoneyFlowScreen> {
       _selectedRecipient = null;
       _enteredAmount = null;
       _submittedOperation = null;
+      _submittedOffline = false;
     });
   }
 
@@ -49,8 +55,11 @@ class _SendMoneyFlowScreenState extends State<SendMoneyFlowScreen> {
   }
 
   void _onTransferSubmitted(FinancialOperation operation) {
+    final isOffline =
+        ref.read(connectivityStatusProvider) == ConnectivityStatus.offline;
     setState(() {
       _submittedOperation = operation;
+      _submittedOffline = isOffline;
     });
   }
 
@@ -59,6 +68,7 @@ class _SendMoneyFlowScreenState extends State<SendMoneyFlowScreen> {
       _selectedRecipient = null;
       _enteredAmount = null;
       _submittedOperation = null;
+      _submittedOffline = false;
     });
   }
 
@@ -71,8 +81,11 @@ class _SendMoneyFlowScreenState extends State<SendMoneyFlowScreen> {
   @override
   Widget build(BuildContext context) {
     if (_submittedOperation != null) {
+      final isOffline =
+          ref.watch(connectivityStatusProvider) == ConnectivityStatus.offline;
       return TransferResultScreen(
         operation: _submittedOperation!,
+        wasOffline: _submittedOffline || isOffline,
         onDone: _onFlowDone,
         onTryAgain: _onFlowTryAgain,
       );

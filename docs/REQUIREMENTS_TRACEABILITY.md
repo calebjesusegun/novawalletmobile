@@ -152,12 +152,12 @@ Primary visual references are defined in `docs/design/SCREEN_INDEX.md`.
 | SND-012 | Online transfer success shows amount, recipient, reference/date/status | flow/design | UI-SND-12 | send presentation (`TransferResultScreen`) | widget (`test/features/send_money/presentation/transfer_result_screen_test.dart`) | VERIFIED by design | IMPLEMENTED |
 | SND-013 | Immediate online failure shows no debit + retry/back actions | flow/design | UI-SND-13 | send presentation (`TransferResultScreen`) | widget (`test/features/send_money/presentation/transfer_result_screen_test.dart`) | VERIFIED by design | IMPLEMENTED |
 | SND-014 | Offline confirmation explains operation will be saved | ASM-009 | UI-SND-14 | send presentation (`TransferConfirmationScreen`) | widget (`test/features/send_money/presentation/transfer_confirmation_screen_test.dart`) | VERIFIED by design | IMPLEMENTED |
-| SND-015 | Offline Send is durably persisted before UI reports it saved | ASM-009, ASM-012 | UI-SND-15 | sync/persistence | repository + unit/widget (`test/features/send_money/presentation/transfer_confirmation_controller_test.dart`) | VERIFIED | IMPLEMENTED |
+| SND-015 | Offline Send is durably persisted before UI reports it saved | ASM-009, ASM-012 | UI-SND-15 | `TransferResultScreen` (`UI-SND-15`) + sync/persistence | repository + unit/widget (`test/features/send_money/presentation/transfer_result_screen_test.dart`) | VERIFIED | DONE |
 | SND-016 | Pending transfer survives restart | ASM-012 | UI-SND-15 + Flow 2 | sync/persistence | integration | VERIFIED | DONE |
-| SND-017 | Reconnect transitions pending transfer into processing | ASM-011 | UI-SND-16 | sync | integration/widget | VERIFIED by design | IN_PROGRESS |
-| SND-018 | Reconnect success completes once and updates wallet once | ASM-011, ASM-013 | UI-SND-17 | sync/fake backend/wallet | integration | VERIFIED | DONE |
-| SND-019 | Sync failure retains the transfer safely and offers retry | ASM-009, ASM-010 | UI-SND-18 | sync/send | integration/widget | VERIFIED by design | IN_PROGRESS |
-| SND-020 | Manual retry reuses the same logical operation/idempotency key | ASM-006, ASM-013 | UI-SND-18 | sync/fake backend | unit/integration | INFERRED implementation required by verified idempotency requirement | DONE |
+| SND-017 | Reconnect transitions pending transfer into processing | ASM-011 | UI-SND-16 | `TransferResultScreen` (`UI-SND-16`) | widget (`test/features/send_money/presentation/transfer_result_screen_test.dart`) + integration | VERIFIED by design | DONE |
+| SND-018 | Reconnect success completes once and updates wallet once | ASM-011, ASM-013 | UI-SND-17 | `TransferResultScreen` (`UI-SND-17`) + sync/fake backend/wallet | widget (`test/features/send_money/presentation/transfer_result_screen_test.dart`) + integration | VERIFIED | DONE |
+| SND-019 | Sync failure retains the transfer safely and offers retry | ASM-009, ASM-010 | UI-SND-18 | `TransferResultScreen` (`UI-SND-18`) | widget (`test/features/send_money/presentation/transfer_result_screen_test.dart`) | VERIFIED by design | DONE |
+| SND-020 | Manual retry reuses the same logical operation/idempotency key | ASM-006, ASM-013 | UI-SND-18 | `TransferResultScreen` (`UI-SND-18`) + sync/fake backend | unit/widget (`test/features/send_money/presentation/transfer_result_screen_test.dart`) + integration | INFERRED implementation required by verified idempotency requirement | DONE |
 
 ---
 
