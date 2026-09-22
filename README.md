@@ -147,63 +147,77 @@ novawalletmobile/
 
 ---
 
-## Architecture
+## Architecture & State Management
 
-NovaWallet uses a feature-first layered structure:
+NovaWallet follows a clean, feature-first layered architecture driven by domain boundaries:
 
 ```text
-Presentation
+Presentation (Widgets, Screens, Theme)
     ↓
-Application / State
+Application / State (Riverpod Notifiers & Providers)
     ↓
-Domain
+Domain (Entities, Value Objects, Policies, Use Cases)
     ↓
-Repositories
+Repositories (Abstract interfaces coordinating local & remote)
     ↓
-Local persistence / Fake remote
+Data Sources
+    ├── Local Persistence (Drift SQLite Tables & DAOs)
+    └── Fake Remote Service (Idempotent Ledger & Failure Simulation)
 ```
 
-A few rules guide the implementation:
+### Core Architecture Rules
 
-- Business logic stays out of widgets.
-- Money is represented as integer kobo.
-- Send Money and NovaSave use the same sync engine.
-- Offline actions are persisted before the UI reports them as safely saved.
-- Retrying the same action reuses the same idempotency key.
-- Connectivity state, sync state and transaction state are handled separately.
-
-See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the full architecture.
+- **Zero Business Logic in Widgets:** Presentation components strictly render immutable UI state and dispatch user intentions.
+- **Integer Kobo Money Representation (`HC-MONEY`):** All financial computations, balances, and thresholds are modeled in integer kobo using the immutable `Money` value object. Double/floating-point types are strictly forbidden in domain and storage layers.
+- **Centralized Synchronization (`HC-SYNC`):** Send Money and NovaSave share a unified synchronization pipeline (`SyncCoordinator`). Feature modules never implement ad-hoc replay loops.
+- **Three-Dimensional State Separation (`HC-STATE-SEPARATION`):**
+  - `ConnectivityStatus`: `online` | `offline` (physical network state)
+  - `SyncStatus`: `idle` | `syncing` | `failed` (coordinating pipeline status)
+  - `OperationStatus`: `pending` | `processing` | `completed` | `failed` (financial operation lifecycle)
 
 ---
 
-## Offline & Sync
+## Technical Trade-offs & Decisions
 
-The core offline flow is:
-
-```text
-Confirm action
-    ↓
-Save locally
-    ↓
-Pending
-    ↓
-Reconnect
-    ↓
-Process
-    ↓
-Completed / retained for retry
-```
-
-A queued action must:
-
-- survive an app restart;
-- not be lost;
-- not be silently retried in an uncontrolled loop;
-- not be processed twice.
-
-The fake remote supports idempotency so repeated delivery of the same operation does not create a second debit or contribution.
+| Area | Chosen Solution | Alternative Considered | Key Rationale / Trade-off |
+|---|---|---|---|
+| **State Management** | **Flutter Riverpod** | BLoC / Provider / GetX | Riverpod provides compile-safe dependency injection, declarative provider scoping, and frictionless dependency overriding in tests (`container.overrideWithValue`) without requiring mock objects or widget tree context. |
+| **Local Persistence** | **Drift (SQLite)** | SharedPreferences / Hive / Isar | SharedPreferences cannot offer ACID transactional safety, and pure key-value stores risk corruption during sudden process termination. Drift provides typed, ACID-compliant SQL persistence, robust schema migration, and observable reactive queries. |
+| **Sync Strategy** | **Centralized Mutex Coordinator** | Independent feature replay loops | Independent retry loops cause duplicate delivery, race conditions, and uncontrolled battery/network drain. A single `SyncCoordinator` serializes pending operations, guarantees at-most-once delivery per trigger, and coalesces concurrent triggers. |
+| **Money Representation** | **Integer Kobo (`Money` value object)** | IEEE 754 `double` / `num` | Floating-point arithmetic introduces cumulative precision errors (e.g., `0.1 + 0.2 != 0.3`). Integer kobo guarantees exact mathematical correctness for all balances, transfers, and goal progress. |
+| **Remote Integration** | **In-Engine Fake Remote Ledger** | Dio / Mockito HTTP Stubs | Assessment explicitly specifies no production backend. A deterministic fake remote with an in-memory/drift ledger allows rigorous testing of idempotency deduplication, response-loss scenarios, and server 500 retries without flaky network dependencies. |
 
 ---
+
+## Offline & Centralized Synchronization Engine
+
+The synchronization subsystem is architected to guarantee that user intent survives offline disconnection, process termination, and uncertain network responses without causing duplicate financial debits:
+
+```text
+User Confirms Action (Offline)
+    ↓
+Durable Local Enqueue (SQLite Transaction)
+    ↓
+UI Displays "Pending" (Headline Balance Unchanged)
+    ↓
+[App Kill / Reboot / Offline Storage Survival]
+    ↓
+Device Reconnects / User Taps Retry
+    ↓
+SyncCoordinator Mutex Claims Operation
+    ↓
+Remote Execution with Stable Idempotency Key
+    ↓
+Settlement: Remote Deduplication + Local Database Commit
+```
+
+### Key Durability Guarantees
+
+1. **Durable Intent (`HC-OFFLINE-DURABILITY`):** When confirmed offline, transfers and contributions are committed to SQLite before informing the user. Operations survive sudden process kills and OS reboots.
+2. **Stable Idempotency Key (`HC-IDEMPOTENCY`):** A unique `IdempotencyKey` is generated once at user confirmation and permanently stored with the operation record. Subsequent retries, reconnects, or app restarts reuse the exact same key.
+3. **Exactly-Once Financial Settlement (`HC-EXACTLY-ONCE-EFFECT`):** The remote backend ledger maintains an idempotency table. If a request was processed remotely but the network dropped before the client received the response (`SYNC-010`, `TST-007`), replaying with the same key returns the cached successful result (`isDuplicate: true`) without deducting funds a second time.
+4. **Spendable Balance Reservation (`MNY-004`):** Unconfirmed pending debits hold a spendable balance reservation preventing double-spending while keeping the authoritative headline balance intact until confirmation.
+
 
 ## Design References
 

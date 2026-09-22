@@ -2352,7 +2352,7 @@ flutter test integration_test
 
 # Phase 12 — Documentation & Submission Readiness
 
-## [ ] T-DOC-001 — Finalize README and AI usage
+## [x] T-DOC-001 — Finalize README and AI usage
 
 **Risk:** C  
 **Size:** S
@@ -2396,7 +2396,7 @@ flutter test integration_test
 
 ---
 
-## [ ] T-DOC-002 — Final traceability and Definition-of-Done audit
+## [x] T-DOC-002 — Final traceability and Definition-of-Done audit
 
 **Risk:** C  
 **Size:** S
@@ -2430,7 +2430,7 @@ flutter test integration_test
 
 ---
 
-## [ ] T-SUB-001 — Clean setup, full verification and repository submission check
+## [x] T-SUB-001 — Clean setup, full verification and repository submission check
 
 **Risk:** B  
 **Size:** M
