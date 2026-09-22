@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -32,7 +33,6 @@ import 'package:novawallet/sync/data/sync_providers.dart';
 import 'package:novawallet/sync/domain/financial_operation.dart';
 import 'package:novawallet/sync/domain/operation_payload.dart';
 import 'package:novawallet/sync/domain/operation_status.dart';
-import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:novawallet/sync/domain/operation_type.dart';
 import 'package:novawallet/sync/domain/sync_status.dart';
 
