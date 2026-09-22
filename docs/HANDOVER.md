@@ -65,11 +65,11 @@ Phase 7 (NovaSave Goal Creation) is COMPLETE:
 
 Phase 8 (NovaSave Contribution) IN PROGRESS:
 - `T-NSC-001` (Implement contribution amount and validation) is COMPLETE and merged (`50b3a34`).
-- `T-NSC-002` (Implement contribution confirmation and operation creation) is COMPLETE on `feat/nsc-confirmation`:
-  - `ContributionConfirmationController` implemented in `lib/features/novasave/presentation/controllers/contribution_confirmation_controller.dart` (`NSV-011`, `NSV-012`, `NSV-016`, `NSV-017`, `ASM-011`, `ASM-013`, `HC-MONEY`, `HC-IDEMPOTENCY`, `HC-OFFLINE-DURABILITY`).
-  - `ContributionConfirmationScreen` implemented in `lib/features/novasave/presentation/screens/contribution_confirmation_screen.dart` (`UI-NSV-11`, `UI-NSV-16`) with prompt, amount, goal, key-value card, offline system banner & saved-on-phone notification, double-tap protected confirm button, and edit details button.
-  - `ContributeAmountScreen` wired to navigate to `ContributionConfirmationScreen` on Continue.
-  - 7 unit tests in `contribution_confirmation_controller_test.dart` and 5 widget tests in `contribution_confirmation_screen_test.dart` (78 NovaSave tests, 503 total repo tests passing).
+- `T-NSC-002` (Implement contribution confirmation and operation creation) is COMPLETE and merged (`98672f4`).
+- `T-NSC-003` (Implement online contribution processing, success and failure) is COMPLETE on `feat/nsc-processing-result`:
+  - `ContributionResultScreen` implemented in `lib/features/novasave/presentation/screens/contribution_result_screen.dart` (`UI-NSV-12`, `UI-NSV-13`, `UI-NSV-15`, `UI-NSV-17`, `UI-NSV-19`, `UI-NSV-20`, `UI-NSV-21`, `NSV-013`, `NSV-014`, `NSV-015`, `MNY-005`).
+  - Seamless navigation wired from `ContributeAmountScreen` -> `ContributionConfirmationScreen` -> `ContributionResultScreen` -> `GoalDetailsScreen`.
+  - 8 widget tests in `test/features/novasave/presentation/contribution_result_screen_test.dart` (86 NovaSave tests, 511 total repo tests passing).
 
 ---
 
@@ -77,12 +77,12 @@ Phase 8 (NovaSave Contribution) IN PROGRESS:
  
 Current Task:
 ```text
-T-NSC-002 (Implement contribution confirmation and operation creation) COMPLETE on feat/nsc-confirmation
+T-NSC-003 (Implement online contribution processing, success and failure) COMPLETE on feat/nsc-processing-result
 ```
 
 Next Task:
 ```text
-T-NSC-003 — Implement online contribution processing, success and failure (Phase 8 — NovaSave Contribution)
+T-NSC-004 — Implement pending, reconnect and sync-failure Contribution states (Phase 8 — NovaSave Contribution)
 ```
 
 ---

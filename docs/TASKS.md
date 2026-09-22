@@ -1839,7 +1839,7 @@ flutter analyze
 
 ---
 
-## [ ] T-NSC-003 — Implement online contribution processing, success and failure
+## [x] T-NSC-003 — Implement online contribution processing, success and failure
 
 **Risk:** B  
 **Size:** M
