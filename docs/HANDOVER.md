@@ -1,9 +1,9 @@
 # NovaWallet Handover
 
-**Status:** Phase 7 (NovaSave Goal Creation) IN PROGRESS — `T-NSV-001` and `T-NSV-002` COMPLETE and verified  
-**Primary next task:** `T-NSV-003 — Implement goal details and progress` (Phase 7 — NovaSave Goal Creation)  
-**Current branch:** `feat/nsv-create-goal-form`  
-**Latest commit on main:** `b97b8e8`  
+**Status:** Phase 7 (NovaSave Goal Creation) COMPLETE — Phase 8 (NovaSave Contribution) Ready to Begin  
+**Primary next task:** `T-NSC-001 — Implement contribution amount and validation` (Phase 8 — NovaSave Contribution)  
+**Current branch:** `feat/nsv-goal-details-progress`  
+**Latest commit on main:** `79b4c6b`  
 **Planning baseline commit:** `2bb6f8b`
 
 This document is the operational handover for Claude Code, Codex, Antigravity, or another coding agent taking over NovaWallet implementation.
@@ -46,33 +46,22 @@ Phase 4 (Design System & App Shell) is COMPLETE and merged into `main` (`3e14dc7
 Phase 5 (Wallet) is COMPLETE and merged into `main` (`be83371`).
 
 Phase 6 (Send Money) is COMPLETE:
-- `T-SND-001` (Implement recipient entry, validation and fake resolution) is COMPLETE and merged into `main` (`1bf0f7a`).
-- `T-SND-002` (Implement amount entry and balance validation) is COMPLETE and merged into `main` (`ab1e769`).
-- `T-SND-003` (Implement confirmation and operation creation) is COMPLETE and merged into `main` (`051cffe`).
-- `T-SND-004` (Implement online processing, success and immediate failure) is COMPLETE and merged into `main` (`302a316`).
-- `T-SND-005` (Implement pending, reconnect and sync-failure Send states) is COMPLETE on `feat/snd-offline-pending-reconnect`:
-  - `AppStepProgress` component added to design system (`lib/design_system/components/progress/app_step_progress.dart`).
-  - `TransferResultScreen` extended to support:
-    - Offline Transfer Pending (`UI-SND-15` / `SND-015`, `SND-016`).
-    - Reconnect Processing (`UI-SND-16` / `SND-017`).
-    - Reconnect Success (`UI-SND-17` / `SND-018`).
-    - Recoverable Sync Failure with idempotent retry (`UI-SND-18` / `SND-019`, `SND-020`).
-  - `SendMoneyFlowScreen` updated to track offline submission.
-  - 11 widget tests in `transfer_result_screen_test.dart` (70 Send Money tests, 459 repo tests passing).
+- `T-SND-001` through `T-SND-005` complete and verified on `main`.
 
-Phase 7 (NovaSave Goal Creation) in progress:
-- `T-NSV-001` (Implement goal list and empty state) is COMPLETE on `feat/nsv-goal-list-empty-state`:
-  - `savingsGoalsStreamProvider` exposed in `lib/features/novasave/data/novasave_providers.dart`.
-  - `GoalCard` implemented in `lib/features/novasave/presentation/widgets/goal_card.dart` (`UI-NSV-01`, `UI-NSV-02`).
-  - `GoalsListScreen` implemented in `lib/features/novasave/presentation/screens/goals_list_screen.dart` (`UI-NSV-01`, `UI-NSV-02`, `UI-NSV-03`).
-  - `NovaSaveShellTab` in `lib/app/app.dart` wired directly to `GoalsListScreen`.
-- `T-NSV-002` (Implement create-goal form, validation and date picker) is COMPLETE on `feat/nsv-create-goal-form`:
-  - `DateTimeFormatter` created in `lib/core/time/date_time_formatter.dart` enforcing standard West Africa Time (WAT, UTC+1).
-  - `TargetDatePickerSheet` implemented in `lib/features/novasave/presentation/widgets/target_date_picker_sheet.dart` (`UI-NSV-06`, `NSV-006`, `NSV-007`).
-  - `CreateGoalScreen` implemented in `lib/features/novasave/presentation/screens/create_goal_screen.dart` (`UI-NSV-04`, `UI-NSV-05`, `UI-NSV-07`, `NSV-003`, `NSV-004`, `NSV-005`).
-  - `GoalDetailsScreen` base implemented in `lib/features/novasave/presentation/screens/goal_details_screen.dart` (`UI-NSV-08`, `NSV-008`).
-  - `GoalsListScreen` navigation wired to push `CreateGoalScreen` and `GoalDetailsScreen`.
-  - 6 widget tests in `test/features/novasave/presentation/create_goal_screen_test.dart` (470 total repo tests passing).
+Phase 7 (NovaSave Goal Creation) is COMPLETE:
+- `T-NSV-001` (Implement goal list and empty state) is COMPLETE (`UI-NSV-01`, `UI-NSV-02`, `UI-NSV-03`).
+- `T-NSV-002` (Implement create-goal form, validation and date picker) is COMPLETE (`UI-NSV-04`, `UI-NSV-05`, `UI-NSV-06`, `UI-NSV-07`).
+- `T-NSV-003` (Implement goal details and progress) is COMPLETE on `feat/nsv-goal-details-progress`:
+  - `GoalDetailsScreen` implemented in `lib/features/novasave/presentation/screens/goal_details_screen.dart` (`UI-NSV-08`, `UI-NSV-18`):
+    - Reactive stream subscription to goals via `savingsGoalsStreamProvider`.
+    - Exact integer-kobo calculations for saved amount, target amount, remaining amount ("Still to save"), and percentage (`HC-MONEY`, `MNY-003`, `NSV-008`).
+    - Standard West Africa Time (WAT, UTC+1) formatted target date via `DateTimeFormatter.formatDate()`.
+    - Linear progress bar with exact basis-point progress fraction (`toProgressFraction()`).
+    - Offline awareness with `AppSystemNotification.offline()` (`UI-NSV-18`).
+    - Pending contribution detection from `activeOperationsStreamProvider` (`ContributionPayload`) displaying pending banner without altering confirmed progress (`UI-NSV-18`, `HC-MONEY`).
+    - Sticky "Contribute" button with callback hook ready for Phase 8.
+    - Full screen reader semantics and 2.0x text scaling layout responsiveness (`HC-ACCESSIBILITY`).
+  - 8 widget tests in `test/features/novasave/presentation/goal_details_screen_test.dart` (53 NovaSave tests, 478 total repo tests passing).
 
 ---
 
@@ -80,12 +69,12 @@ Phase 7 (NovaSave Goal Creation) in progress:
  
 Current Task:
 ```text
-T-NSV-002 (Implement create-goal form, validation and date picker) COMPLETE on feat/nsv-create-goal-form
+T-NSV-003 (Implement goal details and progress) COMPLETE on feat/nsv-goal-details-progress
 ```
 
 Next Task:
 ```text
-T-NSV-003 — Implement goal details and progress (Phase 7 — NovaSave Goal Creation)
+T-NSC-001 — Implement contribution amount and validation (Phase 8 — NovaSave Contribution)
 ```
 
 ---
@@ -116,11 +105,8 @@ Do not claim success without actually running the relevant commands.
 
 ### 13. Next Action
  
-`T-SND-004` is fully completed on `feat/snd-online-processing-results`. All 454 tests pass, analyzer clean, formatting checked.
+`T-NSV-003` is fully completed on `feat/nsv-goal-details-progress`. All 478 tests pass, analyzer clean, formatting checked.
  
 ### Next Steps:
-1. Merge `feat/snd-online-processing-results` into `main`.
-2. Proceed to `T-SND-005 — Implement pending, reconnect and sync-failure Send states`.
-
-
-
+1. Merge `feat/nsv-goal-details-progress` into `main`.
+2. Proceed to `T-NSC-001 — Implement contribution amount and validation`.

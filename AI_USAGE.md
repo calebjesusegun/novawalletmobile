@@ -1526,6 +1526,51 @@ Automated widget tests in `test/features/novasave/presentation/create_goal_scree
 
 ---
 
+### AI-RISK-008 — RenderFlex overflow on GoalDetailsScreen under 2.0x text scaling
+
+**Area:** `lib/features/novasave/presentation/screens/goal_details_screen.dart`  
+**Severity:** Medium (Accessibility compliance / HC-ACCESSIBILITY violation)  
+**Found during:** `T-NSV-003` (Goal details and progress presentation)
+
+**What happened**
+
+When initially laying out the bottom row of the Goal Progress Card containing the percentage completion (`"${goal.percentage}% complete"`) and target date (`"Target: ${formattedTargetDate}"`), an unconstrained `Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [...])` was used.
+
+Under standard 1.0x text scaling, both texts fit comfortably side-by-side. However, under accessibility requirements (`HC-ACCESSIBILITY`) with 2.0x system font scaling enabled, the combined width exceeded the available card viewport, causing a `RenderFlex overflowed by 189 pixels on the right` error caught by our automated widget tests.
+
+**Correction applied**
+
+Replaced the rigid `Row` with a responsive `Wrap`:
+```dart
+Wrap(
+  alignment: WrapAlignment.spaceBetween,
+  crossAxisAlignment: WrapCrossAlignment.center,
+  spacing: AppSpacing.space8,
+  runSpacing: AppSpacing.space4,
+  children: [
+    Text(
+      '${goal.percentage}% complete',
+      style: AppTypography.titleBold16.copyWith(
+        color: AppColors.primaryAction,
+      ),
+    ),
+    Text(
+      'Target: $formattedTargetDate',
+      style: AppTypography.bodyMedium14.copyWith(
+        color: AppColors.textSecondary,
+      ),
+    ),
+  ],
+)
+```
+This preserves the single-line side-by-side presentation on normal screens while allowing natural wrapping to multiple lines when the user configures large text scales.
+
+**Regression protection**
+
+Added automated widget test `supports 2.0x text scaling without layout overflow (HC-ACCESSIBILITY)` in `test/features/novasave/presentation/goal_details_screen_test.dart`.
+
+---
+
 ## Review Guidelines
 
 When using AI on NovaWallet:

@@ -1685,7 +1685,7 @@ flutter analyze
 
 ---
 
-## [ ] T-NSV-003 — Implement goal details and progress
+## [x] T-NSV-003 — Implement goal details and progress
 
 **Risk:** B  
 **Size:** S
